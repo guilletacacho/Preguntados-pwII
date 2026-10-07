@@ -1,0 +1,23 @@
+<div class="w3-content" style="max-width:900px">
+    <div class="w3-panel card-contenido w3-padding-24 w3-margin-top w3-card">
+
+        <p>Hola, <b>{{usuario}}</b> — estos son los lugares disponibles:</p>
+
+        <table class="w3-table w3-striped w3-bordered">
+            <tr class="w3-theme-d2">
+                <th>Sector</th>
+                <th>Precio</th>
+                <th></th>
+            </tr>
+            {{#lugares}}
+            <tr>
+                <td>{{sector}}</td>
+                <td>${{precio}}</td>
+                <td><a href="/Preguntados/reserva/mostrarUnLugar?id={{id}}" class="w3-button btn-cancha w3-round">Reservar</a></td>
+            </tr>
+            {{/lugares}}
+        </table>
+
+        <a href="/Preguntados/" class="w3-button w3-light-grey w3-round w3-margin-top">Volver</a>
+    </div>
+</div>

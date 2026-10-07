@@ -1,0 +1,3 @@
+# Registros diarios (incluyen consultas SQL)
+/log/*
+!/log/.gitkeep
