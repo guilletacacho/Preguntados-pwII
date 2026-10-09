@@ -2,9 +2,8 @@
 
 namespace app;
 
-use app\controller\EventoController;
 use app\controller\LoginController;
-use app\model\EventoModel;
+use app\controller\HomeController;
 use app\model\LoginModel;
 use MustacheRender;
 use MyDatabase;
@@ -21,14 +20,6 @@ class Configuration
     {
     }
 
-    public function getEventoController()
-    {
-        return new EventoController(
-            $this->getEventoModel(),
-            $this->gerRender()
-        );
-    }
-
     public function getLoginController()
     {
         return new LoginController(
@@ -37,6 +28,12 @@ class Configuration
         );
     }
 
+    public function getHomeController()
+    {
+    return new HomeController(
+        $this->gerRender()
+    );
+    }
 
     private function getDatabase()
     {
@@ -53,13 +50,6 @@ class Configuration
     private function gerRender()
     {
         return new MustacheRender();
-    }
-
-    private function getEventoModel()
-    {
-        return new EventoModel(
-            $this->getDatabase()
-        );
     }
 
     private function getLoginModel()

@@ -30,7 +30,10 @@ Options -Indexes
     RewriteBase /Preguntados/
 
     # ── SEGURIDAD: código interno inaccesible por URL directa ──
-    # app/, helper/ y vendor/ son PHP interno (controllers, models,
+    # Las hojas de estilo en app/css/ son públicas.
+    RewriteRule ^app/css/ - [L]
+
+    # app/ (excepto css/), helper/ y vendor/ son PHP interno (controllers, models,
     # la librería de Mustache); config/ y sql/ tienen credenciales y
     # el esquema de la BD. Nada de eso se pide nunca directo por URL,
     # solo lo carga index.php desde adentro — si alguien intenta

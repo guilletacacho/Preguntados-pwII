@@ -16,19 +16,7 @@ class LoginController
         $this->render = $render;
     }
 
-    public function login()
-    {
-        $usuario = $this->model->autenticar(Request::post('usuario'), Request::post('password'));
-
-        if ($usuario === null) {
-            Redirect::to('/Preguntados/?login_error=1');
-        }
-
-        $_SESSION['usuario_id'] = $usuario['id'];
-        $_SESSION['usuario'] = $usuario['usuario'];
-        Redirect::toIndex();
-    }
-
+    
     public function show(){
         $data = [
         "error" => Request::get("login_error") !== null
@@ -37,6 +25,19 @@ class LoginController
         ];
 
         $this->render->renderiza("login", $data);
+    }
+
+    public function login()
+    {
+        $usuario = $this->model->autenticar(Request::post('Usuario'), Request::post('Contrasena'));
+
+        if ($usuario === null) {
+            Redirect::to('/Preguntados/?login_error=1');
+        }
+
+        $_SESSION['usuario_id'] = $usuario['id'];
+        $_SESSION['usuario'] = $usuario['usuario'];
+        Redirect::to('/Preguntados/home/show');
     }
 
     public function logout()

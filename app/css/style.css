@@ -1,0 +1,206 @@
+html,
+body {
+    min-height: 100%;
+    width: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f1f2f4;
+}
+
+.site-header,
+.site-footer {
+    background-color: #b9def2;
+}
+
+.site-header .navbar {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.home-link {
+    display: inline-block;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    color: #333;
+    border-radius: 0.25rem;
+}
+
+.home-link:hover,
+.home-link:focus-visible {
+    color: #333;
+    background-color: #a3d0ec;
+}
+
+.site-footer {
+    min-height: 3rem;
+    margin-top: auto;
+}
+
+:root {
+    --login-accent: #ff7668;
+    --login-ink: #20212b;
+    --login-muted: #777783;
+}
+
+.login-shell {
+    flex: 1 0 auto;
+    min-height: 0;
+}
+
+.intro {
+    width: 100%;
+    max-width: 470px;
+}
+
+.player-count {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: #f3f3f5;
+    color: #a13a31;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 0.4rem 0.8rem;
+}
+
+.intro h1 {
+    margin: 1rem 0 0.65rem;
+    font-size: clamp(2rem, 4vw, 2.7rem);
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: -0.04em;
+}
+
+.intro-copy {
+    color: #454550;
+    line-height: 1.65;
+}
+
+.category-card {
+    min-height: 88px;
+    border: 0;
+    border-radius: 12px;
+}
+
+.category-card h2 {
+    margin: 0 0 0.25rem;
+    font-size: 0.98rem;
+    font-weight: 700;
+}
+
+.category-card p {
+    margin: 0;
+    color: #55545c;
+    font-size: 0.82rem;
+}
+
+.category-ciencia,
+.category-geografia { background: #d9f7f6; }
+.category-arte { background: #fff0ef; }
+.category-historia,
+.category-cine { background: #fff0ce; }
+.category-deportes { background: #f0f0f2; }
+
+.login-card {
+    width: min(100%, 390px);
+    overflow: hidden;
+    border: 1px solid #f0eef0;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(30, 25, 25, 0.09);
+}
+
+.card-accent {
+    height: 5px;
+    background: linear-gradient(90deg, #ff7668, #ffd887, #73e9d6);
+}
+
+.login-card-body {
+    padding: clamp(1.5rem, 5vw, 2.25rem);
+}
+
+.eyebrow {
+    color: #b43c32;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.login-card h2 {
+    font-size: 1.8rem;
+    font-weight: 750;
+    letter-spacing: -0.03em;
+}
+
+.helper {
+    color: var(--login-muted);
+    font-size: 0.84rem;
+}
+
+.login-card .form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.login-card .form-control {
+    min-height: 45px;
+    border-color: #e9e7eb;
+    background: #f7f6f8;
+}
+
+.login-card .form-control:focus {
+    border-color: #ff998e;
+    box-shadow: 0 0 0 0.2rem rgba(255, 118, 104, 0.15);
+}
+
+.submit-btn {
+    min-height: 48px;
+    border: 0;
+    background: var(--login-accent);
+    color: #fff;
+    font-weight: 700;
+}
+
+.submit-btn:hover,
+.submit-btn:focus {
+    background: #f06457;
+    color: #fff;
+}
+
+.register-link {
+    color: #b43c32;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.register-link:hover { text-decoration: underline; }
+
+@media (max-width: 767.98px) {
+    .login-shell {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    .intro { margin-bottom: 1rem; }
+}
+
+@media (max-width: 575.98px) {
+    .site-header .container {
+        padding-right: 0.75rem;
+        padding-left: 0.75rem;
+    }
+
+    .home-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .site-footer {
+        min-height: 2.5rem;
+    }
+}

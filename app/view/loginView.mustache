@@ -1,13 +1,44 @@
-<form method="post" action="/Preguntados/login/login">
-                <div class="w3-row-padding">
-                    <div class="w3-half">
-                        <label><b>Usuario</b></label>
-                        <input class="w3-input w3-border" type="text" name="usuario" required>
-                    </div>
-                    <div class="w3-half">
-                        <label><b>Contraseña</b></label>
-                        <input class="w3-input w3-border" type="password" name="password" required>
-                    </div>
+<main class="container login-shell d-flex align-items-center py-5">
+    <div class="row align-items-center justify-content-center g-5 g-lg-3 w-100">
+        <section class="col-12 col-lg-6 d-flex justify-content-center">
+            <div class="intro">
+                <span class="player-count">24.000 jugadores</span>
+                <h1>¡Desafía tu mente y pon a prueba tus conocimientos!</h1>
+                <p class="intro-copy mb-4">Gira la ruleta, responde preguntas de múltiples categorías y compite con amigos para ver quién sabe más en la arena definitiva.</p>
+                <div class="row g-2">
+                    <div class="col-6"><article class="card category-card category-ciencia p-3"><h2>Ciencia</h2><p>Naturaleza</p></article></div>
+                    <div class="col-6"><article class="card category-card category-arte p-3"><h2>Arte</h2><p>Cultura</p></article></div>
+                    <div class="col-6"><article class="card category-card category-historia p-3"><h2>Historia</h2><p>Mundo</p></article></div>
+                    <div class="col-6"><article class="card category-card category-deportes p-3"><h2>Deportes</h2><p>Pasión</p></article></div>
+                    <div class="col-6"><article class="card category-card category-geografia p-3"><h2>Geografía</h2><p>Lugares</p></article></div>
+                    <div class="col-6"><article class="card category-card category-cine p-3"><h2>Cine y TV</h2><p>Pop</p></article></div>
                 </div>
-                <button type="submit" class="w3-button btn-cancha w3-round w3-margin-top w3-padding-16">Ingresar</button>
-            </form>
+            </div>
+        </section>
+
+        <section class="col-12 col-lg-6 d-flex justify-content-center">
+            <div class="card login-card">
+                <div class="card-accent"></div>
+                <div class="login-card-body">
+                    <h2 class="mb-1">Iniciar Sesión</h2>
+                    {{#error}}
+                        <div class="alert alert-danger" role="alert">{{error}}</div>
+                    {{/error}}
+
+                    <form method="post" action="/Preguntados/login/login">
+                        <div class="mb-3">
+                            <label for="Usuario" class="form-label">Nombre de usuario</label>
+                            <input class="form-control" id="Usuario" name="Usuario" type="text" placeholder="ej. trivia_master99" autocomplete="username">
+                        </div>
+                        <div class="mb-4">
+                            <label for="Contrasena" class="form-label">Contraseña</label>
+                            <input class="form-control" id="Contrasena" name="Contrasena" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password">
+                        </div>
+                        <button class="btn submit-btn w-100" type="submit">Iniciar Sesión <span aria-hidden="true">→</span></button>
+                    </form>
+                    <p class="text-center helper mt-4 mb-0">¿No tienes una cuenta? <a class="register-link" href="/Preguntados/registro">Regístrate</a></p>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
