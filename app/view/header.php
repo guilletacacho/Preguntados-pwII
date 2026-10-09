@@ -58,17 +58,7 @@
 <div class="w3-bar" style="background-color:#2E7D32">
     <a href="/Preguntados/" class="w3-bar-item w3-button">🏠 Inicio</a>
     <?php if (isset($_SESSION['usuario'])): ?>
-        <a href="/Preguntados/lugares" class="w3-bar-item w3-button">💺 Lugares</a>
-        <a href="/Preguntados/reserva/show" class="w3-bar-item w3-button">📋 Reservas</a>
         <a href="/Preguntados/login/logout" class="w3-bar-item w3-button w3-right">🚪 Salir</a>
     <?php endif; ?>
 </div>
 
-<div class="w3-container header-evento w3-padding-32 w3-center">
-    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Lionel_Messi_WC2022.jpg?width=220"
-         alt="Lionel Messi con la camiseta de Argentina"
-         class="w3-round w3-margin-bottom"
-         style="max-width:220px; border:4px solid var(--dorado);">
-    <h1>⚽ Partido Despedida de Lionel Messi 🐐</h1>
-    <p class="w3-large" style="color: white;">Gracias, Leo.</p>
-</div>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión | Preguntados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --accent: #ff7668; --ink: #20212b; --muted: #777783; }
+        body { min-height: 100vh; background: #fff; color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+        .login-shell { min-height: 100vh; }
+        .intro { max-width: 470px; }
+        .player-count { display: inline-flex; align-items: center; border-radius: 999px; background: #f3f3f5; color: #a13a31; font-size: .72rem; font-weight: 700; letter-spacing: .03em; padding: .4rem .8rem; }
+        .intro h1 { font-size: clamp(2rem, 4vw, 2.7rem); font-weight: 800; line-height: 1.14; letter-spacing: -.04em; margin: 1rem 0 .65rem; }
+        .intro-copy { color: #454550; line-height: 1.65; }
+        .category-card { border: 0; border-radius: 12px; min-height: 88px; }
+        .category-card h2 { font-size: .98rem; font-weight: 700; margin: 0 0 .25rem; }
+        .category-card p { color: #55545c; font-size: .82rem; margin: 0; }
+        .category-ciencia { background: #d9f7f6; }
+        .category-arte { background: #fff0ef; }
+        .category-historia { background: #fff0ce; }
+        .category-deportes { background: #f0f0f2; }
+        .category-geografia { background: #d9f7f6; }
+        .category-cine { background: #fff0ce; }
+        .login-card { width: min(100%, 390px); border: 1px solid #f0eef0; border-radius: 14px; box-shadow: 0 10px 28px rgba(30, 25, 25, .09); overflow: hidden; }
+        .card-accent { height: 5px; background: linear-gradient(90deg, #ff7668, #ffd887, #73e9d6); }
+        .login-card-body { padding: clamp(1.5rem, 5vw, 2.25rem); }
+        .eyebrow { color: #b43c32; font-size: .7rem; font-weight: 800; letter-spacing: .08em; }
+        .login-card h2 { font-size: 1.8rem; font-weight: 750; letter-spacing: -.03em; }
+        .helper { color: var(--muted); font-size: .84rem; }
+        .form-label { font-size: .82rem; font-weight: 600; }
+        .form-control { min-height: 45px; border-color: #e9e7eb; background: #f7f6f8; }
+        .form-control:focus { border-color: #ff998e; box-shadow: 0 0 0 .2rem rgba(255, 118, 104, .15); }
+        .submit-btn { min-height: 48px; border: 0; background: var(--accent); color: white; font-weight: 700; }
+        .submit-btn:hover, .submit-btn:focus { background: #f06457; color: white; }
+        .register-link { color: #b43c32; font-weight: 700; text-decoration: none; }
+        .register-link:hover { text-decoration: underline; }
+        @media (max-width: 767.98px) { .login-shell { padding-top: 2rem !important; padding-bottom: 2rem !important; } .intro { margin-bottom: 1rem; } }
+    </style>
+</head>
+<body>
+<main class="container login-shell d-flex align-items-center py-5">
+    <div class="row align-items-center justify-content-center g-5 g-lg-3 w-100">
+        <section class="col-12 col-lg-6 d-flex justify-content-center">
+            <div class="intro">
+                <span class="player-count">24.000 jugadores</span>
+                <h1>¡Desafía tu mente y pon a prueba tus conocimientos!</h1>
+                <p class="intro-copy mb-4">Gira la ruleta, responde preguntas de múltiples categorías y compite con amigos para ver quién sabe más en la arena definitiva.</p>
+                <div class="row g-2">
+                    <div class="col-6"><article class="card category-card category-ciencia p-3"><h2>Ciencia</h2><p>Naturaleza</p></article></div>
+                    <div class="col-6"><article class="card category-card category-arte p-3"><h2>Arte</h2><p>Cultura</p></article></div>
+                    <div class="col-6"><article class="card category-card category-historia p-3"><h2>Historia</h2><p>Mundo</p></article></div>
+                    <div class="col-6"><article class="card category-card category-deportes p-3"><h2>Deportes</h2><p>Pasión</p></article></div>
+                    <div class="col-6"><article class="card category-card category-geografia p-3"><h2>Geografía</h2><p>Lugares</p></article></div>
+                    <div class="col-6"><article class="card category-card category-cine p-3"><h2>Cine y TV</h2><p>Pop</p></article></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="col-12 col-lg-6 d-flex justify-content-center">
+            <div class="card login-card">
+                <div class="card-accent"></div>
+                <div class="login-card-body">
+                    <span class="eyebrow">PORTAL DE ACCESO</span>
+                    <h2 class="mb-1">Iniciar Sesión</h2>
+                    <p class="helper mb-4">Ingresa tus credenciales para continuar tu partida.</p>
+                    <form method="post" action="/Preguntados/login/login">
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label">Nombre de usuario</label>
+                            <input class="form-control" id="usuario" name="usuario" type="text" placeholder="ej. trivia_master99" autocomplete="username" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input class="form-control" id="password" name="password" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required>
+                        </div>
+                        <button class="btn submit-btn w-100" type="submit">Iniciar Sesión <span aria-hidden="true">→</span></button>
+                    </form>
+                    <p class="text-center helper mt-4 mb-0">¿No tienes una cuenta? <a class="register-link" href="/Preguntados/registro">Regístrate</a></p>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

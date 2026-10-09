@@ -8,10 +8,12 @@ use Request;
 class LoginController
 {
     private $model;
+    private $render;
 
-    public function __construct($model)
+    public function __construct($model,$render)
     {
         $this->model = $model;
+        $this->render = $render;
     }
 
     public function login()
@@ -25,6 +27,16 @@ class LoginController
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario'] = $usuario['usuario'];
         Redirect::toIndex();
+    }
+
+    public function show(){
+        $data = [
+        "error" => Request::get("login_error") !== null
+            ? "Usuario o contraseña incorrectos."
+            : ""
+        ];
+
+        $this->render->renderiza("login", $data);
     }
 
     public function logout()

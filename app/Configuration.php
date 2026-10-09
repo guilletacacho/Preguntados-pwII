@@ -4,12 +4,8 @@ namespace app;
 
 use app\controller\EventoController;
 use app\controller\LoginController;
-use app\controller\LugaresController;
-use app\controller\ReservaController;
 use app\model\EventoModel;
 use app\model\LoginModel;
-use app\model\LugaresModel;
-use app\model\ReservaModel;
 use MustacheRender;
 use MyDatabase;
 use Router;
@@ -25,22 +21,6 @@ class Configuration
     {
     }
 
-    public function getLugaresController()
-    {
-        return new LugaresController(
-            $this->getLugaresModel(),
-            $this->gerRender()
-        );
-    }
-
-    public function getReservaController()
-    {
-        return new ReservaController(
-            $this->getReservaModel(),
-            $this->gerRender()
-        );
-    }
-
     public function getEventoController()
     {
         return new EventoController(
@@ -52,24 +32,11 @@ class Configuration
     public function getLoginController()
     {
         return new LoginController(
-            $this->getLoginModel()
+            $this->getLoginModel(),
+            $this->gerRender()
         );
     }
 
-    // Los privados
-    private function getReservaModel()
-    {
-        return new ReservaModel(
-            $this->getDatabase()
-        );
-    }
-
-    private function getLugaresModel()
-    {
-        return new LugaresModel(
-            $this->getDatabase()
-        );
-    }
 
     private function getDatabase()
     {
@@ -104,6 +71,6 @@ class Configuration
 
     public function getRouter()
     {
-        return new Router($this, "evento", "show");
+        return new Router($this, "login", "show");
     }
 }
