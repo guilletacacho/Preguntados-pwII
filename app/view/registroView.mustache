@@ -1,1 +1,65 @@
-<h1> te queres registrar paa? </h1>
+<main class="container login-shell d-flex align-items-center justify-content-center py-5">
+    <section class="card login-card w-100" style="max-width: 520px;">
+        <div class="card-accent"></div>
+        <div class="login-card-body">
+            <div class="text-center mb-4">
+                <span class="eyebrow">✦ ¡BIENVENIDO A LA AVENTURA!</span>
+                <h1 class="h2 mt-2 mb-1 fw-bold">Registro de Usuario</h1>
+                <p class="helper mb-0">Únete a la comunidad de trivia más divertida y desafía a tus amigos.</p>
+            </div>
+
+            <form method="post" action="/Preguntados/registro/registrar">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <h2 class="h6 mb-3 text-dark">♙ Datos Personales</h2>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre completo</label>
+                            <input class="form-control" id="nombre" name="nombre" type="text" placeholder="Ej. Sofía Martínez" autocomplete="name" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="anioNacimiento" class="form-label">Año de nacimiento</label>
+                                <input class="form-control" id="anioNacimiento" name="anioNacimiento" type="number" min="1900" max="2026" placeholder="2000" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="sexo" class="form-label">Sexo</label>
+                                <select class="form-select form-control" id="sexo" name="sexo" required>
+                                    <option value="" selected disabled>Selecciona</option>
+                                    <option value="Femenino">Femenino</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="pais" class="form-label">País y ciudad</label>
+                            <input class="form-control" id="pais" name="pais" type="text" placeholder="Ej. Argentina, Buenos Aires" autocomplete="country-name" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <h2 class="h6 mb-3 text-dark">♙ Seguridad y Cuenta</h2>
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label">Nombre de usuario</label>
+                            <input class="form-control" id="usuario" name="usuario" type="text" placeholder="triviamaster_99" autocomplete="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contrasena" class="form-label">Contraseña</label>
+                            <input class="form-control" id="contrasena" name="contrasena" type="password" placeholder="Mínimo 8 caracteres" minlength="8" autocomplete="new-password" required>
+                        </div>
+                        <div>
+                            <label for="repetirContrasena" class="form-label">Repetir contraseña</label>
+                            <input class="form-control" id="repetirContrasena" name="repetirContrasena" type="password" placeholder="Repite tu contraseña" minlength="8" autocomplete="new-password" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn submit-btn w-100 mt-4" type="submit">Registrarme <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="text-center helper mt-3 mb-0">¿Ya tienes una cuenta? <a class="register-link" href="/Preguntados/login">Iniciar sesión</a></p>
+        </div>
+        <div class="text-center py-2 px-3" style="background: #f7f6f8; color: #777783; font-size: .75rem;">
+            <span class="me-2">● Ciencia</span><span class="me-2">● Arte</span><span class="me-2">● Historia</span><span class="me-2">● Geografía</span><span>● Entretenimiento</span>
+        </div>
+    </section>
+</main>

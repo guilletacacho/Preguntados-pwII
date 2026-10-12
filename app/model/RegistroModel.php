@@ -17,7 +17,7 @@ class RegistroModel{
         (Nombre,anio_nacimiento,Sexo,Pais,Usuario,Contrasena)
         VALUES (?,?,?,?,?,?)";
 
-        $this->database->execute($sql,[
+        return $this->database->execute($sql,[
             $nombre,
             $anioNacimiento,
             $sexo,
