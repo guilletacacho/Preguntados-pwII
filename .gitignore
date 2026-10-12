@@ -1,3 +1,6 @@
 # Registros diarios (incluyen consultas SQL)
 /log/*
 !/log/.gitkeep
+
+#evitar el config.ini
+/config/config.ini

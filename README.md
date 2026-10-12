@@ -1,7 +1,7 @@
 # Configurar la base de datos
 
 1. Crea la base `entradas_messi` e importa `app/sql/entradas_messi.sql` desde phpMyAdmin.
-2. Edita `config/config.ini` con tus datos:
+2. Crear `config/config.ini` con tus datos:
 
 ```ini
 db_host = localhost
