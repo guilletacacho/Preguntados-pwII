@@ -17,19 +17,32 @@ class RegistroController{
     }
 
     public function show(){
-        $data = "";
-
+        $data = [];
         $this->render->renderiza("registro",$data);
     }
 
     public function registrar(){
+        $usuario = Request::post("usuario");
+        $contrasenia = Request::post('contrasena');
+        $contraseniaRepetida = Request::post('repetirContrasena');
+
+        if($contrasenia !== $contraseniaRepetida){
+            $this->render->renderiza("registro",["error" => "Las contraseñas no coinciden."]);
+            return;
+        }
+
+        if($this->model->existeUsuario($usuario)){
+            $this->render->renderiza("registro",["error" => "El usuario ya existe."]);
+            return;
+        }
+
         $resultado = $this->model->insertar(
             Request::post('nombre'),
             Request::post('anioNacimiento'),
             Request::post('sexo'),
             Request::post('pais'),
-            Request::post('usuario'),
-            Request::post('contrasena')
+            Request::post($usuario),
+            Request::post($contrasenia)
         );
 
         if($resultado){

@@ -7,7 +7,9 @@
                 <h1 class="h2 mt-2 mb-1 fw-bold">Registro de Usuario</h1>
                 <p class="helper mb-0">Únete a la comunidad de trivia más divertida y desafía a tus amigos.</p>
             </div>
-
+            {{#error}}
+                <div class="alert alert-danger" role="alert">{{error}}</div>
+            {{/error}}
             <form method="post" action="/Preguntados/registro/registrar">
                 <div class="row g-3">
                     <div class="col-12 col-md-6">

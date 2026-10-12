@@ -12,6 +12,9 @@
     <nav class="navbar navbar-expand">
         <div class="container">
             <a class="navbar-brand home-link" href="/Preguntados/">Inicio</a>
+            <?php if (isset($_SESSION['usuario_id'])) : ?>
+                <a class= "nav-link" href="/Preguntados/login/logout">Cerrar sesión</a>
+            <?php endif; ?>
         </div>
     </nav>
 </header>

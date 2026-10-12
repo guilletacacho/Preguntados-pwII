@@ -25,5 +25,12 @@ class RegistroModel{
             $usuario,
             md5($contrasena)
         ]);
-    } 
+    }
+
+    public function existeUsuario($usuario){
+        $sql = "SELECT Id FROM usuarios WHERE Usuario = ?";
+        $fila = $this->database->queryOne($sql,[$usuario]);
+
+        return $fila !== null;
+    }
 }
