@@ -18,4 +18,4 @@ CREATE TABLE `usuarios` (
 INSERT INTO usuarios
     (`Nombre`, `Anio_nacimiento`, `Sexo`, `Pais`, `Usuario`, `Contrasena`)
 VALUES
-    ('Nahuel', 2002, 'masculino', 'Argentina', 'Nahuelt00', MD5('1234'));
+    ('Nahuel', 2002, 'masculino', 'Argentina', 'prueba', MD5('1234'));
