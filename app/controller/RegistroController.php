@@ -41,8 +41,8 @@ class RegistroController{
             Request::post('anioNacimiento'),
             Request::post('sexo'),
             Request::post('pais'),
-            Request::post($usuario),
-            Request::post($contrasenia)
+            $usuario,
+            $contrasenia
         );
 
         if($resultado){
