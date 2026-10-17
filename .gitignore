@@ -1,6 +1,15 @@
-# Registros diarios (incluyen consultas SQL)
-/log/*
-!/log/.gitkeep
+# Dependencias de Composer
+/vendor/
+!/vendor/mustache/
 
-#evitar el config.ini
-/config/config.ini
+# Configuración con credenciales
+config/config.ini
+config/mail.ini
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

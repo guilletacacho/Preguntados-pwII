@@ -5,12 +5,14 @@ namespace app;
 use app\controller\LoginController;
 use app\controller\HomeController;
 use app\controller\RegistroController;
+use app\controller\EmailController;
 
 use app\model\LoginModel;
 use app\model\RegistroModel;
 use MustacheRender;
 use MyDatabase;
 use Router;
+use MailHelper;
 
 require_once("helper/Autoloader.php");
 
@@ -33,13 +35,21 @@ class Configuration
 
     public function getHomeController()
     {
-    return new HomeController(
-        $this->gerRender()
-    );
+        return new HomeController(
+            $this->gerRender()
+        );
     }
 
     public function getRegistroController(){
         return new RegistroController(
+            $this->getRegistroModel(),
+            $this->gerRender(),
+            $this->getMailHelper()
+        );
+    }
+
+    public function getEmailController(){
+        return new EmailController(
             $this->getRegistroModel(),
             $this->gerRender()
         );
@@ -62,6 +72,11 @@ class Configuration
     private function gerRender()
     {
         return new MustacheRender();
+    }
+
+    private function getMailHelper()
+    {
+        return new MailHelper();
     }
 
     private function getLoginModel()

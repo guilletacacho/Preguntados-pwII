@@ -1,0 +1,25 @@
+<main class="container login-shell d-flex align-items-center justify-content-center py-5">
+    <section class="card login-card w-100" style="max-width: 520px;">
+        <div class="card-accent"></div>
+        <div class="login-card-body">
+            <div class="text-center mb-4">
+                {{#exito}}
+                    <span class="eyebrow">✦ ¡CUENTA VERIFICADA!</span>
+                    <h1 class="h2 mt-2 mb-1 fw-bold">¡Bienvenido, {{nombre}}!</h1>
+                    <p class="helper mb-0">Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar sesión.</p>
+                    <div class="mt-4">
+                        <a href="/Preguntados/login" class="btn submit-btn w-100" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 5px; color: white;">Ir a Iniciar Sesión</a>
+                    </div>
+                {{/exito}}
+                {{#error}}
+                    <span class="eyebrow">✦ ERROR DE VERIFICACIÓN</span>
+                    <h1 class="h2 mt-2 mb-1 fw-bold">Enlace inválido</h1>
+                    <p class="helper mb-0">{{error}}</p>
+                    <div class="mt-4">
+                        <a href="/Preguntados/registro" class="btn submit-btn w-100" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 5px; color: white;">Volver al Registro</a>
+                    </div>
+                {{/error}}
+            </div>
+        </div>
+    </section>
+</main>

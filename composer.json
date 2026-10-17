@@ -1,0 +1,16 @@
+{
+    "name": "preguntados/preguntados",
+    "description": "Preguntados - Trivia game with email verification",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/"
+        },
+        "files": [
+            "helper/Autoloader.php"
+        ]
+    }
+}
