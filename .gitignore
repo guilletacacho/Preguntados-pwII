@@ -4,3 +4,6 @@
 
 #evitar el config.ini
 /config/config.ini
+
+#evitar que no cargue la carpeta de imagenes
+/app/img-foto-perfil/

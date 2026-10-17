@@ -10,7 +10,7 @@
             {{#error}}
                 <div class="alert alert-danger" role="alert">{{error}}</div>
             {{/error}}
-            <form method="post" action="/Preguntados/registro/registrar">
+            <form method="post" action="/Preguntados/registro/registrar" enctype="multipart/form-data">
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
                         <h2 class="h6 mb-3 text-dark">♙ Datos Personales</h2>
@@ -52,6 +52,10 @@
                         <div>
                             <label for="repetirContrasena" class="form-label">Repetir contraseña</label>
                             <input class="form-control" id="repetirContrasena" name="repetirContrasena" type="password" placeholder="Repite tu contraseña" minlength="8" autocomplete="new-password" required>
+                        </div>
+                        <div>
+                            <label for="imagen_url" class="imagen-label">Carga tu imagen de perfil</label>
+                            <input type="file" id="imagen_url" name="imagen_url">
                         </div>
                     </div>
                 </div>

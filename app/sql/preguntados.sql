@@ -11,11 +11,8 @@ CREATE TABLE `usuarios` (
   `Pais` varchar(50) NOT NULL,
   `Usuario` varchar(255) NOT NULL,
   `Contrasena` varchar(255) NOT NULL,
+  `Foto_url` varchar(255) NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `uk_usuarios_usuario` (`Usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO usuarios
-    (`Nombre`, `Anio_nacimiento`, `Sexo`, `Pais`, `Usuario`, `Contrasena`)
-VALUES
-    ('Nahuel', 2002, 'masculino', 'Argentina', 'prueba', MD5('1234'));

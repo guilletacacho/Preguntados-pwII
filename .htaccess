@@ -33,6 +33,9 @@ Options -Indexes
     # Las hojas de estilo en app/css/ son públicas.
     RewriteRule ^app/css/ - [L]
 
+    # Permite servir las fotos de perfil y nada más dentro de esta carpeta
+    RewriteRule ^app/img-foto-perfil/[^/]+\.(jpg|jpeg|png)$ - [L,NC]
+
     # app/ (excepto css/), helper/ y vendor/ son PHP interno (controllers, models,
     # la librería de Mustache); config/ y sql/ tienen credenciales y
     # el esquema de la BD. Nada de eso se pide nunca directo por URL,

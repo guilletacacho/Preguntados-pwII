@@ -11,11 +11,11 @@ class RegistroModel{
         $this->database = $database;
     }
 
-    public function insertar($nombre,$anioNacimiento,$sexo,$pais,$usuario,$contrasena){
+    public function insertar($nombre,$anioNacimiento,$sexo,$pais,$usuario,$contrasena,$fotoUrl){
 
         $sql = "INSERT INTO usuarios 
-        (Nombre,anio_nacimiento,Sexo,Pais,Usuario,Contrasena)
-        VALUES (?,?,?,?,?,?)";
+        (Nombre,anio_nacimiento,Sexo,Pais,Usuario,Contrasena,Foto_url)
+        VALUES (?,?,?,?,?,?,?)";
 
         return $this->database->execute($sql,[
             $nombre,
@@ -23,7 +23,8 @@ class RegistroModel{
             $sexo,
             $pais,
             $usuario,
-            md5($contrasena)
+            md5($contrasena),
+            $fotoUrl
         ]);
     }
 
