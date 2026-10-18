@@ -9,7 +9,7 @@ $assetBase = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCR
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Preguntados</title>
     <link href="<?= $assetBase ?>/public/css/bootstrap.min.css" rel="stylesheet">
-    <link href="<?= $assetBase ?>/app/css/style.css" rel="stylesheet">
+    <link href="<?= $assetBase ?>/app/css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>" rel="stylesheet">
 </head>
 <body>
 <?php require __DIR__ . '/header.php'; ?>

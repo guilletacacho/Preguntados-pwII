@@ -1,5 +1,5 @@
-<main class="container login-shell d-flex align-items-center justify-content-center py-5">
-    <section class="card login-card w-100" style="max-width: 520px;">
+<main class="container login-shell register-shell d-flex align-items-center justify-content-center">
+    <section class="card login-card register-card w-100">
         <div class="card-accent"></div>
         <div class="login-card-body">
             <div class="text-center mb-4">
@@ -10,48 +10,65 @@
             {{#error}}
                 <div class="alert alert-danger" role="alert">{{error}}</div>
             {{/error}}
-            <form method="post" action="{{basePath}}/index.php?controller=registro&method=registrar">
+            <form id="registro-form" method="post" action="{{basePath}}/index.php?controller=registro&method=registrar">
                 <div class="row g-3">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12">
                         <h2 class="h6 mb-3 text-dark">♙ Datos Personales</h2>
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre completo</label>
-                            <input class="form-control" id="nombre" name="nombre" type="text" placeholder="Ej. Sofía Martínez" autocomplete="name" required>
+                            <input class="form-control {{#errores.nombre}}is-invalid{{/errores.nombre}}" id="nombre" aria-describedby="nombre-error" name="nombre" value="{{nombre}}" type="text" placeholder="Ej. Sofía Martínez" autocomplete="name" required>
+                            <div id="nombre-error" class="invalid-feedback" aria-live="polite">{{errores.nombre}}</div>
                         </div>
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label for="anioNacimiento" class="form-label">Año nacimiento</label>
-                                <input class="form-control" id="anioNacimiento" name="anioNacimiento" type="number" min="1900" max="2026" placeholder="2000" required>
+                                <input class="form-control {{#errores.anioNacimiento}}is-invalid{{/errores.anioNacimiento}}" id="anioNacimiento" aria-describedby="anioNacimiento-error" name="anioNacimiento" value="{{anioNacimiento}}" type="number" min="1900" max="{{anioActual}}" placeholder="2000" required>
+                            <div id="anioNacimiento-error" class="invalid-feedback" aria-live="polite">{{errores.anioNacimiento}}</div>
                             </div>
                             <div class="col-6">
                                 <label for="sexo" class="form-label">Sexo</label>
-                                <select class="form-select form-control" id="sexo" name="sexo" required>
-                                    <option value="" selected disabled>Selecciona</option>
-                                    <option value="Femenino">Femenino</option>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Otro">Otro</option>
+                                <select class="form-select form-control {{#errores.sexo}}is-invalid{{/errores.sexo}}" id="sexo" aria-describedby="sexo-error" name="sexo" required>
+                                    <option value="" {{^sexo}}selected{{/sexo}} disabled>Selecciona</option>
+                                    <option value="Femenino" {{#sexoFemenino}}selected{{/sexoFemenino}}>Femenino</option>
+                                    <option value="Masculino" {{#sexoMasculino}}selected{{/sexoMasculino}}>Masculino</option>
+                                    <option value="Otro" {{#sexoOtro}}selected{{/sexoOtro}}>Otro</option>
                                 </select>
+                            <div id="sexo-error" class="invalid-feedback" aria-live="polite">{{errores.sexo}}</div>
                             </div>
                         </div>
                         <div>
                             <label for="pais" class="form-label">País y ciudad</label>
-                            <input class="form-control" id="pais" name="pais" type="text" placeholder="Ej. Argentina, Buenos Aires" autocomplete="country-name" required>
+                            <input class="form-control {{#errores.pais}}is-invalid{{/errores.pais}}" id="pais" aria-describedby="pais-error" name="pais" value="{{pais}}" type="text" placeholder="Ej. Argentina, Buenos Aires" autocomplete="country-name" required>
+                            <div id="pais-error" class="invalid-feedback" aria-live="polite">{{errores.pais}}</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-6">
+                    <div class="col-12">
                         <h2 class="h6 mb-3 text-dark">♙ Seguridad y Cuenta</h2>
                         <div class="mb-3">
                             <label for="usuario" class="form-label">Nombre de usuario</label>
-                            <input class="form-control" id="usuario" name="usuario" type="text" placeholder="triviamaster_99" autocomplete="username" required>
+                            <input class="form-control {{#errores.usuario}}is-invalid{{/errores.usuario}}" id="usuario" aria-describedby="usuario-error" name="usuario" value="{{usuario}}" type="text" placeholder="triviamaster_99" autocomplete="username" required>
+                            <div id="usuario-error" class="invalid-feedback" aria-live="polite">{{errores.usuario}}</div>
                         </div>
                         <div class="mb-3">
                             <label for="contrasena" class="form-label">Contraseña</label>
-                            <input class="form-control" id="contrasena" name="contrasena" type="password" placeholder="Mínimo 8 caracteres" minlength="8" autocomplete="new-password" required>
+                            <div class="password-field">
+                                <input class="form-control {{#errores.contrasena}}is-invalid{{/errores.contrasena}}" id="contrasena" aria-describedby="contrasena-error" name="contrasena" type="password" placeholder="Mínimo 8 caracteres" minlength="8" autocomplete="new-password" required>
+                                <button class="btn password-toggle" type="button" data-password-toggle="contrasena" aria-controls="contrasena" aria-label="Mostrar contrase&#241;a" aria-pressed="false" hidden>
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M3 3l18 18"/></svg>
+                                </button>
+                            </div>
+                            <div id="contrasena-error" class="invalid-feedback" aria-live="polite">{{errores.contrasena}}</div>
                         </div>
                         <div>
                             <label for="repetirContrasena" class="form-label">Repetir contraseña</label>
-                            <input class="form-control" id="repetirContrasena" name="repetirContrasena" type="password" placeholder="Repite tu contraseña" minlength="8" autocomplete="new-password" required>
+                            <div class="password-field">
+                                <input class="form-control {{#errores.repetirContrasena}}is-invalid{{/errores.repetirContrasena}}" id="repetirContrasena" aria-describedby="repetirContrasena-error" name="repetirContrasena" type="password" placeholder="Repite tu contraseña" minlength="8" autocomplete="new-password" required>
+                                <button class="btn password-toggle" type="button" data-password-toggle="repetirContrasena" aria-controls="repetirContrasena" aria-label="Mostrar contrase&#241;a" aria-pressed="false" hidden>
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M3 3l18 18"/></svg>
+                                </button>
+                            </div>
+                            <div id="repetirContrasena-error" class="invalid-feedback" aria-live="polite">{{errores.repetirContrasena}}</div>
                         </div>
                     </div>
                 </div>
@@ -65,3 +82,5 @@
         </div>
     </section>
 </main>
+
+<script src="{{basePath}}/public/js/registro.js" defer></script>
