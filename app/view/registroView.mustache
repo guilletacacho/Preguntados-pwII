@@ -10,7 +10,7 @@
             {{#error}}
                 <div class="alert alert-danger" role="alert">{{error}}</div>
             {{/error}}
-            <form method="post" action="/Preguntados/registro/registrar">
+            <form method="post" action="{{basePath}}/index.php?controller=registro&method=registrar">
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
                         <h2 class="h6 mb-3 text-dark">♙ Datos Personales</h2>
@@ -58,7 +58,7 @@
 
                 <button class="btn submit-btn w-100 mt-4" type="submit">Registrarme <span aria-hidden="true">→</span></button>
             </form>
-            <p class="text-center helper mt-3 mb-0">¿Ya tienes una cuenta? <a class="register-link" href="/Preguntados/login">Iniciar sesión</a></p>
+            <p class="text-center helper mt-3 mb-0">¿Ya tienes una cuenta? <a class="register-link" href="{{basePath}}/index.php?controller=login">Iniciar sesión</a></p>
         </div>
         <div class="text-center py-2 px-3" style="background: #f7f6f8; color: #777783; font-size: .75rem;">
             <span class="me-2">● Ciencia</span><span class="me-2">● Arte</span><span class="me-2">● Historia</span><span class="me-2">● Geografía</span><span>● Entretenimiento</span>
