@@ -59,7 +59,13 @@ class Configuration
 
     private function getDatabase()
     {
-        $config = parse_ini_file("config/config.ini");
+        $configFile = "config/config.ini";
+
+        if (!file_exists($configFile)) {
+            die("Error: no se encontró el archivo de configuración. Crea 'config/config.ini' copiando 'config/config.example.ini'.");
+        }
+
+        $config = parse_ini_file($configFile);
 
         return new MyDatabase($config["db_host"],
             $config["db_user"],

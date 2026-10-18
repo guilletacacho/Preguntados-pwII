@@ -22,7 +22,7 @@ class LoginController
         if (Request::get("login_error") === "1") {
             $error = "Usuario o contraseña incorrectos.";
         } elseif (Request::get("login_error") === "2") {
-            $error = "Tu cuenta no ha sido verificada. Revisa tu correo para activarla.";
+            $error = "Cuenta no validada.";
         }
 
         $data = [

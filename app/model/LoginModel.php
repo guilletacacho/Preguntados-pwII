@@ -15,7 +15,7 @@ class LoginModel
         $passwordHash = md5($password);
 
         // A propósito sin prepared statements: lo arreglamos en la clase de refactor
-        $sql = "SELECT Id AS id, Usuario as usuario, Verificado as verificado
+        $sql = "SELECT Id AS id, Usuario as usuario, CAST(Verificado AS UNSIGNED) as verificado
          FROM usuarios
            WHERE Usuario = '$usuario'
            AND Contrasena = '$passwordHash'";

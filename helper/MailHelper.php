@@ -11,7 +11,13 @@ class MailHelper
 
     public function __construct()
     {
-        $this->config = parse_ini_file("config/mail.ini");
+        $configFile = "config/mail.ini";
+
+        if (!file_exists($configFile)) {
+            die("Error: no se encontró 'config/mail.ini'. Crea el archivo copiando 'config/mail.example.ini' y configura tus credenciales SMTP.");
+        }
+
+        $this->config = parse_ini_file($configFile);
 
         $this->mail = new PHPMailer(true);
         $this->mail->isSMTP();
