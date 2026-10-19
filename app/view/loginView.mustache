@@ -24,7 +24,7 @@
                         <div class="alert alert-danger" role="alert">{{error}}</div>
                     {{/error}}
 
-                    <form method="post" action="/Preguntados/login/login">
+                    <form method="post" action="{{basePath}}/login/login">
                         <div class="mb-3">
                             <label for="Usuario" class="form-label">Nombre de usuario</label>
                             <input class="form-control" id="Usuario" name="Usuario" type="text" placeholder="ej. trivia_master99" autocomplete="username">
@@ -35,7 +35,7 @@
                         </div>
                         <button class="btn submit-btn w-100" type="submit">Iniciar Sesión <span aria-hidden="true">→</span></button>
                     </form>
-                    <p class="text-center helper mt-4 mb-0">¿No tienes una cuenta? <a class="register-link" href="/Preguntados/registro">Regístrate</a></p>
+                    <p class="text-center helper mt-4 mb-0">¿No tienes una cuenta? <a class="register-link" href="{{basePath}}/registro">Regístrate</a></p>
                 </div>
             </div>
         </section>

@@ -18,6 +18,10 @@ class LoginController
 
     
     public function show(){
+        if (isset($_SESSION['usuario_id'])) {
+            Redirect::to('/Preguntados/home');
+        }
+
         $data = [
         "error" => Request::get("login_error") !== null
             ? "Usuario o contraseña incorrectos."
@@ -35,13 +39,15 @@ class LoginController
             Redirect::to('/Preguntados/?login_error=1');
         }
 
+        session_regenerate_id(true);
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario'] = $usuario['usuario'];
-        Redirect::to('/Preguntados/home/show');
+        Redirect::to('/Preguntados/home');
     }
 
     public function logout()
     {
+        $_SESSION = [];
         session_destroy();
         Redirect::toIndex();
     }

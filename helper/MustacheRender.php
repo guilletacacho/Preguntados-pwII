@@ -12,14 +12,17 @@ class MustacheRender
     {
         $this->viewPath = dirname(__DIR__) . "/app/view";
         $this->mustache = new Mustache_Engine([
+            "delimiters" => "{{ }}",
             "loader" => new Mustache_Loader_FilesystemLoader($this->viewPath, ["extension" => ".mustache"])
         ]);
     }
 
     public function renderiza($view, $data = [])
     {
-        require_once($this->viewPath . "/header.php");
-        echo $this->mustache->render($view . "View", $data);
-        require_once($this->viewPath . "/footer.php");
+        $basePath = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/");
+        $data["basePath"] = $basePath;
+        $content = $this->mustache->render($view . "View", $data);
+        $layout = require($this->viewPath . "/layout.php");
+        $layout($content);
     }
 }
