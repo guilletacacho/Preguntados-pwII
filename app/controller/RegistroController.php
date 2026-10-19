@@ -67,7 +67,25 @@ class RegistroController{
 
     private function subirMiImagen($archivo){
 
+        // Verifica que PHP haya recibido el archivo correctamente.
         if(!isset($archivo['error']) || $archivo['error'] !== UPLOAD_ERR_OK){
+            return null;
+        }
+
+        // Rechaza imágenes que superen los 5 MB.
+        if ($archivo['size'] > 5 * 1024 * 1024){
+            return null;
+        }
+        $tiposPermitidos = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png'
+        ];
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $tipoReal = $finfo->file($archivo['tmp_name']);
+
+        // Acepta únicamente los tipos MIME permitidos.
+        if ( !isset($tiposPermitidos[$tipoReal])){
             return null;
         }
 
@@ -76,12 +94,14 @@ class RegistroController{
 
         $directorio = 'app/img-foto-perfil';
 
+        // Crea la carpeta si todavía no existe.
         if(!is_dir($directorio)){
             mkdir($directorio,0755,true);
         }
 
         $ruta = $directorio . '/' . $nombreUnico;
 
+        // Comprueba que el archivo se haya movido a la carpeta destino.
         if (!move_uploaded_file($archivo['tmp_name'], $ruta)){
             return null;
         }
