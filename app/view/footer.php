@@ -1,10 +1,8 @@
-<?php
-$siteUrl = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/"), ENT_QUOTES, 'UTF-8');
-?>
 <footer class="site-footer">
+    <div class="cinta" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="container footer-content">
-        <div><a class="footer-brand" href="<?= $siteUrl ?>/home">Preguntados<span aria-hidden="true"> ✦</span></a><p>Siempre hay algo nuevo por descubrir.</p></div>
-        <div class="footer-meta"><span>Hecho con curiosidad · Grupo n°7</span><span>&copy; <?= date('Y') ?> Preguntados</span></div>
+        <span>&copy; <?= date('Y') ?> Preguntados</span>
+        <span>Grupo 7</span>
     </div>
 </footer>
 <script>

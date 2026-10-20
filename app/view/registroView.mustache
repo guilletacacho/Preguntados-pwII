@@ -1,56 +1,69 @@
-<main class="container login-shell register-shell d-flex align-items-center justify-content-center">
-    <section class="card login-card register-card w-100">
-        <div class="card-accent"></div>
-        <div class="login-card-body">
-            <div class="text-center mb-4">
-                <span class="eyebrow">✦ ¡BIENVENIDO A LA AVENTURA!</span>
-                <h1 class="h2 mt-2 mb-1 fw-bold">Registro de Usuario</h1>
-                <p class="helper mb-0">Únete a la comunidad de trivia más divertida.</p>
+<main class="container login-shell register-shell d-flex justify-content-center">
+    <section class="register-page">
+        <div class="register-head">
+            <div>
+                <h1>Creá tu cuenta</h1>
+                <p>Completá tus datos para empezar a jugar.</p>
             </div>
-            {{#error}}
-                <div class="alert alert-danger" role="alert">{{error}}</div>
-            {{/error}}
-            <form id="registro-form" method="post" action="{{basePath}}/registro/registrar" enctype="multipart/form-data">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <h2 class="h6 mb-3 text-dark">♙ Datos Personales</h2>
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre completo</label>
-                            <input class="form-control {{#errores.nombre}}is-invalid{{/errores.nombre}}" id="nombre" aria-describedby="nombre-error" name="nombre" value="{{nombre}}" type="text" placeholder="Ej. Sofía Martínez" autocomplete="name" required>
-                            <div id="nombre-error" class="invalid-feedback" aria-live="polite">{{errores.nombre}}</div>
+            <ul class="personajes" aria-hidden="true">
+                <li><img src="{{basePath}}/public/img/personajes/arte.svg" alt="" width="204" height="206"></li>
+                <li><img src="{{basePath}}/public/img/personajes/historia.svg" alt="" width="204" height="206"></li>
+            </ul>
+        </div>
+        {{#error}}
+            <div class="alert alert-danger" role="alert">{{error}}</div>
+        {{/error}}
+        <form id="registro-form" method="post" action="{{basePath}}/registro/registrar" enctype="multipart/form-data">
+            <div class="register-grid">
+                <div class="register-col">
+                    <h2>Sobre vos</h2>
+                    <div class="foto-perfil">
+                        <button type="button" class="foto-perfil-icono" id="foto-preview" aria-label="Editar foto de perfil" disabled>
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                            <img alt="" hidden>
+                        </button>
+                        <div class="foto-perfil-datos">
+                            <p class="form-label">Foto de perfil</p>
+                            <small>JPG o PNG, hasta 5 MB.</small>
+                            <div class="foto-perfil-elegir">
+                                <input class="visually-hidden" type="file" id="imagen_url" name="imagen_url" accept="image/jpeg,image/png">
+                                <label for="imagen_url" class="foto-perfil-boton">Elegir foto</label>
+                                <span id="imagen_url-nombre" class="foto-perfil-nombre">Ninguna elegida</span>
+                            </div>
+                            <p id="imagen_url-aviso" class="foto-perfil-aviso" aria-live="polite"></p>
                         </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label for="anioNacimiento" class="form-label">Año nacimiento</label>
-                                <input class="form-control {{#errores.anioNacimiento}}is-invalid{{/errores.anioNacimiento}}" id="anioNacimiento" aria-describedby="anioNacimiento-error" name="anioNacimiento" value="{{anioNacimiento}}" type="number" min="1900" max="{{anioActual}}" placeholder="2000" required>
+                    </div>
+                    <div>
+                        <label for="nombre" class="form-label">Nombre completo</label>
+                        <input class="form-control {{#errores.nombre}}is-invalid{{/errores.nombre}}" id="nombre" aria-describedby="nombre-error" name="nombre" value="{{nombre}}" type="text" placeholder="Sofía Martínez" autocomplete="name" required>
+                        <div id="nombre-error" class="invalid-feedback" aria-live="polite">{{errores.nombre}}</div>
+                    </div>
+                    <div class="register-row">
+                        <div>
+                            <label for="anioNacimiento" class="form-label">Año de nacimiento</label>
+                            <input class="form-control {{#errores.anioNacimiento}}is-invalid{{/errores.anioNacimiento}}" id="anioNacimiento" aria-describedby="anioNacimiento-error" name="anioNacimiento" value="{{anioNacimiento}}" type="number" min="1900" max="{{anioActual}}" placeholder="2002" required>
                             <div id="anioNacimiento-error" class="invalid-feedback" aria-live="polite">{{errores.anioNacimiento}}</div>
-                            </div>
-                            <div class="col-6">
-                                <label for="sexo" class="form-label">Sexo</label>
-                                <select class="form-select form-control {{#errores.sexo}}is-invalid{{/errores.sexo}}" id="sexo" aria-describedby="sexo-error" name="sexo" required>
-                                    <option value="" {{^sexo}}selected{{/sexo}} disabled>Selecciona</option>
-                                    <option value="Femenino" {{#sexoFemenino}}selected{{/sexoFemenino}}>Femenino</option>
-                                    <option value="Masculino" {{#sexoMasculino}}selected{{/sexoMasculino}}>Masculino</option>
-                                    <option value="Otro" {{#sexoOtro}}selected{{/sexoOtro}}>Otro</option>
-                                </select>
-                            <div id="sexo-error" class="invalid-feedback" aria-live="polite">{{errores.sexo}}</div>
-                            </div>
                         </div>
                         <div>
-                            <label for="pais" class="form-label">País y ciudad</label>
-                            <input class="form-control {{#errores.pais}}is-invalid{{/errores.pais}}" id="pais" aria-describedby="pais-error" name="pais" value="{{pais}}" type="text" placeholder="Ej. Argentina, Buenos Aires" autocomplete="country-name" required>
-                            <div id="pais-error" class="invalid-feedback" aria-live="polite">{{errores.pais}}</div>
+                            <label for="sexo" class="form-label">Sexo</label>
+                            <select class="form-select {{#errores.sexo}}is-invalid{{/errores.sexo}}" id="sexo" aria-describedby="sexo-error" name="sexo" required>
+                                <option value="" {{^sexo}}selected{{/sexo}} disabled>Elegí una opción</option>
+                                <option value="Femenino" {{#sexoFemenino}}selected{{/sexoFemenino}}>Femenino</option>
+                                <option value="Masculino" {{#sexoMasculino}}selected{{/sexoMasculino}}>Masculino</option>
+                                <option value="Otro" {{#sexoOtro}}selected{{/sexoOtro}}>Otro</option>
+                            </select>
+                            <div id="sexo-error" class="invalid-feedback" aria-live="polite">{{errores.sexo}}</div>
                         </div>
                     </div>
 
-                    <div class="col-12">
-                        <h2 class="h6 mb-3 text-dark">♙ Seguridad y Cuenta</h2>
-                        <div class="mb-3">
-                            <label for="usuario" class="form-label">Nombre de usuario</label>
-                            <input class="form-control {{#errores.usuario}}is-invalid{{/errores.usuario}}" id="usuario" aria-describedby="usuario-error" name="usuario" value="{{usuario}}" type="text" placeholder="triviamaster_99" autocomplete="username" required>
-                            <div id="usuario-error" class="invalid-feedback" aria-live="polite">{{errores.usuario}}</div>
-                        </div>
-                        <div class="mb-3">
+                    <h2 class="register-subtitulo">Tu cuenta</h2>
+                    <div>
+                        <label for="usuario" class="form-label">Nombre de usuario</label>
+                        <input class="form-control {{#errores.usuario}}is-invalid{{/errores.usuario}}" id="usuario" aria-describedby="usuario-error" name="usuario" value="{{usuario}}" type="text" placeholder="triviamaster_99" autocomplete="username" required>
+                        <div id="usuario-error" class="invalid-feedback" aria-live="polite">{{errores.usuario}}</div>
+                    </div>
+                    <div class="register-row">
+                        <div>
                             <label for="contrasena" class="form-label">Contraseña</label>
                             <div class="password-field">
                                 <input class="form-control {{#errores.contrasena}}is-invalid{{/errores.contrasena}}" id="contrasena" aria-describedby="contrasena-error" name="contrasena" type="password" placeholder="Mínimo 8 caracteres" minlength="8" autocomplete="new-password" required>
@@ -63,26 +76,77 @@
                         <div>
                             <label for="repetirContrasena" class="form-label">Repetir contraseña</label>
                             <div class="password-field">
-                                <input class="form-control {{#errores.repetirContrasena}}is-invalid{{/errores.repetirContrasena}}" id="repetirContrasena" aria-describedby="repetirContrasena-error" name="repetirContrasena" type="password" placeholder="Repite tu contraseña" minlength="8" autocomplete="new-password" required>
+                                <input class="form-control {{#errores.repetirContrasena}}is-invalid{{/errores.repetirContrasena}}" id="repetirContrasena" aria-describedby="repetirContrasena-error" name="repetirContrasena" type="password" placeholder="La misma otra vez" minlength="8" autocomplete="new-password" required>
                                 <button class="btn password-toggle" type="button" data-password-toggle="repetirContrasena" aria-controls="repetirContrasena" aria-label="Mostrar contrase&#241;a" aria-pressed="false" hidden>
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M3 3l18 18"/></svg>
                                 </button>
                             </div>
                             <div id="repetirContrasena-error" class="invalid-feedback" aria-live="polite">{{errores.repetirContrasena}}</div>
-                            <label for="imagen_url" class="imagen-label">Carga tu imagen de perfil</label>
-                            <input type="file" id="imagen_url" name="imagen_url">
                         </div>
                     </div>
                 </div>
 
-                <button class="btn submit-btn w-100 mt-4" type="submit">Registrarme <span aria-hidden="true">→</span></button>
-            </form>
-            <p class="text-center helper mt-3 mb-0">¿Ya tienes una cuenta? <a class="register-link" href="{{basePath}}/login">Iniciar sesión</a></p>
-        </div>
-        <div class="text-center py-2 px-3" style="background: #f7f6f8; color: #777783; font-size: .75rem;">
-            <span class="me-2">● Ciencia</span><span class="me-2">● Arte</span><span class="me-2">● Historia</span><span class="me-2">● Geografía</span><span>● Entretenimiento</span>
-        </div>
+                <div class="register-col">
+                    <h2>Dónde estás</h2>
+                    <div class="mapa-muestra">
+                        <svg class="mapa-fondo" viewBox="0 0 540 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                            <path d="M-20 90 Q60 30 150 70 Q200 110 170 170 Q120 220 50 200 Q-10 180 -20 90 Z" fill="#2F4A3C"/>
+                            <path d="M210 -20 Q330 -10 380 70 Q410 160 340 220 Q270 270 220 200 Q170 110 210 -20 Z" fill="#2F4A3C"/>
+                            <path d="M400 150 Q500 120 560 190 Q555 300 460 330 Q390 300 400 150 Z" fill="#2F4A3C"/>
+                            <path d="M60 330 Q140 290 230 360 Q160 400 60 330 Z" fill="#2F4A3C"/>
+                            <path d="M0 260 Q140 230 270 300 M250 40 Q300 120 270 210 M430 170 Q470 230 440 300" fill="none" stroke="#3E5C4B" stroke-width="2"/>
+                            <path d="M0 95 H540 M0 190 H540 M0 285 H540 M135 0 V380 M270 0 V380 M405 0 V380" stroke="#2B3F50" stroke-width="1"/>
+                            <ellipse cx="300" cy="238" rx="18" ry="6" fill="rgba(0, 0, 0, .35)"/>
+                            <path d="M300 232 C 284 212, 278 204, 278 190 A 22 22 0 0 1 322 190 C 322 204, 316 212, 300 232 Z" fill="#3B9EEA"/>
+                            <circle cx="300" cy="190" r="8" fill="#1E2633"/>
+                        </svg>
+                        <div class="mapa-buscador" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                            Buscá tu ciudad
+                        </div>
+                        <div class="mapa-zoom" aria-hidden="true"><span>+</span><span>−</span></div>
+                        <span class="mapa-etiqueta">Mapa de muestra: todavía no funciona</span>
+                    </div>
+                    <div>
+                        <label for="pais" class="form-label">País y ciudad</label>
+                        <input class="form-control {{#errores.pais}}is-invalid{{/errores.pais}}" id="pais" aria-describedby="pais-error pais-ayuda" name="pais" value="{{pais}}" type="text" placeholder="Argentina, Buenos Aires" autocomplete="country-name" required>
+                        <div id="pais-error" class="invalid-feedback" aria-live="polite">{{errores.pais}}</div>
+                        <p id="pais-ayuda" class="helper mt-2 mb-0">Mientras el mapa no esté listo, escribilos a mano.</p>
+                    </div>
+                    <div class="register-submit">
+                        <button class="btn submit-btn w-100" type="submit">Crear cuenta</button>
+                        <p class="helper">¿Ya tenés cuenta? <a class="register-link" href="{{basePath}}/login">Iniciá sesión</a></p>
+                    </div>
+                </div>
+            </div>
+        </form>
     </section>
 </main>
 
+<dialog class="editor-foto" id="editor-foto" aria-labelledby="editor-foto-titulo">
+    <div class="editor-foto-head">
+        <h2 id="editor-foto-titulo">Editar imagen</h2>
+        <button type="button" class="editor-foto-cerrar" data-editor="cancelar" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+    </div>
+    <div class="editor-foto-area" id="editor-foto-area" tabindex="0" aria-label="Vista previa. Arrastrá o usá las flechas para mover la imagen.">
+        <img id="editor-foto-img" alt="" draggable="false">
+        <div class="editor-foto-mascara" aria-hidden="true"></div>
+    </div>
+    <div class="editor-foto-zoom">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+        <input type="range" id="editor-foto-zoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+    </div>
+    <div class="editor-foto-acciones">
+        <button type="button" class="editor-foto-reiniciar" data-editor="reiniciar">Reiniciar</button>
+        <div>
+            <button type="button" class="btn editor-foto-cancelar" data-editor="cancelar">Cancelar</button>
+            <button type="button" class="btn submit-btn" data-editor="aplicar">Aplicar</button>
+        </div>
+    </div>
+</dialog>
+
 <script src="{{basePath}}/public/js/registro.js" defer></script>
+<script src="{{basePath}}/public/js/foto-perfil.js" defer></script>

@@ -8,23 +8,22 @@ $currentPage = $_GET['controller'] ?? 'login';
 <header class="site-header">
     <nav class="container site-nav" aria-label="Navegación principal">
         <a class="site-brand" href="<?= $siteUrl ?>/home">
-            <span class="brand-mark" aria-hidden="true">?</span>
-            <span>Preguntados<span class="brand-caption">Un mundo de preguntas</span></span>
+            <span>Preguntados</span>
+            <span class="cinta" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span>
         </a>
         <div class="nav-actions">
-            <a class="site-nav-link <?= $currentPage === 'home' ? 'is-active' : '' ?>" href="<?= $siteUrl ?>/home" <?= $currentPage === 'home' ? 'aria-current="page"' : '' ?>>Inicio</a>
             <?php if ($loggedIn): ?>
                 <details class="profile-menu">
                     <summary><span class="profile-avatar" aria-hidden="true"><?= $escape(strtoupper(substr($_SESSION['usuario'] ?? 'U', 0, 1))) ?></span><span class="profile-label"><?= $escape($_SESSION['usuario'] ?? 'Jugador') ?></span><span class="menu-chevron" aria-hidden="true"></span></summary>
                     <div class="profile-dropdown">
-                        <div class="profile-greeting"><strong><?= $escape($_SESSION['usuario'] ?? 'Jugador') ?></strong><span>Qu&eacute; bueno verte por ac&aacute;</span></div>
-                        <a href="<?= $siteUrl ?>/perfil">Ver mi perfil <span aria-hidden="true">&#8599;</span></a>
+                        <a href="<?= $siteUrl ?>/perfil">Mi perfil</a>
+                        <a class="logout-link" href="<?= $siteUrl ?>/login/logout">Salir</a>
                     </div>
                 </details>
-                <a class="site-nav-link logout-link" href="<?= $siteUrl ?>/login/logout">Salir</a>
+            <?php elseif ($currentPage === 'registro'): ?>
+                <a class="site-nav-link nav-cta-secundario" href="<?= $siteUrl ?>/login">Iniciar sesión</a>
             <?php else: ?>
-                <a class="site-nav-link <?= $currentPage === 'login' ? 'is-active' : '' ?>" href="<?= $siteUrl ?>/login" <?= $currentPage === 'login' ? 'aria-current="page"' : '' ?>>Iniciar sesión</a>
-                <a class="site-nav-link signup-link" href="<?= $siteUrl ?>/registro" <?= $currentPage === 'registro' ? 'aria-current="page"' : '' ?>>Registrarse</a>
+                <a class="site-nav-link signup-link" href="<?= $siteUrl ?>/registro">Registrarse</a>
             <?php endif; ?>
         </div>
     </nav>
