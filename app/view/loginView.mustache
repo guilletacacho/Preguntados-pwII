@@ -1,25 +1,25 @@
-<main class="container login-shell d-flex align-items-center py-5">
-    <div class="row align-items-center justify-content-center g-5 g-lg-3 w-100">
-        <section class="col-12 col-lg-6 d-flex justify-content-center">
-            <div class="intro">
-                <h1>¡Desafía tu mente y pon a prueba tus conocimientos!</h1>
-                <p class="intro-copy mb-4">Gira la ruleta, responde preguntas de múltiples categorías y compite para ver quien sabe mas.</p>
-                <div class="row g-2">
-                    <div class="col-6"><article class="card category-card category-ciencia p-3"><h2>Ciencia</h2><p>Naturaleza</p></article></div>
-                    <div class="col-6"><article class="card category-card category-arte p-3"><h2>Arte</h2><p>Cultura</p></article></div>
-                    <div class="col-6"><article class="card category-card category-historia p-3"><h2>Historia</h2><p>Mundo</p></article></div>
-                    <div class="col-6"><article class="card category-card category-deportes p-3"><h2>Deportes</h2><p>Pasión</p></article></div>
-                    <div class="col-6"><article class="card category-card category-geografia p-3"><h2>Geografía</h2><p>Lugares</p></article></div>
-                    <div class="col-6"><article class="card category-card category-cine p-3"><h2>Cine y TV</h2><p>Pop</p></article></div>
-                </div>
+<main class="login-shell">
+    <div class="login-page">
+        <section class="login-hero">
+            <div>
+                <h1>Trivia para medirte con tus amigos.</h1>
+                <p>Preguntas de geografía, cine y TV, ciencia, arte, historia y deporte. Cada acierto suma un punto y un solo error termina la partida.</p>
             </div>
+            <ul class="personajes" aria-label="Categorías">
+                <li><img src="{{basePath}}/public/img/personajes/geografia.svg" alt="Geografía" width="204" height="206"></li>
+                <li><img src="{{basePath}}/public/img/personajes/cine.svg" alt="Cine y TV" width="204" height="206"></li>
+                <li><img src="{{basePath}}/public/img/personajes/ciencia.svg" alt="Ciencia" width="204" height="206"></li>
+                <li><img src="{{basePath}}/public/img/personajes/arte.svg" alt="Arte" width="204" height="206"></li>
+                <li><img src="{{basePath}}/public/img/personajes/historia.svg" alt="Historia" width="204" height="206"></li>
+                <li><img src="{{basePath}}/public/img/personajes/deporte.svg" alt="Deporte" width="204" height="206"></li>
+            </ul>
         </section>
 
-        <section class="col-12 col-lg-6 d-flex justify-content-center">
+        <section class="login-form-side">
             <div class="card login-card">
-                <div class="card-accent"></div>
                 <div class="login-card-body">
-                    <h2 class="mb-1">Iniciar Sesión</h2>
+                    <h2 class="mb-1">Iniciá sesión</h2>
+                    <p class="helper mb-4">Con tu nombre de usuario y contraseña.</p>
                     {{#error}}
                         <div class="alert alert-danger" role="alert">{{error}}</div>
                     {{/error}}
@@ -33,15 +33,16 @@
                     <form method="post" action="{{basePath}}/login/login">
                         <div class="mb-3">
                             <label for="Usuario" class="form-label">Nombre de usuario</label>
-                            <input class="form-control" id="Usuario" name="Usuario" type="text" placeholder="ej. trivia_master99" autocomplete="username">
+                            <input class="form-control" id="Usuario" name="Usuario" type="text" placeholder="triviamaster_99" autocomplete="username">
                         </div>
                         <div class="mb-4">
                             <label for="Contrasena" class="form-label">Contraseña</label>
-                            <input class="form-control" id="Contrasena" name="Contrasena" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password">
+                            <input class="form-control" id="Contrasena" name="Contrasena" type="password" placeholder="Tu contraseña" autocomplete="current-password">
                         </div>
-                        <button class="btn submit-btn w-100" type="submit">Iniciar Sesión <span aria-hidden="true">→</span></button>
+                        <button class="btn submit-btn w-100" type="submit">Entrar</button>
                     </form>
-                    <p class="text-center helper mt-4 mb-0">¿No tienes una cuenta? <a class="register-link" href="{{basePath}}/registro">Regístrate</a></p>
+                    <hr class="my-4" style="border-color: var(--borde); opacity: 1;">
+                    <p class="text-center helper mb-0">¿Todavía no tenés cuenta? <a class="register-link" href="{{basePath}}/registro">Registrate</a></p>
                 </div>
             </div>
         </section>

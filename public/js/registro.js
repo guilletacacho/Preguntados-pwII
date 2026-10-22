@@ -12,7 +12,7 @@
         });
     });
 
-    const fields = [...form.querySelectorAll('input, select')];
+    const fields = [...form.querySelectorAll('input:not([type="file"]), select')];
     const username = form.elements.usuario;
     const password = form.elements.contrasena;
     const repeat = form.elements.repetirContrasena;
