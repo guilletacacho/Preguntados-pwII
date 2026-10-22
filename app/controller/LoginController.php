@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace app\controller;
 
@@ -18,14 +18,17 @@ class LoginController
 
     
     public function show(){
-        if (isset($_SESSION['usuario_id'])) {
-            Redirect::to('/Preguntados/home');
+        $error = "";
+        if (Request::get("login_error") === "1") {
+            $error = "Usuario o contraseña incorrectos.";
+        } elseif (Request::get("login_error") === "2") {
+            $error = "Cuenta no validada.";
         }
 
         $data = [
-        "error" => Request::get("login_error") !== null
-            ? "Usuario o contraseña incorrectos."
-            : ""
+            "error" => $error,
+            "pendiente" => Request::get("registro") === "pendiente",
+            "verificado" => Request::get("registro") === "verificado"
         ];
 
         $this->render->renderiza("login", $data);
@@ -37,6 +40,12 @@ class LoginController
 
         if ($usuario === null) {
             Redirect::to('/Preguntados/?login_error=1');
+            return;
+        }
+
+        if (!$usuario['verificado']) {
+            Redirect::to('/Preguntados/?login_error=2');
+            return;
         }
 
         session_regenerate_id(true);

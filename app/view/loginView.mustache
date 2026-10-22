@@ -23,6 +23,12 @@
                     {{#error}}
                         <div class="alert alert-danger" role="alert">{{error}}</div>
                     {{/error}}
+                    {{#pendiente}}
+                        <div class="alert alert-warning" role="alert">Te enviamos un correo de verificación. Revisa tu bandeja de entrada para activar tu cuenta.</div>
+                    {{/pendiente}}
+                    {{#verificado}}
+                        <div class="alert alert-success" role="alert">¡Tu cuenta ha sido verificada! Ya puedes iniciar sesión.</div>
+                    {{/verificado}}
 
                     <form method="post" action="{{basePath}}/login/login">
                         <div class="mb-3">

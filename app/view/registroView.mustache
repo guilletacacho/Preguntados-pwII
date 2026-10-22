@@ -51,6 +51,10 @@
                             <div id="usuario-error" class="invalid-feedback" aria-live="polite">{{errores.usuario}}</div>
                         </div>
                         <div class="mb-3">
+                            <label for="email" class="form-label">Correo electrónico</label>
+                            <input class="form-control {{#errores.email}}is-invalid{{/errores.email}}" id="email" aria-describedby="email-error" name="email" value="{{email}}" type="email" placeholder="tu@correo.com" autocomplete="email" required>
+                            <div id="email-error" class="invalid-feedback" aria-live="polite">{{errores.email}}</div>                        </div>
+                        <div class="mb-3">
                             <label for="contrasena" class="form-label">Contraseña</label>
                             <div class="password-field">
                                 <input class="form-control {{#errores.contrasena}}is-invalid{{/errores.contrasena}}" id="contrasena" aria-describedby="contrasena-error" name="contrasena" type="password" placeholder="Mínimo 8 caracteres" minlength="8" autocomplete="new-password" required>

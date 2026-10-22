@@ -5,12 +5,14 @@ namespace app;
 use app\controller\LoginController;
 use app\controller\HomeController;
 use app\controller\RegistroController;
+use app\controller\EmailController;
 
 use app\model\LoginModel;
 use app\model\RegistroModel;
 use MustacheRender;
 use MyDatabase;
 use Router;
+use MailHelper;
 
 require_once("helper/Autoloader.php");
 
@@ -33,13 +35,21 @@ class Configuration
 
     public function getHomeController()
     {
-    return new HomeController(
-        $this->gerRender()
-    );
+        return new HomeController(
+            $this->gerRender()
+        );
     }
 
     public function getRegistroController(){
         return new RegistroController(
+            $this->getRegistroModel(),
+            $this->gerRender(),
+            $this->getMailHelper()
+        );
+    }
+
+    public function getEmailController(){
+        return new EmailController(
             $this->getRegistroModel(),
             $this->gerRender()
         );
@@ -54,21 +64,13 @@ class Configuration
 
     private function getDatabase()
     {
-        $configPath = dirname(__DIR__) . "/config/config.ini";
-        if (!is_readable($configPath)) {
-            throw new \RuntimeException("Falta config/config.ini. Copia config/config.example.ini y configura los datos de MySQL.");
+        $configFile = "config/config.ini";
+
+        if (!file_exists($configFile)) {
+            die("Error: no se encontró el archivo de configuración. Crea 'config/config.ini' copiando 'config/config.example.ini'.");
         }
 
-        $config = parse_ini_file($configPath, false, INI_SCANNER_RAW);
-        if ($config === false) {
-            throw new \RuntimeException("No se pudo leer config/config.ini. Revisa su formato.");
-        }
-
-        foreach (["db_host", "db_user", "db_pass", "db_name", "db_port"] as $key) {
-            if (!array_key_exists($key, $config) || ($key !== "db_pass" && trim($config[$key]) === "")) {
-                throw new \RuntimeException("Falta configurar " . $key . " en config/config.ini.");
-            }
-        }
+        $config = parse_ini_file($configFile);
 
         return new MyDatabase($config["db_host"],
             $config["db_user"],
@@ -81,6 +83,11 @@ class Configuration
     private function gerRender()
     {
         return new MustacheRender();
+    }
+
+    private function getMailHelper()
+    {
+        return new MailHelper();
     }
 
     private function getLoginModel()

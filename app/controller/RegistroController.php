@@ -1,34 +1,39 @@
-<?php
+<?php 
 
 namespace app\controller;
 
 use Redirect;
 use Request;
 
-class RegistroController {
+class RegistroController{
+
     private $model;
     private $render;
+    private $mailHelper;
 
-    public function __construct($model, $render) {
+    public function __construct($model,$render,$mailHelper)
+    {
         $this->model = $model;
         $this->render = $render;
+        $this->mailHelper = $mailHelper;
     }
 
-    public function show() {
-        $this->render->renderiza("registro", ["anioActual" => date('Y')]);
+    public function show(){
+        $data = ["anioActual" => date('Y')];
+        $this->render->renderiza("registro",$data);
     }
 
-        public function disponibilidad() {
+    public function disponibilidad() {
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store');
         $usuario = Request::get('usuario', '');
         echo json_encode(["disponible" => is_string($usuario) && trim($usuario) !== '' && !$this->model->existeUsuario(trim($usuario))]);
     }
 
-    public function registrar() {
+     public function registrar() {
         $data = ["anioActual" => date('Y')];
         $errores = [];
-        foreach (['nombre', 'anioNacimiento', 'sexo', 'pais', 'usuario'] as $campo) {
+        foreach (['nombre', 'anioNacimiento', 'sexo', 'pais', 'usuario', 'email'] as $campo) {
             $valor = Request::post($campo, '');
             $data[$campo] = is_string($valor) ? trim($valor) : '';
             if ($data[$campo] === '') {
@@ -41,8 +46,12 @@ class RegistroController {
         if (!in_array($data['sexo'], ['Femenino', 'Masculino', 'Otro'], true)) {
             $errores['sexo'] = 'Selecciona una opción válida.';
         }
+        if ($data['email'] !== '' && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)){
+            $errores['email'] = 'Ingresa un correo electronico valido.';
+        }
         $contrasena = Request::post('contrasena', '');
         $repetida = Request::post('repetirContrasena', '');
+
         if (!is_string($contrasena) || preg_match_all('/./us', $contrasena) < 8) {
             $errores['contrasena'] = 'La contraseña debe tener al menos 8 caracteres.';
         }
@@ -52,7 +61,13 @@ class RegistroController {
         if ($data['usuario'] !== '' && $this->model->existeUsuario($data['usuario'])) {
             $errores['usuario'] = 'El usuario ya existe.';
         }
-
+        if (
+            $data['email'] !== '' &&
+            filter_var($data['email'], FILTER_VALIDATE_EMAIL) &&
+            $this->model->existeEmail($data['email'])
+        ) {
+            $errores['email'] = 'El correo electronico ya esta registrado.';
+        }
         $fotoUrl = null;
         $archivo = $_FILES['imagen_url'] ?? null;
 
@@ -60,17 +75,54 @@ class RegistroController {
             $fotoUrl = $this->subirMiImagen($archivo);
 
             if ($fotoUrl === null){
-                $this->render->renderiza("registro", [
-                    "error" => "No se pudo guardar la imagen."
-                ]);
+                $data['error'] = "No se pudo guardar la imagen.";
+                $this->render->renderiza("registro", $data);
                 return;
             }
         }
 
-        if (!$errores && $this->model->insertar($data['nombre'], $data['anioNacimiento'], $data['sexo'], $data['pais'], $data['usuario'], $contrasena, $fotoUrl)) {
-            Redirect::to('/Preguntados/?registro=ok');
+        if (!$errores && $this->model->insertar(
+        $data['nombre'],
+        $data['anioNacimiento'],
+        $data['sexo'],
+        $data['pais'],
+        $data['usuario'],
+        $data['email'],
+        $contrasena,
+        $fotoUrl
+    )) {
+        $usuarioDb = $this->model->obtenerUsuarioPorNombre($data['usuario']);
+
+        if (!$usuarioDb) {
+            error_log("No se pudo encontrar el usuario recién registrado.");
+            Redirect::to('/Preguntados/?registro=error');
             return;
         }
+
+        $token = bin2hex(random_bytes(32));
+        $expira = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+        if (!$this->model->guardarToken($usuarioDb['Id'], $token, $expira)) {
+            error_log("No se pudo guardar el token de verificación.");
+            Redirect::to('/Preguntados/?registro=error');
+            return;
+        }
+
+        $emailEnviado = $this->mailHelper->enviarVerificacion(
+            $data['email'],
+            $data['nombre'],
+            $token
+        );
+
+        if (!$emailEnviado) {
+            error_log("No se pudo enviar el email de verificación.");
+            Redirect::to('/Preguntados/?registro=error');
+            return;
+        }
+
+        Redirect::to('/Preguntados/?registro=pendiente');
+        return;
+    }
         $data['errores'] = $errores;
         $data['error'] = $errores ? 'Revisa los campos indicados para completar el registro.' : 'No se pudo completar el registro. Inténtalo de nuevo.';
         foreach (['Femenino', 'Masculino', 'Otro'] as $sexo) {
@@ -79,6 +131,8 @@ class RegistroController {
         $this->render->renderiza('registro', $data);
 
     }
+
+    //Function para subir imagen 
 
      private function subirMiImagen($archivo){
 
@@ -123,5 +177,4 @@ class RegistroController {
         return $nombreUnico;
 
     }
-
 }

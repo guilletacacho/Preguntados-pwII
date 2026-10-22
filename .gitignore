@@ -4,6 +4,15 @@
 
 #evitar el config.ini
 /config/config.ini
+/config/mail.ini
 
-#evitar que no cargue la carpeta de imagenes
 /app/img-foto-perfil/
+
+/vendor/
+!/vendor/mustache/
+
+.idea/
+.vscode/
+
+.DS_Store
+Thumbs.db
