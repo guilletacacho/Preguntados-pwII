@@ -17,8 +17,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+
       - name: Descargar codigo del repositorio
         uses: actions/checkout@v4
+
+      - name: Configurar PHP y Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+ 
+      - name: Instalar dependencias de Composer
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
 
       - name: Simular publicacion por FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
@@ -35,6 +45,7 @@ jobs:
             **/.git*/**
             **/.github/**
             **/config/config.ini
+            **/config/mail.ini
             **/.env
             **/node_modules/**
 
