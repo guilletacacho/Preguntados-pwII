@@ -38,7 +38,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          server-dir: /htdocs/Preguntados/
+          server-dir: /htdocs/
           dry-run: false
           exclude: |
             **/.git*
