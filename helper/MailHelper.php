@@ -81,6 +81,7 @@ class MailHelper
     {
         $protocolo = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        return "{$protocolo}://{$host}/Preguntados";
+        $basePath = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/");
+        return "{$protocolo}://{$host}{$basePath}";
     }
 }

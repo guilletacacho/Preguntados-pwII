@@ -8,7 +8,7 @@
                     <h1 class="h2 mt-2 mb-1 fw-bold">¡Bienvenido, {{nombre}}!</h1>
                     <p class="helper mb-0">Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar sesión.</p>
                     <div class="mt-4">
-                        <a href="/Preguntados/login" class="btn submit-btn w-100" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 5px; color: white;">Ir a Iniciar Sesión</a>
+                        <a href="{{basePath}}/login" class="btn submit-btn w-100" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 5px; color: white;">Ir a Iniciar Sesión</a>
                     </div>
                 {{/exito}}
                 {{#error}}
@@ -16,7 +16,7 @@
                     <h1 class="h2 mt-2 mb-1 fw-bold">Enlace inválido</h1>
                     <p class="helper mb-0">{{error}}</p>
                     <div class="mt-4">
-                        <a href="/Preguntados/registro" class="btn submit-btn w-100" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 5px; color: white;">Volver al Registro</a>
+                        <a href="{{basePath}}/registro" class="btn submit-btn w-100" style="display: inline-block; text-decoration: none; padding: 12px 24px; border-radius: 5px; color: white;">Volver al Registro</a>
                     </div>
                 {{/error}}
             </div>
