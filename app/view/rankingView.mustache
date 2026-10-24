@@ -1,0 +1,194 @@
+<main class="ranking-shell ranking-shell-with-characters">
+    <div class="ranking-characters ranking-characters-left" aria-hidden="true">
+        <ul class="personajes personajes-ranking personajes-ranking-left">
+            <li><img src="{{basePath}}/public/img/personajes/geografia.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/cine.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/ciencia.svg" alt="" width="204" height="206"></li>
+        </ul>
+    </div>
+    <div class="ranking-container">
+        <header class="ranking-header">
+            <div class="ranking-title-group">
+                <span class="eyebrow">CLASIFICACIÓN</span>
+                <h1>RANKING TOP 10</h1>
+                <p class="ranking-subtitle">Los mejores jugadores de Preguntados</p>
+            </div>
+            <div class="ranking-cinta-wrapper">
+                <div class="cinta ranking-cinta">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+            </div>
+        </header>
+
+        <nav class="ranking-tabs" role="tablist">
+            <a class="ranking-tab {{#tabSemanales}}is-active{{/tabSemanales}}" href="/Preguntados/ranking?tab=semanal" role="tab">
+                <span class="tab-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </span>
+                Semanal
+            </a>
+            <a class="ranking-tab {{#tabMensuales}}is-active{{/tabMensuales}}" href="/Preguntados/ranking?tab=mensual" role="tab">
+                <span class="tab-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"></path>
+                    </svg>
+                </span>
+                Mensual
+            </a>
+            <a class="ranking-tab {{#tabHistoricos}}is-active{{/tabHistoricos}}" href="/Preguntados/ranking?tab=historico" role="tab">
+                <span class="tab-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                        <polyline points="17 6 23 6 23 12"></polyline>
+                    </svg>
+                </span>
+                Histórico
+            </a>
+        </nav>
+
+        {{#tabSemanales}}
+        <section class="ranking-section">
+            <div class="ranking-section-header">
+                <h2>Top 10 - Semana</h2>
+                <span class="ranking-period">Últimos 7 días</span>
+            </div>
+            <div class="ranking-table-wrapper">
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th class="col-puesto">#</th>
+                            <th class="col-jugador">Jugador</th>
+                            <th class="col-partidas">Partidas</th>
+                            <th class="col-puntos">Puntos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#semanal}}
+                        <tr class="ranking-row puesto-{{puesto}}">
+                            <td class="col-puesto">
+                                <div class="puesto-badge puesto-{{puesto}}">
+                                    {{#puesto1}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto1}}
+                                    {{#puesto2}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto2}}
+                                    {{#puesto3}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto3}}
+                                    {{#puestoTop}}<span class="puesto-num">{{puesto}}</span>{{/puestoTop}}
+                                </div>
+                            </td>
+                            <td class="col-jugador">
+                                <div class="jugador-info">
+                                    <span class="jugador-avatar">{{avatar}}</span>
+                                    <span class="jugador-nombre">{{usuario}}</span>
+                                </div>
+                            </td>
+                            <td class="col-partidas">{{partidas}}</td>
+                            <td class="col-puntos">{{puntos}}</td>
+                        </tr>
+                        {{/semanal}}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {{/tabSemanales}}
+
+        {{#tabMensuales}}
+        <section class="ranking-section">
+            <div class="ranking-section-header">
+                <h2>Top 10 - Mensual</h2>
+                <span class="ranking-period">Último mes</span>
+            </div>
+            <div class="ranking-table-wrapper">
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th class="col-puesto">#</th>
+                            <th class="col-jugador">Jugador</th>
+                            <th class="col-partidas">Partidas</th>
+                            <th class="col-puntos">Puntos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#mensual}}
+                        <tr class="ranking-row puesto-{{puesto}}">
+                            <td class="col-puesto">
+                                <div class="puesto-badge puesto-{{puesto}}">
+                                    {{#puesto1}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto1}}
+                                    {{#puesto2}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto2}}
+                                    {{#puesto3}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto3}}
+                                    {{#puestoTop}}<span class="puesto-num">{{puesto}}</span>{{/puestoTop}}
+                                </div>
+                            </td>
+                            <td class="col-jugador">
+                                <div class="jugador-info">
+                                    <span class="jugador-avatar">{{avatar}}</span>
+                                    <span class="jugador-nombre">{{usuario}}</span>
+                                </div>
+                            </td>
+                            <td class="col-partidas">{{partidas}}</td>
+                            <td class="col-puntos">{{puntos}}</td>
+                        </tr>
+                        {{/mensual}}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {{/tabMensuales}}
+
+        {{#tabHistoricos}}
+        <section class="ranking-section">
+            <div class="ranking-section-header">
+                <h2>Top 10 - Histórico</h2>
+                <span class="ranking-period">Todos los tiempos</span>
+            </div>
+            <div class="ranking-table-wrapper">
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th class="col-puesto">#</th>
+                            <th class="col-jugador">Jugador</th>
+                            <th class="col-partidas">Partidas</th>
+                            <th class="col-puntos">Puntos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#historico}}
+                        <tr class="ranking-row puesto-{{puesto}}">
+                            <td class="col-puesto">
+                                <div class="puesto-badge puesto-{{puesto}}">
+                                    {{#puesto1}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto1}}
+                                    {{#puesto2}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto2}}
+                                    {{#puesto3}}<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{{/puesto3}}
+                                    {{#puestoTop}}<span class="puesto-num">{{puesto}}</span>{{/puestoTop}}
+                                </div>
+                            </td>
+                            <td class="col-jugador">
+                                <div class="jugador-info">
+                                    <span class="jugador-avatar">{{avatar}}</span>
+                                    <span class="jugador-nombre">{{usuario}}</span>
+                                </div>
+                            </td>
+                            <td class="col-partidas">{{partidas}}</td>
+                            <td class="col-puntos">{{puntos}}</td>
+                        </tr>
+                        {{/historico}}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {{/tabHistoricos}}
+    </div>
+    <div class="ranking-characters ranking-characters-right" aria-hidden="true">
+        <ul class="personajes personajes-ranking personajes-ranking-right">
+            <li><img src="{{basePath}}/public/img/personajes/arte.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/historia.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/deporte.svg" alt="" width="204" height="206"></li>
+        </ul>
+    </div>
+</main>

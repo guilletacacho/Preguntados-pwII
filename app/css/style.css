@@ -283,6 +283,453 @@ a:hover { color: var(--texto); }
     .register-head .personajes { grid-template-columns: repeat(2, 64px); }
 }
 
+/* ── Ranking ─────────────────────────────────────── */
+.ranking-shell {
+    flex: 1;
+    width: 100%;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 5vw, 2rem);
+    background: radial-gradient(ellipse at top, rgba(63, 81, 181, 0.15) 0%, transparent 50%);
+}
+
+.ranking-shell-with-characters {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 900px) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(2rem, 8vw, 10rem);
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+    overflow: visible;
+}
+
+.ranking-characters {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 4rem;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ranking-characters-left {
+    justify-content: flex-end;
+}
+
+.ranking-characters-right {
+    justify-content: flex-start;
+}
+
+.personajes-ranking {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.personajes-ranking li {
+    width: clamp(160px, 20vw, 280px);
+    filter: drop-shadow(0 40px 80px rgba(0, 0, 0, 0.7));
+    animation: float 4s ease-in-out infinite;
+}
+
+.personajes-ranking li:nth-child(2) {
+    animation-delay: 0.8s;
+}
+
+.personajes-ranking li:nth-child(3) {
+    animation-delay: 1.6s;
+}
+
+.personajes-ranking-left li:nth-child(1) {
+    transform: rotate(-18deg) translateX(-10%);
+    animation-name: float-left-1;
+}
+
+.personajes-ranking-left li:nth-child(2) {
+    transform: rotate(-10deg) translateX(-5%);
+    animation-name: float-left-2;
+    margin-top: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.personajes-ranking-left li:nth-child(3) {
+    transform: rotate(-4deg);
+    animation-name: float-left-3;
+    margin-top: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.personajes-ranking-right li:nth-child(1) {
+    transform: rotate(18deg) translateX(10%);
+    animation-name: float-right-1;
+}
+
+.personajes-ranking-right li:nth-child(2) {
+    transform: rotate(10deg) translateX(5%);
+    animation-name: float-right-2;
+    margin-top: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.personajes-ranking-right li:nth-child(3) {
+    transform: rotate(4deg);
+    animation-name: float-right-3;
+    margin-top: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.personajes-ranking img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@keyframes float-left-1 {
+    0%, 100% { transform: rotate(-18deg) translateX(-10%) translateY(0px); }
+    50% { transform: rotate(-18deg) translateX(-10%) translateY(-25px); }
+}
+
+@keyframes float-left-2 {
+    0%, 100% { transform: rotate(-10deg) translateX(-5%) translateY(0px); }
+    50% { transform: rotate(-10deg) translateX(-5%) translateY(-25px); }
+}
+
+@keyframes float-left-3 {
+    0%, 100% { transform: rotate(-4deg) translateY(0px); }
+    50% { transform: rotate(-4deg) translateY(-25px); }
+}
+
+@keyframes float-right-1 {
+    0%, 100% { transform: rotate(18deg) translateX(10%) translateY(0px); }
+    50% { transform: rotate(18deg) translateX(10%) translateY(-25px); }
+}
+
+@keyframes float-right-2 {
+    0%, 100% { transform: rotate(10deg) translateX(5%) translateY(0px); }
+    50% { transform: rotate(10deg) translateX(5%) translateY(-25px); }
+}
+
+@keyframes float-right-3 {
+    0%, 100% { transform: rotate(4deg) translateY(0px); }
+    50% { transform: rotate(4deg) translateY(-25px); }
+}
+
+.ranking-container {
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.ranking-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.ranking-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+.ranking-title-group .eyebrow {
+    font-size: .85rem;
+    letter-spacing: .12em;
+    font-weight: 800;
+}
+
+.ranking-header h1 {
+    margin: 0;
+    font-size: clamp(3rem, 8vw, 4.2rem);
+    font-weight: 900;
+    letter-spacing: -.05em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--texto) 0%, var(--geografia) 50%, var(--ciencia) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 10px 60px rgba(63, 81, 181, 0.4);
+}
+
+.ranking-subtitle {
+    margin: 0;
+    color: var(--texto-sec);
+    font-size: 1rem;
+}
+
+.ranking-cinta-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.ranking-cinta {
+    width: 200px;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.ranking-tabs {
+    display: flex;
+    gap: .5rem;
+    padding: .4rem;
+    background: var(--hundido);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    overflow-x: auto;
+}
+
+.ranking-tab {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .7rem 1rem;
+    border-radius: calc(var(--radio) - 4px);
+    color: var(--texto-sec);
+    font-weight: 600;
+    font-size: .9rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.ranking-tab:hover {
+    color: var(--texto);
+    background: var(--superficie);
+}
+
+.ranking-tab.is-active {
+    background: linear-gradient(135deg, var(--geografia) 0%, #5C9BFF 100%);
+    color: #0E2338;
+    font-weight: 700;
+}
+
+.tab-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ranking-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.ranking-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 0;
+    gap: 1rem;
+}
+
+.ranking-section-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.ranking-period {
+    padding: .35rem .8rem;
+    background: var(--hundido);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    color: var(--texto-sec);
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.ranking-table-wrapper {
+    overflow-x: auto;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ranking-table thead tr {
+    border-bottom: 1px solid var(--borde);
+}
+
+.ranking-table th {
+    padding: .9rem 1.5rem;
+    text-align: left;
+    color: var(--texto-sec);
+    font-size: .8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.ranking-table th.col-partidas {
+    text-align: center;
+}
+
+.ranking-table th.col-puntos {
+    text-align: center;
+}
+
+.ranking-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--borde);
+}
+
+.ranking-table td.col-partidas {
+    text-align: center;
+}
+
+.ranking-table td.col-puntos {
+    text-align: center;
+}
+
+.ranking-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.ranking-row {
+    transition: background 0.2s ease;
+}
+
+.ranking-row:hover {
+    background: rgba(111, 183, 245, 0.05);
+}
+
+.col-puesto {
+    width: 80px;
+    text-align: center;
+}
+
+.puesto-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    font-weight: 700;
+}
+
+.puesto-badge.puesto-1 {
+    color: #FFD700;
+}
+
+.puesto-badge.puesto-2 {
+    color: #C0C0C0;
+}
+
+.puesto-badge.puesto-3 {
+    color: #CD7F32;
+}
+
+.puesto-num {
+    color: var(--texto-sec);
+    font-weight: 600;
+}
+
+.col-jugador {
+    min-width: 200px;
+}
+
+.jugador-info {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+}
+
+.jugador-avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--geografia) 0%, var(--ciencia) 100%);
+    color: #0E2338;
+    font-weight: 700;
+    font-size: .9rem;
+    flex-shrink: 0;
+}
+
+.jugador-nombre {
+    font-weight: 600;
+    color: var(--texto);
+}
+
+.col-partidas {
+    color: var(--texto-sec);
+    text-align: center;
+}
+
+.col-puntos {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--deporte);
+}
+
+@media (max-width: 1599.98px) {
+    .personajes-ranking li {
+        width: clamp(140px, 16vw, 240px);
+    }
+}
+
+@media (max-width: 1399.98px) {
+    .personajes-ranking li {
+        width: clamp(120px, 14vw, 200px);
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .ranking-characters {
+        display: none;
+    }
+
+    .ranking-shell-with-characters {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        overflow: visible;
+    }
+
+    .ranking-container {
+        width: min(100%, 900px);
+        z-index: 1;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .ranking-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .ranking-table th,
+    .ranking-table td {
+        padding: .8rem 1rem;
+    }
+    
+    .col-puesto {
+        width: 60px;
+    }
+    
+    .jugador-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: .8rem;
+    }
+    
+    .col-puntos {
+        font-size: 1rem;
+    }
+}
+
 @media (max-width: 575.98px) {
     .site-nav { min-height: 60px; }
     .site-brand { font-size: 1.15rem; }
@@ -290,4 +737,27 @@ a:hover { color: var(--texto); }
     .profile-label { max-width: 90px; }
     .register-row { grid-template-columns: minmax(0, 1fr); }
     .register-head .personajes { display: none; }
+    
+    .ranking-tabs {
+        gap: .3rem;
+    }
+    
+    .ranking-tab {
+        font-size: .85rem;
+        padding: .6rem .7rem;
+    }
+    
+    .tab-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .ranking-table th,
+    .ranking-table td {
+        padding: .7rem .75rem;
+    }
+    
+    .jugador-nombre {
+        font-size: .9rem;
+    }
 }

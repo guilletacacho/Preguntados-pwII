@@ -13,6 +13,7 @@ $currentPage = $_GET['controller'] ?? 'login';
         </a>
         <div class="nav-actions">
             <?php if ($loggedIn): ?>
+                <a class="site-nav-link <?= $currentPage === 'ranking' ? 'is-active' : '' ?>" href="<?= $siteUrl ?>/ranking" <?= $currentPage === 'ranking' ? 'aria-current="page"' : '' ?>>Ranking</a>
                 <details class="profile-menu">
                     <summary><span class="profile-avatar" aria-hidden="true"><?= $escape(strtoupper(substr($_SESSION['usuario'] ?? 'U', 0, 1))) ?></span><span class="profile-label"><?= $escape($_SESSION['usuario'] ?? 'Jugador') ?></span><span class="menu-chevron" aria-hidden="true"></span></summary>
                     <div class="profile-dropdown">

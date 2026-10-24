@@ -6,9 +6,11 @@ use app\controller\LoginController;
 use app\controller\HomeController;
 use app\controller\RegistroController;
 use app\controller\EmailController;
+use app\controller\RankingController;
 
 use app\model\LoginModel;
 use app\model\RegistroModel;
+use app\model\RankingModel;
 use MustacheRender;
 use MyDatabase;
 use Router;
@@ -51,6 +53,14 @@ class Configuration
     public function getEmailController(){
         return new EmailController(
             $this->getRegistroModel(),
+            $this->gerRender()
+        );
+    }
+
+    public function getRankingController()
+    {
+        return new RankingController(
+            $this->getRankingModel(),
             $this->gerRender()
         );
     }
@@ -99,6 +109,13 @@ class Configuration
 
     private function getRegistroModel(){
         return new RegistroModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getRankingModel()
+    {
+        return new RankingModel(
             $this->getDatabase()
         );
     }
