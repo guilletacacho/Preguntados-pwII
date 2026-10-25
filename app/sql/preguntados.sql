@@ -124,3 +124,7 @@ CREATE TABLE IF NOT EXISTS `statistics` (
   CONSTRAINT `fk_statistics_user` FOREIGN KEY (`user_id`)
     REFERENCES `usuarios` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS Foto_url varchar(255) DEFAULT NULL;
+
