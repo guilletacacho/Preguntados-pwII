@@ -6,6 +6,7 @@ use app\controller\LoginController;
 use app\controller\HomeController;
 use app\controller\RegistroController;
 use app\controller\EmailController;
+use app\model\PerfilModel;
 
 use app\model\LoginModel;
 use app\model\RegistroModel;
@@ -59,7 +60,10 @@ class Configuration
 
     public function getPerfilController()
     {
-        return new \app\controller\PerfilController($this->gerRender());
+        return new \app\controller\PerfilController(
+            $this->getPerfilModel(),
+            $this->gerRender()
+        );
     }
 
     private function getDatabase()
@@ -99,6 +103,13 @@ class Configuration
 
     private function getRegistroModel(){
         return new RegistroModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getPerfilModel()
+    {
+        return new PerfilModel(
             $this->getDatabase()
         );
     }

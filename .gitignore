@@ -8,8 +8,9 @@
 
 /app/img-foto-perfil/
 
-/vendor/
+/vendor/*
 !/vendor/mustache/
+!/vendor/phpqrcode/
 
 .idea/
 .vscode/
