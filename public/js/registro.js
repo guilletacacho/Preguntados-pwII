@@ -12,15 +12,102 @@
         });
     });
 
-    const fields = [...form.querySelectorAll('input:not([type="file"]), select')];
+    const fields = [...form.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([readonly]), select')];
     const username = form.elements.usuario;
     const password = form.elements.contrasena;
     const repeat = form.elements.repetirContrasena;
+    const latitude = form.elements.latitude;
+    const longitude = form.elements.longitude;
+    const locationInput = form.elements.ubicacion;
+    const locationError = document.getElementById('ubicacion-error');
+    const mapElement = document.getElementById('map');
     let timer;
     let request;
     let checkedName = '';
     let available = null;
     let submitting = false;
+    let map;
+    let marker;
+
+    if (mapElement && window.L) {
+        map = L.map(mapElement).setView([0, 0], 2);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
+        }).addTo(map);
+    }
+
+    function mostrarUbicacion(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        latitude.value = String(lat);
+        longitude.value = String(lon);
+
+        if (map) {
+            const point = [lat, lon];
+            if (marker) marker.setLatLng(point);
+            else marker = L.marker(point).addTo(map);
+            map.setView(point, 13);
+        }
+    }
+
+    function obtenerUbicacion() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('unsupported'));
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: false,
+                maximumAge: 0,
+                timeout: 10000
+            });
+        });
+    }
+
+    function mensajeErrorUbicacion(error) {
+        if (error.message === 'unsupported') return 'Este navegador no permite obtener la ubicación.';
+        if (error.code === 1) return 'Permití el acceso a la ubicación para completar el registro.';
+        if (error.code === 3) return 'No pudimos obtener tu ubicación a tiempo. Intentá de nuevo.';
+        return 'No pudimos obtener tu ubicación. Revisá el permiso y la conexión e intentá de nuevo.';
+    }
+
+    async function actualizarUbicacion() {
+        locationInput.value = 'Buscando tu ubicación…';
+        locationError.textContent = '';
+        try {
+            const position = await obtenerUbicacion();
+            mostrarUbicacion(position);
+            const url = new URL(form.action, window.location.href);
+            url.searchParams.set('method', 'ubicacion');
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ latitude: latitude.value, longitude: longitude.value }),
+                cache: 'no-store'
+            });
+            if (!response.ok) throw new Error('geocoding');
+            const result = await response.json();
+            const provincia = typeof result.provincia === 'string' ? result.provincia : '';
+            const pais = typeof result.pais === 'string' ? result.pais : '';
+            locationInput.value = [pais, provincia].filter(Boolean).join(', ');
+            if (!locationInput.value) throw new Error('empty-location');
+            locationError.textContent = '';
+            locationInput.classList.remove('is-invalid');
+            locationInput.removeAttribute('aria-invalid');
+            return true;
+        } catch (error) {
+            locationInput.value = '';
+            locationError.textContent = error.message === 'geocoding' || error.message === 'empty-location'
+                ? 'Detectamos tu ubicación, pero no pudimos obtener el país y la provincia. Intentá de nuevo.'
+                : mensajeErrorUbicacion(error);
+            locationInput.classList.add('is-invalid');
+            locationInput.setAttribute('aria-invalid', 'true');
+            return false;
+        }
+    }
+
+    actualizarUbicacion();
 
     function show(field, message) {
         field.setCustomValidity(message);
@@ -103,6 +190,10 @@
             await checkUsername();
             if (fields.map(validate).includes(false)) {
                 form.querySelector('.is-invalid').focus();
+                return;
+            }
+            if (!await actualizarUbicacion()) {
+                locationInput.focus();
                 return;
             }
             HTMLFormElement.prototype.submit.call(form);

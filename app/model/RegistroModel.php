@@ -11,16 +11,17 @@ class RegistroModel{
         $this->database = $database;
     }
 
-    public function insertar($nombre,$anioNacimiento,$sexo,$pais,$usuario,$email,$contrasena,$fotoUrl){
+    public function insertar($nombre,$anioNacimiento,$sexo,$provincia,$pais,$usuario,$email,$contrasena,$fotoUrl){
 
         $sql = "INSERT INTO usuarios 
-        (Nombre,anio_nacimiento,Sexo,Pais,Usuario,Email,Contrasena,Verificado,Token,Foto_url)
-        VALUES (?,?,?,?,?,?,?,0,NULL,?)";
+        (Nombre,anio_nacimiento,Sexo,Provincia,Pais,Usuario,Email,Contrasena,Verificado,Token,Foto_url)
+        VALUES (?,?,?,?,?,?,?,?,0,NULL,?)";
 
         return $this->database->execute($sql,[
             $nombre,
             $anioNacimiento,
             $sexo,
+            $provincia,
             $pais,
             $usuario,
             $email,

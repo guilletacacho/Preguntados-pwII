@@ -114,25 +114,7 @@
 
                 <div class="register-col">
                     <h2>Dónde estás</h2>
-                    <div class="mapa-muestra">
-                        <svg class="mapa-fondo" viewBox="0 0 540 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                            <path d="M-20 90 Q60 30 150 70 Q200 110 170 170 Q120 220 50 200 Q-10 180 -20 90 Z" fill="#2F4A3C"/>
-                            <path d="M210 -20 Q330 -10 380 70 Q410 160 340 220 Q270 270 220 200 Q170 110 210 -20 Z" fill="#2F4A3C"/>
-                            <path d="M400 150 Q500 120 560 190 Q555 300 460 330 Q390 300 400 150 Z" fill="#2F4A3C"/>
-                            <path d="M60 330 Q140 290 230 360 Q160 400 60 330 Z" fill="#2F4A3C"/>
-                            <path d="M0 260 Q140 230 270 300 M250 40 Q300 120 270 210 M430 170 Q470 230 440 300" fill="none" stroke="#3E5C4B" stroke-width="2"/>
-                            <path d="M0 95 H540 M0 190 H540 M0 285 H540 M135 0 V380 M270 0 V380 M405 0 V380" stroke="#2B3F50" stroke-width="1"/>
-                            <ellipse cx="300" cy="238" rx="18" ry="6" fill="rgba(0, 0, 0, .35)"/>
-                            <path d="M300 232 C 284 212, 278 204, 278 190 A 22 22 0 0 1 322 190 C 322 204, 316 212, 300 232 Z" fill="#3B9EEA"/>
-                            <circle cx="300" cy="190" r="8" fill="#1E2633"/>
-                        </svg>
-                        <div class="mapa-buscador" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-                            Buscá tu ciudad
-                        </div>
-                        <div class="mapa-zoom" aria-hidden="true"><span>+</span><span>−</span></div>
-                        <span class="mapa-etiqueta">Mapa de muestra: todavía no funciona</span>
-                    </div>
+                    <div id="map" role="application" aria-label="Mapa interactivo de OpenStreetMap"></div>
                     <div>
                         <label for="pais" class="form-label">País y ciudad</label>
                         <input class="form-control {{#errores.pais}}is-invalid{{/errores.pais}}" id="pais" aria-describedby="pais-error" name="pais" value="{{pais}}" type="text" autocomplete="country-name" required>
@@ -173,5 +155,7 @@
     </div>
 </dialog>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{basePath}}/public/js/editar-perfil.js" defer></script>
 <script src="{{basePath}}/public/js/foto-perfil.js" defer></script>
