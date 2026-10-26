@@ -13,7 +13,7 @@
                 <dl class="perfil-datos">
                     <div>
                         <dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Ubicación"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg></dt>
-                        <dd>{{pais}}</dd>
+                        <dd>{{ubicacion}}</dd>
                     </div>
                     {{#juegaDesde}}
                     <div>
@@ -76,7 +76,8 @@
 
                 <section>
                     <h2>Dónde juega</h2>
-                    <div id="perfil-map" class="perfil-mapa" role="application" aria-label="Mapa de OpenStreetMap"></div>
+                    <div id="perfil-map" class="perfil-mapa ubicacion-mapa" data-pais="{{pais}}" data-provincia="{{provincia}}" role="application" aria-label="Mapa de OpenStreetMap"></div>
+                    <p class="helper mt-2 mb-0 ubicacion-mapa-estado" aria-live="polite"></p>
                 </section>
             </div>
 
@@ -89,4 +90,5 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{{basePath}}/public/js/ubicacion-mapa.js" defer></script>
 <script src="{{basePath}}/public/js/perfil.js" defer></script>

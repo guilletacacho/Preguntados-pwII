@@ -35,6 +35,8 @@ class PerfilController
             'usuarioUrl' => urlencode($fila['Usuario']),
             'inicial' => mb_strtoupper(mb_substr($fila['Nombre'], 0, 1)),
             'pais' => $fila['Pais'],
+            'provincia' => $fila['Provincia'],
+            'ubicacion' => implode(', ', array_filter([$fila['Provincia'], $fila['Pais']])),
             'fotoUrl' => $fila['Foto_url'],
             'esMiPerfil' => (int) $fila['Id'] === (int) $_SESSION['usuario_id'],
             'puntaje' => 0,
@@ -76,6 +78,7 @@ class PerfilController
             'nombre' => $fila['Nombre'],
             'anioNacimiento' => $fila['Anio_nacimiento'],
             'sexo' => $fila['Sexo'],
+            'provincia' => $fila['Provincia'],
             'pais' => $fila['Pais'],
             'email' => $fila['Email'],
             'usuario' => $fila['Usuario'],
@@ -104,7 +107,7 @@ class PerfilController
         ];
         $errores = [];
 
-        foreach (['nombre', 'anioNacimiento', 'sexo', 'pais', 'email'] as $campo) {
+        foreach (['nombre', 'anioNacimiento', 'sexo', 'provincia', 'pais', 'email'] as $campo) {
             $data[$campo] = trim($this->textoPost($campo));
             if ($data[$campo] === '') {
                 $errores[$campo] = 'Completá este campo.';
@@ -114,8 +117,11 @@ class PerfilController
         if (mb_strlen($data['nombre']) > 50) {
             $errores['nombre'] = 'El nombre puede tener hasta 50 caracteres.';
         }
-        if (mb_strlen($data['pais']) > 50) {
-            $errores['pais'] = 'Este campo puede tener hasta 50 caracteres.';
+        if (mb_strlen($data['provincia']) > 150) {
+            $errores['provincia'] = 'Este campo puede tener hasta 150 caracteres.';
+        }
+        if (mb_strlen($data['pais']) > 150) {
+            $errores['pais'] = 'Este campo puede tener hasta 150 caracteres.';
         }
         if ($data['anioNacimiento'] !== '' && (!ctype_digit($data['anioNacimiento']) || (int) $data['anioNacimiento'] < 1900 || (int) $data['anioNacimiento'] > (int) date('Y'))) {
             $errores['anioNacimiento'] = 'Ingresá un año entre 1900 y ' . date('Y') . '.';
@@ -164,7 +170,7 @@ class PerfilController
             return;
         }
 
-        $this->model->actualizar($id, $data['nombre'], $data['anioNacimiento'], $data['sexo'], $data['pais'], $data['email'], $fotoNueva);
+        $this->model->actualizar($id, $data['nombre'], $data['anioNacimiento'], $data['sexo'], $data['provincia'], $data['pais'], $data['email'], $fotoNueva);
 
         if ($cambiaContrasena) {
             $this->model->actualizarContrasena($id, $contrasena);

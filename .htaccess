@@ -28,7 +28,6 @@ Options -Indexes
     # Sin RewriteBase: Apache usa la carpeta de este .htaccess, así anda
     # igual en localhost/preguntados/ y en la raíz del hosting.
     # Con "RewriteBase /" en local las URLs buscan htdocs/index.php y dan 404.
-    RewriteBase /
     # ── SEGURIDAD: código interno inaccesible por URL directa ──
     # Las hojas de estilo en app/css/ son públicas.
     RewriteRule ^app/css/ - [L]

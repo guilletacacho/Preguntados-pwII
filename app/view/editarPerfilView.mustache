@@ -114,9 +114,15 @@
 
                 <div class="register-col">
                     <h2>Dónde estás</h2>
-                    <div id="map" role="application" aria-label="Mapa interactivo de OpenStreetMap"></div>
+                    <div id="map" class="ubicacion-mapa" data-pais="{{pais}}" data-provincia="{{provincia}}" role="application" aria-label="Mapa interactivo de OpenStreetMap"></div>
+                    <p class="helper mt-2 mb-0 ubicacion-mapa-estado" aria-live="polite"></p>
                     <div>
-                        <label for="pais" class="form-label">País y ciudad</label>
+                        <label for="provincia" class="form-label">Provincia</label>
+                        <input class="form-control {{#errores.provincia}}is-invalid{{/errores.provincia}}" id="provincia" aria-describedby="provincia-error" name="provincia" value="{{provincia}}" type="text" autocomplete="address-level1" required>
+                        <div id="provincia-error" class="invalid-feedback" aria-live="polite">{{errores.provincia}}</div>
+                    </div>
+                    <div>
+                        <label for="pais" class="form-label">País</label>
                         <input class="form-control {{#errores.pais}}is-invalid{{/errores.pais}}" id="pais" aria-describedby="pais-error" name="pais" value="{{pais}}" type="text" autocomplete="country-name" required>
                         <div id="pais-error" class="invalid-feedback" aria-live="polite">{{errores.pais}}</div>
                     </div>
@@ -157,5 +163,6 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{{basePath}}/public/js/ubicacion-mapa.js" defer></script>
 <script src="{{basePath}}/public/js/editar-perfil.js" defer></script>
 <script src="{{basePath}}/public/js/foto-perfil.js" defer></script>

@@ -10,19 +10,19 @@ class PerfilModel {
     }
 
     public function obtenerPorId($id){
-        $sql = "SELECT Id, Nombre, Usuario, Pais, Foto_url FROM usuarios WHERE Id = ?";
+        $sql = "SELECT Id, Nombre, Usuario, Provincia, Pais, Foto_url FROM usuarios WHERE Id = ?";
 
         return $this->database->queryOne($sql,[$id]);
     }
 
     public function obtenerPorUsuario($usuario){
-        $sql = "SELECT Id, Nombre, Usuario, Pais, Foto_url FROM usuarios WHERE Usuario = ? AND Verificado = 1";
+        $sql = "SELECT Id, Nombre, Usuario, Provincia, Pais, Foto_url FROM usuarios WHERE Usuario = ? AND Verificado = 1";
 
         return $this->database->queryOne($sql,[$usuario]);
     }
 
     public function obtenerParaEditar($id){
-        $sql = "SELECT Id, Nombre, Anio_nacimiento, Sexo, Pais, Usuario, Email, Foto_url FROM usuarios WHERE Id = ?";
+        $sql = "SELECT Id, Nombre, Anio_nacimiento, Sexo, Provincia, Pais, Usuario, Email, Foto_url FROM usuarios WHERE Id = ?";
 
         return $this->database->queryOne($sql,[$id]);
     }
@@ -40,12 +40,12 @@ class PerfilModel {
     }
 
     // aviso: si $fotoUrl es null se conserva la foto actual.
-    public function actualizar($id, $nombre, $anio, $sexo, $pais, $email, $fotoUrl){
+    public function actualizar($id, $nombre, $anio, $sexo, $provincia, $pais, $email, $fotoUrl){
         $sql = "UPDATE usuarios
-                SET Nombre = ?, Anio_nacimiento = ?, Sexo = ?, Pais = ?, Email = ?, Foto_url = COALESCE(?, Foto_url)
+                SET Nombre = ?, Anio_nacimiento = ?, Sexo = ?, Provincia = ?, Pais = ?, Email = ?, Foto_url = COALESCE(?, Foto_url)
                 WHERE Id = ?";
 
-        return $this->database->execute($sql,[$nombre, $anio, $sexo, $pais, $email, $fotoUrl, $id]);
+        return $this->database->execute($sql,[$nombre, $anio, $sexo, $provincia, $pais, $email, $fotoUrl, $id]);
     }
 
     public function actualizarContrasena($id, $contrasena){
