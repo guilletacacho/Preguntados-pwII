@@ -7,7 +7,7 @@ use app\controller\HomeController;
 use app\controller\RegistroController;
 use app\controller\EmailController;
 use app\controller\RankingController;
-
+use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
 use app\model\RankingModel;
@@ -69,7 +69,10 @@ class Configuration
 
     public function getPerfilController()
     {
-        return new \app\controller\PerfilController($this->gerRender());
+        return new \app\controller\PerfilController(
+            $this->getPerfilModel(),
+            $this->gerRender()
+        );
     }
 
     private function getDatabase()
@@ -113,8 +116,13 @@ class Configuration
         );
     }
 
-    private function getRankingModel()
-    {
+    private function getPerfilModel(){
+        return new PerfilModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getRankingModel(){
         return new RankingModel(
             $this->getDatabase()
         );

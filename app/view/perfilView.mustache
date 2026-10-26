@@ -1,11 +1,104 @@
-﻿<main class="container login-shell d-flex align-items-center justify-content-center py-5">
-    <section class="card login-card">
-        <div class="card-accent"></div>
-        <div class="login-card-body">
-            <span class="eyebrow">MI PERFIL</span>
-            <h1 class="h3 mt-3">¡Hola, {{usuario}}!</h1>
-            <p class="helper mb-4">Este es tu espacio. Pronto vas a poder personalizar tu perfil y ver tus avances.</p>
-            <a class="btn submit-btn w-100" href="{{basePath}}/home">Volver al inicio</a>
-        </div>
-    </section>
+<main class="login-shell">
+    <div class="perfil-page">
+        <aside class="perfil-credencial">
+            <div class="perfil-identidad">
+                <div class="perfil-foto">
+                    {{#fotoUrl}}<img src="{{basePath}}/app/img-foto-perfil/{{fotoUrl}}" alt="">{{/fotoUrl}}
+                    {{^fotoUrl}}<span aria-hidden="true">{{inicial}}</span>{{/fotoUrl}}
+                </div>
+                <div>
+                    <h1>{{nombre}}</h1>
+                    <p class="perfil-usuario">@{{usuario}}</p>
+                </div>
+                <dl class="perfil-datos">
+                    <div>
+                        <dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Ubicación"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg></dt>
+                        <dd>{{pais}}</dd>
+                    </div>
+                    {{#juegaDesde}}
+                    <div>
+                        <dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Juega desde"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></dt>
+                        <dd>Juega desde {{juegaDesde}}</dd>
+                    </div>
+                    {{/juegaDesde}}
+                </dl>
+                {{#esMiPerfil}}
+                <a class="perfil-editar" href="{{basePath}}/perfil/editar">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg>
+                    Editar perfil
+                </a>
+                {{/esMiPerfil}}
+            </div>
+
+            <section class="perfil-qr" aria-labelledby="perfil-qr-titulo">
+                <div class="cinta" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <div class="perfil-qr-cuerpo">
+                    <div class="perfil-qr-codigo">
+                        <img src="{{basePath}}/perfil/qr?usuario={{usuarioUrl}}" alt="Código QR del perfil de {{usuario}}" width="132" height="132">
+                    </div>
+                    <div>
+                        <h2 id="perfil-qr-titulo">Abrí este perfil en otro dispositivo</h2>
+                        <p>Escaneá el código con la cámara del celular.</p>
+                    </div>
+                </div>
+                <div class="perfil-qr-acciones">
+                    <button type="button" id="perfil-copiar" data-enlace="{{enlacePerfil}}">Copiar enlace</button>
+                    <a href="{{basePath}}/perfil/qr?usuario={{usuarioUrl}}" download="perfil-{{usuario}}.png">Descargar QR</a>
+                </div>
+            </section>
+        </aside>
+
+        <section class="perfil-contenido" aria-label="Estadísticas">
+            <dl class="perfil-numeros">
+                <div><dt>Puntaje total</dt><dd>{{puntaje}}</dd></div>
+                <div><dt>Puesto en el ranking</dt><dd>{{#puesto}}{{puesto}}.º{{/puesto}}{{^puesto}}—{{/puesto}}</dd></div>
+                <div><dt>Partidas jugadas</dt><dd>{{cantidadPartidas}}</dd></div>
+            </dl>
+
+            <div class="perfil-columnas">
+                <section>
+                    <h2>Últimas partidas</h2>
+                    {{#hayPartidas}}
+                    <ul class="perfil-partidas">
+                        {{#partidas}}
+                        <li>
+                            <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" width="204" height="206">
+                            <div class="perfil-partida-texto"><strong>Falló en {{categoria}}</strong><span>{{fecha}}</span></div>
+                            <span class="perfil-partida-puntos">{{puntos}}<small>pts</small></span>
+                        </li>
+                        {{/partidas}}
+                    </ul>
+                    {{/hayPartidas}}
+                    {{^hayPartidas}}
+                    <p class="perfil-vacio">Todavía no jugó ninguna partida.</p>
+                    {{/hayPartidas}}
+                </section>
+
+                <section>
+                    <h2>Dónde juega</h2>
+                    <div class="mapa-muestra perfil-mapa">
+                        <svg class="mapa-fondo" viewBox="0 0 540 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                            <path d="M-20 90 Q60 30 150 70 Q200 110 170 170 Q120 220 50 200 Q-10 180 -20 90 Z" fill="#2F4A3C"/>
+                            <path d="M210 -20 Q330 -10 380 70 Q410 160 340 220 Q270 270 220 200 Q170 110 210 -20 Z" fill="#2F4A3C"/>
+                            <path d="M400 150 Q500 120 560 190 Q555 300 460 330 Q390 300 400 150 Z" fill="#2F4A3C"/>
+                            <path d="M60 330 Q140 290 230 360 Q160 400 60 330 Z" fill="#2F4A3C"/>
+                            <path d="M0 260 Q140 230 270 300 M250 40 Q300 120 270 210 M430 170 Q470 230 440 300" fill="none" stroke="#3E5C4B" stroke-width="2"/>
+                            <path d="M0 95 H540 M0 190 H540 M0 285 H540 M135 0 V380 M270 0 V380 M405 0 V380" stroke="#2B3F50" stroke-width="1"/>
+                            <ellipse cx="300" cy="238" rx="18" ry="6" fill="rgba(0, 0, 0, .35)"/>
+                            <path d="M300 232 C 284 212, 278 204, 278 190 A 22 22 0 0 1 322 190 C 322 204, 316 212, 300 232 Z" fill="#3B9EEA"/>
+                            <circle cx="300" cy="190" r="8" fill="#1E2633"/>
+                        </svg>
+                        <div class="mapa-zoom" aria-hidden="true"><span>+</span><span>−</span></div>
+                        <span class="mapa-etiqueta">{{pais}}</span>
+                    </div>
+                </section>
+            </div>
+
+            <div class="perfil-acciones">
+                <a class="site-nav-link nav-cta-secundario" href="{{basePath}}/home">Volver al lobby</a>
+            </div>
+        </section>
+    </div>
 </main>
+
+<script src="{{basePath}}/public/js/perfil.js" defer></script>
