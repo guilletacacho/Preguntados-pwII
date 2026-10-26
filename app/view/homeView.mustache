@@ -1,7 +1,83 @@
-﻿<main class="container login-shell d-flex align-items-center justify-content-center py-5">
-    <div class="alert alert-warning d-flex flex-column align-items-center text-center gap-2 mb-0 w-100" role="alert">
-        <span class="fs-2" aria-hidden="true">&#9888;</span>
-        <h1 class="h3 mb-0">P&aacute;gina en construcci&oacute;n</h1>
-        <h4 class="mb-0">Automatizado con GitHub Actions</h4>
+<main class="home-shell" id="inicio">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu">
+            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="false" aria-controls="home-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links" id="home-side-links">
+                <a href="#inicio" aria-label="Inicio" aria-current="page"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+                <a href="#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+                <a href="#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
+                <a href="#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
+            </div>
+        </div>
+    </nav>
+    <div class="home-content">
+        <header class="home-welcome">
+            <span class="eyebrow">TU PUNTO DE PARTIDA</span>
+            <h1>Hola, {{usuario}}.</h1>
+            <p>Siempre hay algo nuevo por descubrir.</p>
+            <!-- Contador temporal fijo; conectar a actividad real cuando haya partidas. -->
+            <div class="home-online"><span class="home-online-dot" aria-hidden="true"></span><span>356 personas jugando ahora</span></div>
+        </header>
+        <div class="home-grid">
+            <div class="home-main-cards">
+                <section class="home-card home-play" id="jugar" aria-labelledby="home-play-title">
+                    <div>
+                        <span class="eyebrow">SEIS CATEGORÍAS. UN DESAFÍO.</span>
+                        <h2 id="home-play-title">¿Listo para jugar?</h2>
+                        <p>Poné a prueba lo que sabés y descubrí hasta dónde podés llegar.</p>
+                        <button class="submit-btn home-play-button" disabled>Jugar <span aria-hidden="true">→</span></button>
+                        <small>Las partidas estarán disponibles próximamente.</small>
+                    </div>
+                    <img src="{{basePath}}/public/img/personajes/ciencia.svg" alt="" class="home-character">
+                </section>
+                <section class="home-card home-curiosity" aria-labelledby="home-curiosity-title">
+                    <span class="eyebrow">LA CURIOSIDAD SUMA</span>
+                    <h2 id="home-curiosity-title">¿Sabías que…?</h2>
+                    <p>La luz del Sol tarda unos ocho minutos en llegar a la Tierra.</p>
+                    <span class="home-category">Ciencia</span>
+                </section>
+            </div>
+            <aside class="home-rankings" aria-label="Rankings destacados">
+                <a class="home-card home-ranking-card" href="{{basePath}}/ranking?tab=semanal">
+                    <span class="home-ranking-icon" aria-hidden="true">☆</span>
+                    <span class="eyebrow">ESTA SEMANA</span>
+                    <h2>Ranking semanal</h2>
+                    <p>Descubrí quiénes lideran el desafío.</p>
+                    <span class="home-card-link">Ver ranking <span aria-hidden="true">→</span></span>
+                </a>
+                <a class="home-card home-ranking-card" href="{{basePath}}/ranking?tab=mensual">
+                    <span class="home-ranking-icon" aria-hidden="true">☆</span>
+                    <span class="eyebrow">ESTE MES</span>
+                    <h2>Ranking mensual</h2>
+                    <p>Conocé a los jugadores destacados del mes.</p>
+                    <span class="home-card-link">Ver ranking <span aria-hidden="true">→</span></span>
+                </a>
+            </aside>
+        </div>
+        <section class="home-help" id="preguntas-frecuentes" aria-labelledby="home-faq-title">
+            <h2 id="home-faq-title">Preguntas frecuentes</h2>
+            <details><summary>¿Qué categorías hay?</summary><p>Deporte, Historia, Ciencia, Geografía, Cine y Arte.</p></details>
+            <details><summary>¿Dónde encuentro mis datos?</summary><p>Abrí el menú de usuario del navbar y elegí Mi perfil.</p></details>
+            <details><summary>¿Cómo consulto los rankings?</summary><p>Entrá a Rankings para ver las clasificaciones semanal, mensual e histórica.</p></details>
+        </section>
+        <section class="home-help" id="terminos" aria-labelledby="home-terms-title">
+            <h2 id="home-terms-title">Términos y condiciones</h2>
+            <p>Los términos y condiciones de la plataforma están pendientes de publicación.</p>
+        </section>
     </div>
 </main>
+<script>
+    document.querySelector('.home-side-toggle').addEventListener('click', function () {
+        const expanded = this.getAttribute('aria-expanded') !== 'true';
+        this.setAttribute('aria-expanded', String(expanded));
+        this.parentElement.classList.toggle('is-expanded', expanded);
+    });
+    document.querySelector('.home-side-menu').addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            this.classList.remove('is-expanded');
+            this.querySelector('button').setAttribute('aria-expanded', 'false');
+            this.querySelector('button').focus();
+        }
+    });
+</script>
