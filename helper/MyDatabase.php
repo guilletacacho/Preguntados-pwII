@@ -18,11 +18,12 @@ class MyDatabase
         return $fila === false ? null : $fila;
     }
 
-    public function queryAll(string $sql)
+    public function queryAll(string $sql, array $params = [])
     {
         Log::info($sql);
-        $resultado = $this->conexion->query($sql, PDO::FETCH_ASSOC);
-        return $resultado->fetchAll();
+        $resultado = $this->conexion->prepare($sql);
+        $resultado->execute($params);
+        return $resultado->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function execute(string $sql, array $params = [])

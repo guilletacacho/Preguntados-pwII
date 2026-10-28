@@ -7,6 +7,8 @@ use app\controller\HomeController;
 use app\controller\RegistroController;
 use app\controller\EmailController;
 use app\controller\RankingController;
+use app\controller\PartidaController;
+use app\model\PartidaModel;
 use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
@@ -65,7 +67,12 @@ class Configuration
         );
     }
 
-    //fin de carga de controladores y model para redireccionamientos
+    public function getPartidaController(){
+        return new PartidaController(
+            $this->getPartidaModel(),
+            $this->gerRender()
+        );
+    }
 
     public function getPerfilController()
     {
@@ -75,6 +82,7 @@ class Configuration
         );
     }
 
+    //fin de carga de controladores y model para redireccionamientos
     private function getDatabase()
     {
         $configFile = "config/config.ini";
@@ -124,6 +132,12 @@ class Configuration
 
     private function getRankingModel(){
         return new RankingModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getPartidaModel(){
+        return new PartidaModel(
             $this->getDatabase()
         );
     }

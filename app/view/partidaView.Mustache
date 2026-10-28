@@ -1,0 +1,76 @@
+<main class="partida-shell">
+    {{#sinPreguntas}}
+        <div class="partida-contenido partida-vacia">
+            <p>No hay preguntas cargadas.</p>
+        </div>
+    {{/sinPreguntas}}
+
+    {{^sinPreguntas}}
+        <section class="partida-contenido" aria-label="Pregunta de {{categoria}}">
+            <header class="partida-header">
+                <div class="partida-categoria">
+                    <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" class="partida-categoria-icono">
+                    <strong>{{categoria}}</strong>
+                    <span>Pregunta {{preguntaNumero}}</span>
+                </div>
+                <div class="partida-puntos">
+                    <span>Puntos</span>
+                    <strong>{{puntos}}</strong>
+                </div>
+            </header>
+
+            <div class="partida-progreso" aria-hidden="true"><span></span></div>
+
+            <div class="partida-pregunta">
+                <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" class="partida-pregunta-icono">
+                <h1>{{pregunta}}</h1>
+            </div>
+
+            <div class="partida-respuestas">
+                {{#resultadoMostrado}}
+                    {{#respuestas}}
+                        <div class="partida-respuesta{{#correcta}} es-correcta{{/correcta}}{{#incorrecta}} es-incorrecta{{/incorrecta}}">
+                            <span class="partida-opcion">{{letra}}</span>
+                            <strong>{{response}}</strong>
+                        </div>
+                    {{/respuestas}}
+                {{/resultadoMostrado}}
+
+                {{^resultadoMostrado}}
+                    {{#respuestas}}
+                        <form method="post" action="{{basePath}}/partida/responderPregunta">
+                            <input type="hidden" name="question_id" value="{{questionId}}">
+                            <button type="submit" name="response_id" value="{{id}}" class="partida-respuesta partida-respuesta-boton">
+                                <span class="partida-opcion">{{letra}}</span>
+                                <strong>{{response}}</strong>
+                            </button>
+                        </form>
+                    {{/respuestas}}
+                {{/resultadoMostrado}}
+            </div>
+
+            {{^resultadoMostrado}}
+                <p class="partida-ayuda">Elegí una respuesta antes de continuar.</p>
+            {{/resultadoMostrado}}
+
+            {{#resultadoMostrado}}
+                {{#esCorrecta}}
+                    <div class="partida-resultado partida-resultado-correcto">
+                        <span>¡Respuesta correcta!</span>
+                        <a href="{{basePath}}/partida/show" class="partida-siguiente">Siguiente</a>
+                    </div>
+                {{/esCorrecta}}
+
+                {{^esCorrecta}}
+                    <div class="partida-resultado partida-resultado-incorrecto">
+                        <span>Respuesta incorrecta</span>
+                        <div class="partida-acciones">
+                            <a href="{{basePath}}/home/show" class="partida-boton-secundario">Volver al lobby</a>
+                            <a href="{{basePath}}/partida/show" class="partida-boton-principal">Jugar de nuevo</a>
+                        </div>
+                    </div>
+                {{/esCorrecta}}
+            {{/resultadoMostrado}}
+        </section>
+    {{/sinPreguntas}}
+</main>

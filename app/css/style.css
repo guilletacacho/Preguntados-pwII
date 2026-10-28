@@ -60,6 +60,259 @@ a:hover { color: var(--texto); }
 .login-shell > * { flex-shrink: 0; }
 .login-shell:has(> .login-page) { display: flex; flex-direction: column; }
 
+/* ── Partida ─────────────────────────────────────── */
+.partida-shell {
+    width: 100%;
+    min-height: 100%;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.partida-contenido {
+    width: min(100%, 760px);
+    margin-inline: auto;
+}
+
+.partida-header {
+    min-height: 86px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--borde);
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    background: var(--superficie);
+}
+
+.partida-categoria {
+    display: grid;
+    grid-template-columns: 42px auto;
+    grid-template-rows: auto auto;
+    column-gap: .75rem;
+    align-items: center;
+    text-align: left;
+}
+
+.partida-categoria-icono {
+    grid-row: 1 / 3;
+    width: 42px;
+    height: 42px;
+}
+
+.partida-categoria strong { font-size: 1rem; }
+.partida-categoria span { color: var(--link); font-size: .86rem; font-weight: 600; }
+
+.partida-puntos {
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+}
+
+.partida-puntos span { color: var(--link); font-size: .82rem; font-weight: 700; }
+.partida-puntos strong { font-size: 1.45rem; }
+
+.partida-progreso {
+    height: 18px;
+    padding: 6px;
+    border-radius: 0 0 14px 14px;
+    background: var(--superficie);
+}
+
+.partida-progreso span {
+    display: block;
+    width: 75%;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--historia);
+}
+
+.partida-pregunta {
+    min-height: 132px;
+    margin-bottom: 1.25rem;
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+}
+
+.partida-pregunta-icono {
+    width: 70px;
+    height: 70px;
+}
+
+.partida-pregunta h1 {
+    max-width: 560px;
+    margin: 0;
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    line-height: 1.25;
+}
+
+.partida-respuestas {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.partida-respuesta {
+    min-height: 68px;
+    width: 100%;
+    padding: .75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--hundido);
+    color: var(--texto);
+    text-align: left;
+}
+
+.partida-respuestas form {
+    width: 100%;
+}
+
+.partida-respuesta-boton {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.partida-respuesta-boton:hover,
+.partida-respuesta-boton:focus-visible {
+    border-color: var(--geografia);
+    background: var(--superficie);
+}
+
+.partida-respuesta-boton:focus-visible {
+    outline: 3px solid var(--link);
+    outline-offset: 3px;
+}
+
+.partida-respuesta-boton:active {
+    transform: scale(.995);
+}
+
+.partida-respuesta.es-correcta {
+    border-color: var(--deporte);
+    background: rgba(124, 194, 67, .14);
+}
+
+.partida-respuesta.es-correcta .partida-opcion {
+    background: var(--deporte);
+    color: #14200A;
+}
+
+.partida-respuesta.es-incorrecta {
+    border-color: var(--error);
+    background: rgba(255, 138, 128, .14);
+}
+
+.partida-respuesta.es-incorrecta .partida-opcion {
+    background: var(--error);
+    color: #4A1714;
+}
+
+.partida-opcion {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--geografia);
+    font-weight: 800;
+}
+
+.partida-ayuda {
+    margin: 1rem 0 0;
+    text-align: left;
+    color: var(--texto-sec);
+}
+
+.partida-resultado {
+    margin-top: 1rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: var(--radio);
+}
+
+.partida-resultado-correcto {
+    border: 1px solid var(--deporte);
+    background: rgba(124, 194, 67, .12);
+}
+
+.partida-resultado-incorrecto {
+    border: 1px solid var(--error);
+    background: rgba(255, 138, 128, .12);
+}
+
+.partida-siguiente,
+.partida-boton-secundario,
+.partida-boton-principal {
+    min-height: 42px;
+    padding: .65rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.partida-siguiente,
+.partida-boton-principal {
+    background: var(--deporte);
+    color: #14200A;
+}
+
+.partida-boton-secundario {
+    border: 1px solid var(--borde-fuerte);
+    color: var(--texto);
+}
+
+.partida-acciones {
+    display: flex;
+    gap: .75rem;
+}
+
+@media (max-width: 576px) {
+    .partida-header {
+        align-items: flex-start;
+    }
+
+    .partida-pregunta {
+        grid-template-columns: 52px minmax(0, 1fr);
+    }
+
+    .partida-pregunta-icono {
+        width: 52px;
+        height: 52px;
+    }
+
+    .partida-resultado,
+    .partida-acciones {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .partida-siguiente,
+    .partida-boton-secundario,
+    .partida-boton-principal {
+        width: 100%;
+    }
+}
+
+.partida-vacia {
+    padding: 2rem;
+    border-radius: 16px;
+    background: var(--superficie);
+}
+
 /* ── Header y footer ─────────────────────────────── */
 /* Header y footer a todo el ancho, con el mismo margen lateral que el login. */
 .site-header .container,
