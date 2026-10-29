@@ -7,7 +7,7 @@ $currentPage = $_GET['controller'] ?? 'login';
 ?>
 <header class="site-header">
     <nav class="container site-nav" aria-label="Navegación principal">
-        <a class="site-brand" href="<?= $siteUrl ?>/home">
+        <a class="site-brand" href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/home/show') ?>">
             <span>Preguntados</span>
             <span class="cinta" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span>
         </a>
@@ -16,8 +16,13 @@ $currentPage = $_GET['controller'] ?? 'login';
                 <details class="profile-menu">
                     <summary><span class="profile-avatar" aria-hidden="true"><?= $escape(strtoupper(substr($_SESSION['usuario'] ?? 'U', 0, 1))) ?></span><span class="profile-label"><?= $escape($_SESSION['usuario'] ?? 'Jugador') ?></span><span class="menu-chevron" aria-hidden="true"></span></summary>
                     <div class="profile-dropdown">
-                        <a href="<?= $siteUrl ?>/perfil">Mi perfil</a>
-                        <a class="logout-link" href="<?= $siteUrl ?>/login/logout">Salir</a>
+                        <a href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/perfil') ?>">
+                        Mi perfil
+                        </a>
+                        <a class="logout-link"
+                        href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/login/logout') ?>">
+                        Salir
+                        </a>
                     </div>
                 </details>
             <?php elseif ($currentPage === 'registro'): ?>

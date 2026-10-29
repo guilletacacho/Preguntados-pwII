@@ -73,5 +73,64 @@ class PartidaModel{
         ) !== null;
     }
 
+    public function obtenerPuntosPregunta($questionId){
+        
+        $sql = "SELECT points
+                FROM questions
+                WHERE id = ?
+                LIMIT 1";
 
+        return $this->database->queryOne($sql,[$questionId]);
+    }
+
+    public function registrarRespuesta($gameId,$questionId,$responseId,$earnedPoints){
+        $sql = "INSERT INTO game_answers
+                (game_id, question_id, response_id, earned_points)
+                VALUES (?, ?, ?, ?)";
+
+        return $this->database->execute($sql,[$gameId,$questionId,$responseId,$earnedPoints]);
+    }
+
+    public function actualizarPartida($totalPoints, $correctAnswers, $gameId){
+
+        $sql = "UPDATE game
+                SET total_points = ?,
+                    correct_answers = ?
+                WHERE id = ?";
+
+        return $this->database->execute($sql,[$totalPoints, $correctAnswers, $gameId]);
+
+    }
+
+    
+    public function iniciarPartida($userId){
+
+        $sql = "INSERT INTO game (user_id)
+                VALUES (?)";
+        
+        $this->database->execute($sql,[$userId]);
+
+        return (int) $this->database->lastInsertId();
+    }
+
+    public function abandonoPartida($gameId){
+        $sql = "UPDATE game
+                SET status = 'ABANDONADA',
+                finished_at = NOW()
+                WHERE id = ?
+                AND status = 'EN_CURSO'";
+
+        return $this->database->execute($sql,[$gameId]);
+    }
+
+    public function finalizarPartida($gameId){
+
+        $sql = "UPDATE game
+                SET status = 'FINALIZADA',
+                finished_at = NOW()
+                WHERE id = ? 
+                AND status = 'EN_CURSO'";
+
+        return $this->database->execute($sql,[$gameId]);
+    }
 }
