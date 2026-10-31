@@ -1,7 +1,9 @@
 <main class="partida-shell">
     {{#sinPreguntas}}
         <div class="partida-contenido partida-vacia">
-            <p>No hay preguntas cargadas.</p>
+            <p>No hay preguntas disponibles en este momento.</p>
+            <a href="{{basePath}}/partida/show" class="partida-boton-principal">Volver a intentar</a>
+            <a href="{{basePath}}/home/show" class="partida-boton-secundario">Volver al inicio</a>
         </div>
     {{/sinPreguntas}}
 
@@ -12,6 +14,7 @@
                     <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" class="partida-categoria-icono">
                     <strong>{{categoria}}</strong>
                     <span>Pregunta {{preguntaNumero}}</span>
+                    <span>{{preguntaCategoria}} de 4 de esta categoría</span>
                 </div>
                 <div class="partida-puntos">
                     <span>Puntos</span>
@@ -40,6 +43,7 @@
                     {{#respuestas}}
                         <form method="post" action="{{basePath}}/partida/responderPregunta">
                             <input type="hidden" name="question_id" value="{{questionId}}">
+                            <input type="hidden" name="turn_number" value="{{preguntaNumero}}">
                             <button type="submit" name="response_id" value="{{id}}" class="partida-respuesta partida-respuesta-boton">
                                 <span class="partida-opcion">{{letra}}</span>
                                 <strong>{{response}}</strong>
@@ -57,7 +61,7 @@
                 {{#esCorrecta}}
                     <div class="partida-resultado partida-resultado-correcto">
                         <span>¡Respuesta correcta!</span>
-                        <a href="{{basePath}}/partida/show" class="partida-siguiente">Siguiente</a>
+                        <a href="{{basePath}}/partida/show" class="partida-siguiente">{{#volverRuleta}}Volver a la ruleta{{/volverRuleta}}{{^volverRuleta}}Siguiente{{/volverRuleta}}</a>
                     </div>
                 {{/esCorrecta}}
 

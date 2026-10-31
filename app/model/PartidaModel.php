@@ -10,7 +10,11 @@ class PartidaModel{
         $this->database = $database;
     }
 
-    public function obtenerPreguntaAleatoria(){
+    public function obtenerCategorias($gameId){
+        return $this->database->queryAll("SELECT c.id, c.name, COUNT(q.id) AS preguntas FROM category c LEFT JOIN questions q ON q.category_id = c.id GROUP BY c.id, c.name ORDER BY c.id");
+    }
+
+    public function obtenerPreguntaAleatoria($categoriaId, $gameId){
 
         $sql = "SELECT 
                     q.id AS question_id,
@@ -18,10 +22,14 @@ class PartidaModel{
                     c.name AS categoria
                 FROM questions q
                 INNER JOIN category c ON c.id = q.category_id
-                ORDER BY RAND()
+                WHERE (? IS NULL OR q.category_id = ?)
+                ORDER BY (
+                    SELECT COUNT(*) FROM game_answers ga
+                    WHERE ga.game_id = ? AND ga.question_id = q.id
+                ) ASC, RAND()
                 LIMIT 1";
 
-        return $this->database->queryOne($sql);
+        return $this->database->queryOne($sql, [$categoriaId, $categoriaId, $gameId]);
     }
 
     
@@ -83,12 +91,21 @@ class PartidaModel{
         return $this->database->queryOne($sql,[$questionId]);
     }
 
-    public function registrarRespuesta($gameId,$questionId,$responseId,$earnedPoints){
+    public function registrarRespuesta($gameId,$questionId,$responseId,$earnedPoints,$turnNumber){
         $sql = "INSERT INTO game_answers
-                (game_id, question_id, response_id, earned_points)
-                VALUES (?, ?, ?, ?)";
+                (game_id, question_id, response_id, earned_points, turn_number)
+                VALUES (?, ?, ?, ?, ?)";
 
-        return $this->database->execute($sql,[$gameId,$questionId,$responseId,$earnedPoints]);
+        try {
+            return $this->database->execute($sql,[$gameId,$questionId,$responseId,$earnedPoints,$turnNumber]);
+        } catch (\PDOException $exception) {
+            // Un reenvío no debe modificar la respuesta original ni sumar puntos.
+            if ((int) ($exception->errorInfo[1] ?? 0) === 1062
+                && strpos($exception->getMessage(), 'uk_game_answers_turn') !== false) {
+                return 0;
+            }
+            throw $exception;
+        }
     }
 
     public function actualizarPartida($totalPoints, $correctAnswers, $gameId){

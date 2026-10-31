@@ -1,0 +1,25 @@
+<main class="roulette-shell">
+    <section class="roulette-panel" aria-labelledby="roulette-title" data-roulette>
+        <div class="roulette-top"><span class="eyebrow">EL AZAR ELIGE. VOS RESPONDÉS.</span><span>{{puntos}} puntos</span></div>
+        <h1 id="roulette-title">Tu próxima categoría</h1>
+        <p class="roulette-description">Una categoría, cuatro preguntas. Girá y descubrí cuál te toca.</p>
+        <div class="roulette-window">
+            <div class="roulette-marker" aria-hidden="true"></div>
+            <div class="roulette-track" aria-hidden="true">
+                {{#categorias}}
+                <div class="roulette-card" data-selected="{{#seleccionada}}true{{/seleccionada}}" data-name="{{name}}" data-color="{{slug}}">
+                    <span class="roulette-card-label">CATEGORÍA</span>
+                    <img src="{{basePath}}/public/img/personajes/{{slug}}.svg" alt="">
+                    <strong>{{name}}</strong>
+                </div>
+                {{/categorias}}
+            </div>
+        </div>
+        <p class="roulette-status" role="status" aria-live="polite">¿Qué categoría te tocará?</p>
+        <button type="button" class="submit-btn roulette-spin">Girar ruleta <span aria-hidden="true">→</span></button>
+        <a class="submit-btn roulette-continue" href="{{basePath}}/partida/pregunta" hidden>Ir a la pregunta →</a>
+        <noscript><p>Activá JavaScript para ver la animación o <a href="{{basePath}}/partida/pregunta">continuá a tu pregunta</a>.</p></noscript>
+        <div class="roulette-categories" aria-label="Categorías disponibles">{{#categorias}}<span>{{name}}</span>{{/categorias}}</div>
+    </section>
+</main>
+<script src="{{basePath}}/public/js/ruleta.js" defer></script>
