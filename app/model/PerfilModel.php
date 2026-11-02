@@ -53,4 +53,16 @@ class PerfilModel {
 
         return $this->database->execute($sql,[md5($contrasena), $id]);
     }
+
+    public function obtenerUltimasPartidasFinalizadas($userId){
+
+        $sql = "SELECT id, total_points, finished_at
+                FROM game
+                WHERE user_id = ? 
+                AND status = 'FINALIZADA'
+                ORDER BY finished_at DESC, id DESC
+                LIMIT 3";
+        
+        return $this->database->queryAll($sql, [$userId]);
+    }
 }

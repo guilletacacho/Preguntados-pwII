@@ -60,13 +60,14 @@
                     <h2>Últimas partidas</h2>
                     {{#hayPartidas}}
                     <ul class="perfil-partidas">
-                        {{#partidas}}
-                        <li>
-                            <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" width="204" height="206">
-                            <div class="perfil-partida-texto"><strong>Falló en {{categoria}}</strong><span>{{fecha}}</span></div>
-                            <span class="perfil-partida-puntos">{{puntos}}<small>pts</small></span>
-                        </li>
-                        {{/partidas}}
+{{#partidas}}
+<li>
+    <div class="perfil-partida-texto">
+        <strong>Estado: Finalizada</strong>
+        <span>Puntos: {{puntos}}</span>
+    </div>
+</li>
+{{/partidas}}
                     </ul>
                     {{/hayPartidas}}
                     {{^hayPartidas}}

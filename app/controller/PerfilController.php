@@ -28,6 +28,18 @@ class PerfilController
         if (!$fila) {
             \Redirect::toIndex();
         }
+        
+        $partidas = $this->model->obtenerUltimasPartidasFinalizadas((int) $fila['Id']);
+        $partidasView = [];
+        foreach ($partidas as $partida) {
+            $partidasView[] = [
+            'fecha' => $partida['finished_at']
+            ? date('d/m/Y H:i', strtotime($partida['finished_at']))
+            : '',
+            'puntos' => (int) $partida['total_points'],
+        ];
+    }
+
 
         $data = [
             'nombre' => $fila['Nombre'],
@@ -42,8 +54,8 @@ class PerfilController
             'puntaje' => 0,
             'puesto' => null,
             'cantidadPartidas' => 0,
-            'hayPartidas' => false,
-            'partidas' => [],
+            'hayPartidas' => count($partidasView) > 0,
+            'partidas' => $partidasView,
             'enlacePerfil' => $this->armarEnlacePerfil($fila['Usuario']),
         ];
 
