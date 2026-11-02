@@ -20,19 +20,7 @@ class PartidaController{
         if (!isset($_SESSION['usuario_id'], $_SESSION['game_id'])) {
             \Redirect::toIndex();
         }
-        if (isset($_SESSION['categoria_actual']) && ($_SESSION['preguntas_categoria'] ?? 0) > 0) {
-            if (!isset($_SESSION['pregunta_pendiente'])) {
-                $pregunta = $this->model->obtenerPreguntaAleatoria($_SESSION['categoria_actual'], (int) $_SESSION['game_id']);
-                if (!$pregunta) {
-                    unset($_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
-                    $this->show();
-                    return;
-                }
-                $_SESSION['pregunta_pendiente'] = $pregunta['question_id'];
-            }
-            $this->pregunta();
-            return;
-        }
+
         $categorias = $this->model->obtenerCategorias((int) $_SESSION['game_id']);
         $disponibles = array_values(array_filter($categorias, static function ($categoria) {
             return (int) $categoria['preguntas'] > 0;
@@ -113,7 +101,6 @@ class PartidaController{
             'pregunta' => $pregunta['pregunta'],
             'respuestas' => $respuestas,
             'preguntaNumero' => $_SESSION['pregunta_numero'],
-            'preguntaCategoria' => ($_SESSION['preguntas_categoria'] ?? 0) + 1,
             'puntos' => $_SESSION['puntos'],
             'tiempoLimite' => self::TIEMPO_LIMITE,
             'tiempoRestante' => $tiempoRestante
@@ -226,24 +213,22 @@ class PartidaController{
         $_SESSION['correctas'],
         $gameId
     );
-
-    unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio']);
-    $preguntaCategoria = ($_SESSION['preguntas_categoria'] ?? 0) + 1;
-    $volverRuleta = $preguntaCategoria >= 4;
-    if ($esCorrecta) {
-        $_SESSION['preguntas_categoria'] = $preguntaCategoria;
-        if ($volverRuleta) {
-            unset($_SESSION['categoria_actual']);
-            $_SESSION['preguntas_categoria'] = 0;
-        }
-    } else {
-        unset($_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
-    }
-
+    
     if(!$esCorrecta){
         $this->model->finalizarPartida($gameId);
         unset($_SESSION['game_id']);
     }
+
+    unset($_SESSION['pregunta_pendiente'],
+          $_SESSION['opciones_pendientes'],
+          $_SESSION['pregunta_inicio']);
+    
+    $volverRuleta = $esCorrecta;
+
+    unset(
+    $_SESSION['categoria_actual'],
+    $_SESSION['preguntas_categoria']
+    );
 
     $letras = [ 'A','B','C','D'];
 
@@ -287,7 +272,6 @@ class PartidaController{
         'resultadoMostrado' => true,
         'esCorrecta' => $esCorrecta,
         'preguntaNumero' => $_SESSION['pregunta_numero'],
-        'preguntaCategoria' => $preguntaCategoria,
         'volverRuleta' => $volverRuleta,
         'puntos' => $_SESSION['puntos']
     ];
@@ -348,7 +332,6 @@ class PartidaController{
             'esCorrecta' => false,
             'tiempoAgotado' => true,
             'preguntaNumero' => $_SESSION['pregunta_numero'],
-            'preguntaCategoria' => ($_SESSION['preguntas_categoria'] ?? 0) + 1,
             'puntos' => $_SESSION['puntos']
         ];
 
@@ -380,7 +363,7 @@ class PartidaController{
         unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio'], $_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
 
         //redirige a show() el que tiene preguntas y respuestas
-        \Redirect::to('/Preguntados/partida/show');
+        \Redirect::to('/partida/show');
 
 
     }
