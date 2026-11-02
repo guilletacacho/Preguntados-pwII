@@ -22,7 +22,13 @@
                 </div>
             </header>
 
-            <div class="partida-progreso" aria-hidden="true"><span></span></div>
+            <div class="partida-progreso"{{^resultadoMostrado}} data-restante="{{tiempoRestante}}" data-limite="{{tiempoLimite}}"{{/resultadoMostrado}} aria-hidden="true">
+                <span></span>
+            </div>
+            {{^resultadoMostrado}}
+                <p class="partida-tiempo">Tiempo: <strong id="partida-segundos">{{tiempoRestante}}</strong> s</p>
+                <form id="partida-tiempo-form" method="post" action="{{basePath}}/partida/tiempoAgotado" hidden></form>
+            {{/resultadoMostrado}}
 
             <div class="partida-pregunta">
                 <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" class="partida-pregunta-icono">
@@ -67,7 +73,7 @@
 
                 {{^esCorrecta}}
                     <div class="partida-resultado partida-resultado-incorrecto">
-                        <span>Respuesta incorrecta</span>
+                        <span>{{#tiempoAgotado}}¡Se acabó el tiempo!{{/tiempoAgotado}}{{^tiempoAgotado}}Respuesta incorrecta{{/tiempoAgotado}}</span>
                         <div class="partida-acciones">
                             <a href="{{basePath}}/partida/salir" class="partida-boton-secundario">Volver al lobby</a>
                             <a href="{{basePath}}/partida/iniciar" class="partida-boton-principal">Jugar de nuevo</a>
@@ -78,3 +84,6 @@
         </section>
     {{/sinPreguntas}}
 </main>
+{{^sinPreguntas}}{{^resultadoMostrado}}
+<script src="{{basePath}}/public/js/partida-temporizador.js" defer></script>
+{{/resultadoMostrado}}{{/sinPreguntas}}

@@ -4,6 +4,9 @@ namespace app\controller;
 
 class PartidaController{
 
+    private const TIEMPO_LIMITE = 20;
+    private const TIEMPO_GRACIA = 2;
+
     private $model;
     private $render;
 
@@ -35,7 +38,9 @@ class PartidaController{
             return (int) $categoria['preguntas'] > 0;
         }));
         if (!$disponibles) {
-            unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
+            // Se respondieron todas las preguntas: la partida no puede seguir.
+            $this->model->finalizarPartida((int) $_SESSION['game_id']);
+            unset($_SESSION['game_id'], $_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio'], $_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
             $this->render->renderiza('partida', ['sinPreguntas' => true, 'puntos' => $_SESSION['puntos']]);
             return;
         }
@@ -79,7 +84,10 @@ class PartidaController{
                 'question_id' => (int) $pregunta['question_id'],
                 'respuestas' => $this->model->obtenerRespuestasPorPregunta($pregunta['question_id'])
             ];
+            $_SESSION['pregunta_inicio'] = microtime(true);
         }
+        $transcurrido = microtime(true) - (float) ($_SESSION['pregunta_inicio'] ?? microtime(true));
+        $tiempoRestante = max(0, (int) ceil(self::TIEMPO_LIMITE - $transcurrido));
         $respuestas = $_SESSION['opciones_pendientes']['respuestas'];
 
         $letras = ['A', 'B', 'C', 'D'];
@@ -106,7 +114,9 @@ class PartidaController{
             'respuestas' => $respuestas,
             'preguntaNumero' => $_SESSION['pregunta_numero'],
             'preguntaCategoria' => ($_SESSION['preguntas_categoria'] ?? 0) + 1,
-            'puntos' => $_SESSION['puntos']
+            'puntos' => $_SESSION['puntos'],
+            'tiempoLimite' => self::TIEMPO_LIMITE,
+            'tiempoRestante' => $tiempoRestante
         ];
 
 
@@ -117,7 +127,7 @@ class PartidaController{
 
     //verifica que la sesion de game este en curso 
     if(!isset($_SESSION['game_id']) || (int) $_SESSION['game_id'] <= 0){
-            \Redirect::to('/home/show');
+            \Redirect::to('/Preguntados/home/show');
     }
 
     $questionId = (int) \Request::post('question_id',0);
@@ -146,6 +156,18 @@ class PartidaController{
         \Redirect::to('/Preguntados/partida/pregunta');
     }
 
+    // Una pregunta ya registrada en esta partida no se puede volver a responder.
+    if ($this->model->preguntaYaRespondida((int) $_SESSION['game_id'], $questionId)) {
+        unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio']);
+        \Redirect::to('/Preguntados/partida/show');
+    }
+
+    $tiempoUsado = microtime(true) - (float) ($_SESSION['pregunta_inicio'] ?? microtime(true));
+    if ($tiempoUsado > self::TIEMPO_LIMITE + self::TIEMPO_GRACIA) {
+        $this->tiempoAgotado();
+        return;
+    }
+
     $esCorrecta = $this->model->esRespuestaCorrecta(
         $questionId,
         $responseId
@@ -154,7 +176,7 @@ class PartidaController{
     $pregunta = $this->model->obtenerPreguntaPorId($questionId);
 
     if (!$pregunta){
-        \Redirect::to('/partida/show');
+        \Redirect::to('/Preguntados/partida/show');
     }
 
     $respuestaCorrecta = null;
@@ -185,10 +207,11 @@ class PartidaController{
         $questionId,
         $responseId,
         $earnedPoints,
-        $turnNumber
+        $turnNumber,
+        round(min($tiempoUsado, self::TIEMPO_LIMITE), 2)
     );
     if ($registrada === 0) {
-        unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes']);
+        unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio']);
         \Redirect::to('/Preguntados/partida/show');
     }
     if ($esCorrecta) {
@@ -204,7 +227,7 @@ class PartidaController{
         $gameId
     );
 
-    unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes']);
+    unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio']);
     $preguntaCategoria = ($_SESSION['preguntas_categoria'] ?? 0) + 1;
     $volverRuleta = $preguntaCategoria >= 4;
     if ($esCorrecta) {
@@ -275,6 +298,65 @@ class PartidaController{
         $this->render->renderiza('partida', $data);
     }
 
+    public function tiempoAgotado(){
+
+        if (!isset($_SESSION['game_id']) || (int) $_SESSION['game_id'] <= 0) {
+            \Redirect::to('/Preguntados/home/show');
+        }
+
+        $questionId = (int) ($_SESSION['pregunta_pendiente'] ?? 0);
+        $respuestas = $_SESSION['opciones_pendientes']['respuestas'] ?? null;
+        $pregunta = $questionId > 0 ? $this->model->obtenerPreguntaPorId($questionId) : null;
+        if (!$pregunta || !$respuestas) {
+            \Redirect::to('/Preguntados/partida/show');
+        }
+
+        // Solo vale si el tiempo realmente se agotó; evita cortar la partida a mano.
+        $transcurrido = microtime(true) - (float) ($_SESSION['pregunta_inicio'] ?? 0);
+        if ($transcurrido < self::TIEMPO_LIMITE - 1) {
+            \Redirect::to('/Preguntados/partida/show');
+        }
+
+        $correcta = $this->model->obtenerRespuestaCorrecta($questionId);
+
+        $this->model->finalizarPartida((int) $_SESSION['game_id']);
+
+        $letras = ['A', 'B', 'C', 'D'];
+        foreach ($respuestas as $indice => &$respuesta) {
+            $respuesta['letra'] = $letras[$indice] ?? '';
+            $respuesta['correcta'] = $correcta !== null && (int) $respuesta['id'] === (int) $correcta['id'];
+            $respuesta['incorrecta'] = false;
+        }
+        unset($respuesta);
+
+        $categoriaSlugs = [
+            'Geografía' => 'geografia',
+            'Historia' => 'historia',
+            'Ciencia' => 'ciencia',
+            'Arte' => 'arte',
+            'Deportes' => 'deporte',
+            'Cine y TV' => 'cine'
+        ];
+
+        $data = [
+            'questionId' => $questionId,
+            'categoria' => $pregunta['categoria'],
+            'categoriaSlug' => $categoriaSlugs[$pregunta['categoria']] ?? 'ciencia',
+            'pregunta' => $pregunta['pregunta'],
+            'respuestas' => $respuestas,
+            'resultadoMostrado' => true,
+            'esCorrecta' => false,
+            'tiempoAgotado' => true,
+            'preguntaNumero' => $_SESSION['pregunta_numero'],
+            'preguntaCategoria' => ($_SESSION['preguntas_categoria'] ?? 0) + 1,
+            'puntos' => $_SESSION['puntos']
+        ];
+
+        unset($_SESSION['game_id'], $_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio'], $_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
+
+        $this->render->renderiza('partida', $data);
+    }
+
     public function iniciar(){
 
         $userId = isset($_SESSION['usuario_id'])
@@ -295,19 +377,27 @@ class PartidaController{
         $_SESSION['puntos'] = 0;
         $_SESSION['correctas'] = 0;
         $_SESSION['pregunta_numero'] = 1;
-        unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
+        unset($_SESSION['pregunta_pendiente'], $_SESSION['opciones_pendientes'], $_SESSION['pregunta_inicio'], $_SESSION['categoria_actual'], $_SESSION['preguntas_categoria']);
 
         //redirige a show() el que tiene preguntas y respuestas
-        \Redirect::to('/partida/show');
+        \Redirect::to('/Preguntados/partida/show');
 
 
+    }
+
+    private function destinoSeguro($destino){
+        $destino = (string) $destino;
+        if ($destino === '' || $destino[0] !== '/' || strpos($destino, '//') === 0 || strpos($destino, '\\') !== false) {
+            return '/home/show';
+        }
+        return $destino;
     }
 
     public function abandonar(){
 
     if(!isset($_SESSION['game_id']) || (int) $_SESSION['game_id'] <= 0){
             $destino = \Request::get('destino', '/home/show');
-        \Redirect::to($destino);
+        \Redirect::to('/Preguntados' . $this->destinoSeguro($destino));
     }
 
     $gameId = (int) $_SESSION['game_id'];
@@ -322,17 +412,18 @@ class PartidaController{
         $_SESSION['pregunta_numero'],
         $_SESSION['pregunta_pendiente'],
         $_SESSION['opciones_pendientes'],
+        $_SESSION['pregunta_inicio'],
         $_SESSION['categoria_actual'],
         $_SESSION['preguntas_categoria']
     );
     $destino = \Request::get('destino','/home/show'); 
-    \Redirect::to($destino);
+    \Redirect::to('/Preguntados' . $this->destinoSeguro($destino));
     }
 
     public function salir(){
 
        if(!isset($_SESSION['game_id']) || (int) $_SESSION['game_id'] <= 0){
-            \Redirect::to('/home/show');
+            \Redirect::to('/Preguntados/home/show');
     }
 
         unset(
@@ -342,10 +433,11 @@ class PartidaController{
             $_SESSION['pregunta_numero'],
             $_SESSION['pregunta_pendiente'],
             $_SESSION['opciones_pendientes'],
+            $_SESSION['pregunta_inicio'],
             $_SESSION['categoria_actual'],
             $_SESSION['preguntas_categoria']
         );
 
-        \Redirect::to('/home/show');
+        \Redirect::to('/Preguntados/home/show');
     }
 }

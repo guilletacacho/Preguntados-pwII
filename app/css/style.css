@@ -163,6 +163,16 @@ a:hover { color: var(--texto); }
     height: 7px;
     border-radius: 999px;
     background: var(--historia);
+    transition: width 1s linear;
+}
+
+.partida-progreso.es-urgente span { background: #d64545; }
+
+.partida-tiempo {
+    margin: .5rem 0 0;
+    color: var(--texto-sec);
+    font-size: .9rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .partida-pregunta {
