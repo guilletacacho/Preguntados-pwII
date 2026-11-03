@@ -131,7 +131,11 @@ class PartidaModel{
                        COUNT(DISTINCT CASE WHEN ga.question_id IS NULL THEN q.id END) AS preguntas
                 FROM category c
                 LEFT JOIN questions q ON q.category_id = c.id
-                LEFT JOIN game_answers ga ON ga.game_id = ? AND ga.question_id = q.id
+                LEFT JOIN (
+                    SELECT DISTINCT question_id
+                    FROM game_answers
+                    WHERE game_id = ?
+                ) ga ON ga.question_id = q.id
                 GROUP BY c.id, c.name
                 ORDER BY c.id";
 
