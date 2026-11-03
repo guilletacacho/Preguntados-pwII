@@ -3,7 +3,9 @@
 --
 -- Qué hace:
 --   1. Agrega usuarios.Provincia si falta (lo usa Perfil/Registro).
---   2. Agrega game_answers.turn_number si falta (lo usa PartidaModel).
+--   2. Agrega game_answers.turn_number si falta (lo usa PartidaModel)
+--      y quita el UNIQUE (game_id, question_id) para poder repetir
+--      preguntas cuando ya salieron todas en la misma partida.
 --   3. Crea question_stats: entregas / respuestas / aciertos por pregunta.
 --   4. Deja todas las preguntas en nivel MEDIO (20 puntos) para que
 --      empiecen a calibrarse con las primeras 10 entregas.
@@ -61,6 +63,41 @@ SET @sql = (
     WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME = 'game_answers'
       AND INDEX_NAME = 'uk_game_answers_turn'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- ------------------------------------------------------------
+-- 2b. Permitir repetir preguntas dentro de la misma partida
+--     Se quita el UNIQUE (game_id, question_id) y se deja un índice
+--     común. El control de reenvíos queda en uk_game_answers_turn.
+-- ------------------------------------------------------------
+SET @sql = (
+    SELECT IF(
+        COUNT(*) > 0,
+        'ALTER TABLE `game_answers` DROP INDEX `uk_game_answers_question`',
+        'SELECT 1'
+    )
+    FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'game_answers'
+      AND INDEX_NAME = 'uk_game_answers_question'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql = (
+    SELECT IF(
+        COUNT(*) = 0,
+        'ALTER TABLE `game_answers` ADD KEY `idx_game_answers_game_question` (`game_id`, `question_id`)',
+        'SELECT 1'
+    )
+    FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'game_answers'
+      AND INDEX_NAME = 'idx_game_answers_game_question'
 );
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
@@ -168,7 +205,15 @@ WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'question_stats'
 UNION ALL
 SELECT 'uk_game_en_curso', COUNT(*)
 FROM information_schema.STATISTICS
-WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'game' AND INDEX_NAME = 'uk_game_en_curso';
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'game' AND INDEX_NAME = 'uk_game_en_curso'
+UNION ALL
+SELECT 'uk_game_answers_question (debe ser 0)', COUNT(*)
+FROM information_schema.STATISTICS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'game_answers' AND INDEX_NAME = 'uk_game_answers_question'
+UNION ALL
+SELECT 'idx_game_answers_game_question', COUNT(*)
+FROM information_schema.STATISTICS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'game_answers' AND INDEX_NAME = 'idx_game_answers_game_question';
 
 SELECT `difficulty_level`, COUNT(*) AS preguntas
 FROM `questions`

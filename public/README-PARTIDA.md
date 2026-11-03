@@ -95,10 +95,10 @@ Métodos internos importantes:
 | Experimentado     | difícil → medio → fácil       |
 
 Si la categoría no tiene preguntas del nivel ideal, se pasa al siguiente. Si no
-tiene de ningún nivel, esa categoría deja de ofrecerse. Si **todas** las
-categorías se agotan, la partida se finaliza y se muestra “no hay preguntas
-disponibles” con la opción de jugar de nuevo. No se reinician preguntas dentro
-de la misma partida (así no se repiten).
+tiene de ningún nivel, esa categoría deja de ofrecerse. La partida **nunca se
+termina por falta de preguntas**: cuando ya salieron todas las preguntas del
+juego, se vuelven a ofrecer (se repiten). Dentro de una misma partida no se
+repiten hasta que el jugador ya respondió todas; recién ahí se reinicia el pool.
 
 ## Temporizador
 
@@ -147,8 +147,8 @@ de la misma partida (así no se repiten).
 ## Estados de partida
 
 - **EN_CURSO**: activa. Hay como máximo una por usuario.
-- **FINALIZADA**: respuesta incorrecta, tiempo agotado o se acabaron las
-  preguntas. Se guarda `finished_at`.
+- **FINALIZADA**: respuesta incorrecta o tiempo agotado. Se guarda
+  `finished_at`.
 - **ABANDONADA**: el usuario salió con una navegación controlada
   (`partida/abandonar`). Se guarda `finished_at`.
 
@@ -160,7 +160,8 @@ Para una base existente hay que importar una vez:
 app/sql/migracion_dificultad_niveles.sql
 ```
 
-Agrega `usuarios.Provincia`, `game_answers.turn_number`, la tabla
+Agrega `usuarios.Provincia`, `game_answers.turn_number`, quita el índice único
+`uk_game_answers_question` (para poder repetir preguntas), la tabla
 `question_stats`, la columna generada `game.en_curso` y su índice único, y deja
 todas las preguntas en nivel medio. Es idempotente: se puede correr más de una
 vez.
@@ -194,3 +195,5 @@ cosa cae en `/home/show`.
   cierra el turno.
 - Fallback de dificultad: un jugador básico recibe preguntas de una categoría
   que solo tiene difíciles.
+- Preguntas agotadas: la partida no termina; primero usa todas las que faltan y
+  recién después repite (sin repetir la última).

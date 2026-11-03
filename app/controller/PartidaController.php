@@ -88,24 +88,21 @@ class PartidaController{
         $gameId = (int) $partida['id'];
 
         $categorias = $this->model->obtenerCategorias($gameId);
-        $disponibles = array_values(array_filter($categorias, static function ($categoria) {
+
+        // Primero se ofrecen categorías que todavía tienen preguntas sin salir.
+        // Si ya salieron todas, se vuelve a usar el pool completo (se repiten):
+        // la partida nunca termina por falta de preguntas.
+        $conPendientes = array_values(array_filter($categorias, static function ($categoria) {
             return (int) $categoria['preguntas'] > 0;
         }));
+        $conPreguntas = array_values(array_filter($categorias, static function ($categoria) {
+            return (int) $categoria['total'] > 0;
+        }));
+        $disponibles = $conPendientes ?: $conPreguntas;
 
         if (!$disponibles) {
-            // Se respondieron todas las preguntas: la partida no puede seguir.
-            $this->model->finalizarPartida($gameId);
-            unset(
-                $_SESSION['game_id'],
-                $_SESSION['turno'],
-                $_SESSION['ruleta_girada']
-            );
-
-            $this->render->renderiza('partida', [
-                'sinPreguntas' => true,
-                'puntos' => (int) ($_SESSION['puntos'] ?? 0),
-            ]);
-            return;
+            // No hay preguntas cargadas en el sistema: no es un fin de partida.
+            \Redirect::to('/Preguntados/home/show');
         }
 
         // La categoría y la pregunta se eligen UNA sola vez por turno.
@@ -114,14 +111,8 @@ class PartidaController{
             $pregunta = $this->elegirPregunta($disponibles, $gameId);
 
             if ($pregunta === null) {
-                $this->model->finalizarPartida($gameId);
-                unset($_SESSION['game_id'], $_SESSION['turno'], $_SESSION['ruleta_girada']);
-
-                $this->render->renderiza('partida', [
-                    'sinPreguntas' => true,
-                    'puntos' => (int) ($_SESSION['puntos'] ?? 0),
-                ]);
-                return;
+                // Sin preguntas cargadas: volvemos al home, nunca "se terminó".
+                \Redirect::to('/Preguntados/home/show');
             }
 
             $this->nuevaRonda($pregunta);
@@ -548,12 +539,6 @@ class PartidaController{
 
         if ($gameId <= 0) {
             \Redirect::to('/Preguntados/home/show');
-        }
-
-        // Segunda barrera: la pregunta no puede estar ya respondida en esta partida.
-        if ($this->model->preguntaYaRespondida($gameId, $questionId)) {
-            unset($_SESSION['turno']);
-            \Redirect::to('/Preguntados/partida/show');
         }
 
         $esCorrecta = $this->model->esRespuestaCorrecta($questionId, $responseId);
