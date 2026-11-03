@@ -89,16 +89,13 @@ class PartidaController{
 
         $categorias = $this->model->obtenerCategorias($gameId);
 
-        // Primero se ofrecen categorías que todavía tienen preguntas sin salir.
-        // Si ya salieron todas, se vuelve a usar el pool completo (se repiten):
-        // la partida nunca termina por falta de preguntas.
-        $conPendientes = array_values(array_filter($categorias, static function ($categoria) {
-            return (int) $categoria['preguntas'] > 0;
-        }));
-        $conPreguntas = array_values(array_filter($categorias, static function ($categoria) {
+        // Cualquier categoría con preguntas puede salir en la ruleta.
+        // La pregunta SIEMPRE es de la categoría que salió: si ya se
+        // respondieron todas las de esa categoría, se repite una de ahí.
+        // Nunca se cambia a otra categoría.
+        $disponibles = array_values(array_filter($categorias, static function ($categoria) {
             return (int) $categoria['total'] > 0;
         }));
-        $disponibles = $conPendientes ?: $conPreguntas;
 
         if (!$disponibles) {
             // No hay preguntas cargadas en el sistema: no es un fin de partida.
@@ -412,8 +409,9 @@ class PartidaController{
     }
 
     /**
-     * Prueba las categorías disponibles al azar hasta encontrar una
-     * pregunta que el jugador pueda responder. Devuelve null si no hay.
+     * Elige una categoría al azar entre las que tienen preguntas y devuelve
+     * una pregunta de ESA categoría. Si ya salieron todas las de esa
+     * categoría, se repite una de la misma; nunca se pasa a otra.
      */
     private function elegirPregunta(array $disponibles, $gameId){
 

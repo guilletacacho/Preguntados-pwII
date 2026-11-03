@@ -94,11 +94,11 @@ Métodos internos importantes:
 | Intermedio        | medio → fácil → difícil       |
 | Experimentado     | difícil → medio → fácil       |
 
-Si la categoría no tiene preguntas del nivel ideal, se pasa al siguiente. Si no
-tiene de ningún nivel, esa categoría deja de ofrecerse. La partida **nunca se
-termina por falta de preguntas**: cuando ya salieron todas las preguntas del
-juego, se vuelven a ofrecer (se repiten). Dentro de una misma partida no se
-repiten hasta que el jugador ya respondió todas; recién ahí se reinicia el pool.
+Si la categoría no tiene preguntas del nivel ideal, se pasa al siguiente dentro
+de la misma categoría. La categoría que sale en la ruleta es **siempre** la de
+la pregunta: nunca se cambia a otra. Si ya salieron todas las preguntas de esa
+categoría, se repite una de la misma (evitando la última) y la partida sigue.
+Nunca se termina por falta de preguntas.
 
 ## Temporizador
 
@@ -195,5 +195,6 @@ cosa cae en `/home/show`.
   cierra el turno.
 - Fallback de dificultad: un jugador básico recibe preguntas de una categoría
   que solo tiene difíciles.
-- Preguntas agotadas: la partida no termina; primero usa todas las que faltan y
-  recién después repite (sin repetir la última).
+- Preguntas agotadas: la categoría que sale en la ruleta manda; si ya salieron
+  todas las de esa categoría, repite una de la misma (sin repetir la última) y
+  la partida sigue. Nunca cambia a otra categoría.
