@@ -409,21 +409,43 @@ class PartidaController{
     }
 
     /**
-     * Elige una categoría al azar entre las que tienen preguntas y devuelve
-     * una pregunta de ESA categoría. Si ya salieron todas las de esa
-     * categoría, se repite una de la misma; nunca se pasa a otra.
+     * Elige una categoría al azar entre las que tienen preguntas de la
+     * dificultad que le corresponde al jugador y devuelve una pregunta de
+     * ESA categoría y dificultad.
+     *
+     * Si ya salieron todas las de esa categoría+dificultad, se repiten
+     * mezcladas. Si el banco todavía no tiene preguntas de esa dificultad
+     * (al principio todas son medias), usa la dificultad más cercana para
+     * que la partida nunca se trabe.
      */
     private function elegirPregunta(array $disponibles, $gameId){
 
         $nivel = $this->nivelJugador();
+        $nivelJugador = (int) $nivel['nivel'];
+        $dificultad = Dificultad::dificultadDeNivel($nivelJugador);
+
         $categorias = $disponibles;
         shuffle($categorias);
 
+        // 1) Categorías que tengan preguntas de la dificultad exacta.
+        foreach ($categorias as $categoria) {
+            $pregunta = $this->model->obtenerPreguntaDeDificultad(
+                (int) $categoria['id'],
+                (int) $gameId,
+                $dificultad
+            );
+
+            if ($pregunta !== null) {
+                return $pregunta;
+            }
+        }
+
+        // 2) Ninguna categoría tiene preguntas de esa dificultad todavía.
         foreach ($categorias as $categoria) {
             $pregunta = $this->model->obtenerPreguntaParaJugador(
                 (int) $categoria['id'],
                 (int) $gameId,
-                (int) $nivel['nivel']
+                $nivelJugador
             );
 
             if ($pregunta !== null) {

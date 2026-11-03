@@ -143,108 +143,70 @@ class PartidaModel{
     }
 
     /**
-     * Busca una pregunta de la categoría adecuada al nivel del jugador.
-     * Primero usa las que todavía no salieron en la partida. Si ya salieron
-     * todas, permite repetir (el jugador siempre puede seguir jugando).
+     * Devuelve la pregunta menos usada de una categoría y dificultad exactas.
+     *
+     * - Si hay preguntas que todavía no salieron en la partida (0 usos),
+     *   elige una de esas al azar.
+     * - Si ya salieron todas, elige entre las que menos veces salieron:
+     *   así el ciclo se reinicia y las repeticiones vienen mezcladas.
+     *
+     * Devuelve null solo si la categoría no tiene NINGUNA pregunta de esa
+     * dificultad (el banco todavía no está calibrado para ese nivel).
+     */
+    public function obtenerPreguntaDeDificultad($categoriaId, $gameId, $dificultad){
+        $expresion = Dificultad::sqlDificultad();
+
+        $sql = "SELECT
+                    q.id AS question_id,
+                    q.question AS pregunta,
+                    c.name AS categoria,
+                    q.category_id,
+                    {$expresion} AS dificultad
+                FROM questions q
+                INNER JOIN category c ON c.id = q.category_id
+                LEFT JOIN question_stats qs ON qs.question_id = q.id
+                LEFT JOIN (
+                    SELECT question_id, COUNT(*) AS veces
+                    FROM game_answers
+                    WHERE game_id = ?
+                    GROUP BY question_id
+                ) usos ON usos.question_id = q.id
+                WHERE q.category_id = ?
+                    AND ({$expresion}) = ?
+                ORDER BY COALESCE(usos.veces, 0) ASC, RAND()
+                LIMIT 1";
+
+        return $this->database->queryOne($sql, [(int) $gameId, (int) $categoriaId, (int) $dificultad]);
+    }
+
+    /**
+     * Pregunta para el nivel del jugador dentro de una categoría.
+     * Usa la dificultad exacta del nivel (básico=fácil, intermedio=medio,
+     * experimentado=difícil). Si la categoría no tiene ninguna pregunta de
+     * esa dificultad, recién ahí usa la más cercana para no trabar la
+     * partida mientras el banco se termina de calibrar.
      */
     public function obtenerPreguntaParaJugador($categoriaId, $gameId, $nivelJugador){
-        foreach (Dificultad::preferencia((int) $nivelJugador) as $dificultad) {
-            $pregunta = $this->obtenerPreguntaPorDificultad((int) $categoriaId, (int) $gameId, $dificultad, true);
-            if ($pregunta !== null) {
-                return $pregunta;
-            }
+        $nivelJugador = (int) $nivelJugador;
+        $dificultad = Dificultad::dificultadDeNivel($nivelJugador);
+
+        $pregunta = $this->obtenerPreguntaDeDificultad((int) $categoriaId, (int) $gameId, $dificultad);
+        if ($pregunta !== null) {
+            return $pregunta;
         }
 
-        foreach (Dificultad::preferencia((int) $nivelJugador) as $dificultad) {
-            $pregunta = $this->obtenerPreguntaRepetida((int) $categoriaId, (int) $gameId, $dificultad);
+        foreach (Dificultad::preferencia($nivelJugador) as $alternativa) {
+            if ($alternativa === $dificultad) {
+                continue;
+            }
+
+            $pregunta = $this->obtenerPreguntaDeDificultad((int) $categoriaId, (int) $gameId, $alternativa);
             if ($pregunta !== null) {
                 return $pregunta;
             }
         }
 
         return null;
-    }
-
-    private function obtenerPreguntaPorDificultad($categoriaId, $gameId, $dificultad, $soloSinResponder = true){
-        $expresion = Dificultad::sqlDificultad();
-        $filtro = $soloSinResponder
-            ? "AND q.id NOT IN (SELECT ga.question_id FROM game_answers ga WHERE ga.game_id = ?)"
-            : "";
-
-        $sql = "SELECT
-                    q.id AS question_id,
-                    q.question AS pregunta,
-                    c.name AS categoria,
-                    q.category_id,
-                    {$expresion} AS dificultad
-                FROM questions q
-                INNER JOIN category c ON c.id = q.category_id
-                LEFT JOIN question_stats qs ON qs.question_id = q.id
-                WHERE q.category_id = ?
-                    {$filtro}
-                    AND ({$expresion}) = ?
-                ORDER BY RAND()
-                LIMIT 1";
-
-        $parametros = [$categoriaId];
-        if ($soloSinResponder) {
-            $parametros[] = $gameId;
-        }
-        $parametros[] = $dificultad;
-
-        return $this->database->queryOne($sql, $parametros);
-    }
-
-    /**
-     * Elige una pregunta ya respondida en la partida para repetirla.
-     * Evita repetir la última que salió, salvo que la categoría tenga una sola.
-     */
-    private function obtenerPreguntaRepetida($categoriaId, $gameId, $dificultad){
-        $expresion = Dificultad::sqlDificultad();
-
-        $sql = "SELECT
-                    q.id AS question_id,
-                    q.question AS pregunta,
-                    c.name AS categoria,
-                    q.category_id,
-                    {$expresion} AS dificultad
-                FROM questions q
-                INNER JOIN category c ON c.id = q.category_id
-                LEFT JOIN question_stats qs ON qs.question_id = q.id
-                WHERE q.category_id = ?
-                    AND q.id <> COALESCE((
-                        SELECT ga.question_id
-                        FROM game_answers ga
-                        WHERE ga.game_id = ?
-                        ORDER BY ga.id DESC
-                        LIMIT 1
-                    ), 0)
-                    AND ({$expresion}) = ?
-                ORDER BY RAND()
-                LIMIT 1";
-
-        $pregunta = $this->database->queryOne($sql, [$categoriaId, $gameId, $dificultad]);
-        if ($pregunta !== null) {
-            return $pregunta;
-        }
-
-        // La categoría tiene una sola pregunta (o todas son la última):
-        // se permite repetirla igual.
-        $sql = "SELECT
-                    q.id AS question_id,
-                    q.question AS pregunta,
-                    c.name AS categoria,
-                    q.category_id,
-                    {$expresion} AS dificultad
-                FROM questions q
-                INNER JOIN category c ON c.id = q.category_id
-                LEFT JOIN question_stats qs ON qs.question_id = q.id
-                WHERE q.category_id = ?
-                    AND ({$expresion}) = ?
-                ORDER BY RAND()
-                LIMIT 1";
-
-        return $this->database->queryOne($sql, [$categoriaId, $dificultad]);
     }
 
     public function obtenerPreguntaPorId($questionId){

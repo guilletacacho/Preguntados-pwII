@@ -105,6 +105,22 @@ class Dificultad
         return self::PUNTOS[$dificultad] ?? self::PUNTOS[self::MEDIO];
     }
 
+    /**
+     * Dificultad exacta que le corresponde al nivel del jugador.
+     * Básico -> fácil, Intermedio -> medio, Experimentado -> difícil.
+     */
+    public static function dificultadDeNivel(int $nivelJugador): int
+    {
+        if ($nivelJugador === self::BASICO) {
+            return self::FACIL;
+        }
+        if ($nivelJugador === self::EXPERIMENTADO) {
+            return self::DIFICIL;
+        }
+
+        return self::MEDIO;
+    }
+
     public static function etiqueta(int $dificultad): string
     {
         return self::ETIQUETAS[$dificultad] ?? self::ETIQUETAS[self::MEDIO];

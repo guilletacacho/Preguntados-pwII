@@ -52,18 +52,20 @@ Métodos internos importantes:
 
 - `obtenerPartida`, `obtenerPartidaEnCurso`, `iniciarPartida`, `ultimoTurno`,
   `actualizarPartida`, `finalizarPartida`, `abandonoPartida`.
-- `obtenerCategorias`: categorías con la cantidad de preguntas **sin responder
-  en esa partida**.
-- `obtenerPreguntaParaJugador`: recorre las dificultades preferidas para el
-  nivel del jugador hasta encontrar una pregunta libre en la categoría.
-- `obtenerPreguntaPorDificultad`: calcula la dificultad efectiva de cada
-  pregunta a partir de `question_stats`.
-- `preguntaYaRespondida`, `obtenerRespuestasCompletas`,
+- `obtenerCategorias`: categorías con el total de preguntas y cuántas quedan
+  **sin responder en esa partida**.
+- `obtenerPreguntaDeDificultad`: devuelve la pregunta menos usada de una
+  **categoría + dificultad exactas**. Si ya salieron todas, repite mezcladas
+  (rotando por las que menos veces salieron).
+- `obtenerPreguntaParaJugador`: usa la dificultad exacta del nivel del jugador
+  (básico=fácil, intermedio=medio, experimentado=difícil). Solo cae a otra
+  dificultad si la categoría no tiene **ninguna** pregunta de la ideal.
+- `obtenerRespuestasCompletas`,
   `obtenerRespuestaCorrecta`, `esRespuestaCorrecta`.
 - `obtenerEstadisticasJugador`: respondidas / correctas históricas y nivel.
 - `registrarEntrega`, `registrarRespuestaEstadistica`, `recalcularDificultad`.
-- `registrarRespuesta`: inserta en `game_answers` con `turn_number`. Si la
-  pregunta ya estaba respondida en la partida, el índice único devuelve 0 y no
+- `registrarRespuesta`: inserta en `game_answers` con `turn_number`. Si se
+  reenvía el mismo turno, el índice único `uk_game_answers_turn` devuelve 0 y no
   se suman puntos.
 
 ## Reglas de dificultad (`helper/Dificultad.php`)
@@ -88,17 +90,23 @@ Métodos internos importantes:
 
 ### Qué preguntas recibe cada nivel
 
-| Nivel del jugador | Orden de preferencia          |
-|-------------------|-------------------------------|
-| Básico            | fácil → medio → difícil       |
-| Intermedio        | medio → fácil → difícil       |
-| Experimentado     | difícil → medio → fácil       |
+| Nivel del jugador | Dificultad de la pregunta |
+|-------------------|---------------------------|
+| Básico            | Fácil                     |
+| Intermedio        | Medio                     |
+| Experimentado     | Difícil                   |
 
-Si la categoría no tiene preguntas del nivel ideal, se pasa al siguiente dentro
-de la misma categoría. La categoría que sale en la ruleta es **siempre** la de
-la pregunta: nunca se cambia a otra. Si ya salieron todas las preguntas de esa
-categoría, se repite una de la misma (evitando la última) y la partida sigue.
-Nunca se termina por falta de preguntas.
+La categoría que sale en la ruleta es **siempre** la de la pregunta y se usa la
+dificultad exacta del nivel del jugador: nunca se cambia ni de categoría ni de
+dificultad. Si ya respondió **todas las preguntas de esa categoría + dificultad**,
+se reinicia ese grupo y se las vuelve a dar mezcladas (primero las que menos
+veces salieron, para que roten). Si el jugador sube o baja de nivel, cambia la
+dificultad y recibe las preguntas de ese nuevo nivel (las que todavía no salieron
+son nuevas para él). La partida nunca se termina por falta de preguntas.
+
+Única excepción: si el banco todavía no tiene **ninguna** pregunta de esa
+dificultad (al principio todas arrancan en medio), se usa la dificultad más
+cercana para no trabar la partida mientras se calibra.
 
 ## Temporizador
 
@@ -195,6 +203,8 @@ cosa cae en `/home/show`.
   cierra el turno.
 - Fallback de dificultad: un jugador básico recibe preguntas de una categoría
   que solo tiene difíciles.
-- Preguntas agotadas: la categoría que sale en la ruleta manda; si ya salieron
-  todas las de esa categoría, repite una de la misma (sin repetir la última) y
-  la partida sigue. Nunca cambia a otra categoría.
+- Preguntas agotadas: la categoría y la dificultad que salen mandan; si ya
+  salieron todas las de esa combinación, se repiten mezcladas (rotando por las
+  menos usadas) y la partida sigue. Nunca cambia de categoría ni de dificultad.
+- Cambio de nivel del jugador: al pasar a básico/intermedio/experimentado cambia
+  la dificultad de las preguntas que recibe.
