@@ -175,6 +175,35 @@ a:hover { color: var(--texto); }
     font-variant-numeric: tabular-nums;
 }
 
+.partida-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: .25rem 0 .75rem;
+}
+
+.partida-chip {
+    padding: .3rem .65rem;
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    background: var(--hundido);
+    color: var(--texto-sec);
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.roulette-notice {
+    margin: .5rem 0 0;
+    padding: .65rem .9rem;
+    border: 1px solid var(--borde);
+    border-left: 4px solid var(--link);
+    border-radius: 10px;
+    background: var(--hundido);
+    color: var(--texto-sec);
+    font-size: .9rem;
+    text-align: left;
+}
+
 .partida-pregunta {
     min-height: 132px;
     margin-bottom: 1.25rem;

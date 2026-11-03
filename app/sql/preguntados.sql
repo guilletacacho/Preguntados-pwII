@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `category_id` INT NOT NULL,
   `question` VARCHAR(500) NOT NULL,
-  `difficulty_level` TINYINT NOT NULL,
-  `points` INT NOT NULL DEFAULT 10,
+  `difficulty_level` TINYINT NOT NULL DEFAULT 2,
+  `points` INT NOT NULL DEFAULT 20,
   PRIMARY KEY (`id`),
   KEY `idx_questions_category` (`category_id`),
   CONSTRAINT `chk_questions_difficulty` CHECK (`difficulty_level` BETWEEN 1 AND 3),
@@ -149,8 +149,8 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `category_id` INT NOT NULL,
   `question` VARCHAR(500) NOT NULL,
-  `difficulty_level` TINYINT NOT NULL,
-  `points` INT NOT NULL DEFAULT 10,
+  `difficulty_level` TINYINT NOT NULL DEFAULT 2,
+  `points` INT NOT NULL DEFAULT 20,
   PRIMARY KEY (`id`),
   KEY `idx_questions_category` (`category_id`),
   CONSTRAINT `chk_questions_difficulty` CHECK (`difficulty_level` BETWEEN 1 AND 3),
@@ -245,18 +245,63 @@ PREPARE sentencia_provincia FROM @migracion_provincia;
 EXECUTE sentencia_provincia;
 DEALLOCATE PREPARE sentencia_provincia;
 
-SET @migracion_provincia = (
+
+-- ============================================================
+-- MODO ADAPTATIVO (dificultad de preguntas + nivel de jugador)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `question_stats` (
+  `question_id` INT NOT NULL,
+  `times_delivered` INT NOT NULL DEFAULT 0,
+  `times_answered` INT NOT NULL DEFAULT 0,
+  `times_correct` INT NOT NULL DEFAULT 0,
+  `difficulty_level` TINYINT NOT NULL DEFAULT 2,
+  `points` INT NOT NULL DEFAULT 20,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`question_id`),
+  KEY `idx_question_stats_difficulty` (`difficulty_level`),
+  CONSTRAINT `fk_question_stats_question` FOREIGN KEY (`question_id`)
+    REFERENCES `questions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `question_stats`
+  (`question_id`, `times_delivered`, `times_answered`, `times_correct`, `difficulty_level`, `points`)
+SELECT `id`, 0, 0, 0, 2, 20 FROM `questions`
+ON DUPLICATE KEY UPDATE `question_id` = `question_id`;
+
+-- Toda pregunta arranca en MEDIO (20 puntos) hasta calibrarse.
+UPDATE `questions` q
+INNER JOIN `question_stats` qs ON qs.question_id = q.id
+SET q.`difficulty_level` = 2, q.`points` = 20
+WHERE qs.`times_delivered` = 0 AND qs.`times_answered` = 0;
+
+-- Una sola partida EN_CURSO por usuario.
+SET @migracion_en_curso = (
   SELECT IF(
     COUNT(*) = 0,
-    'ALTER TABLE `usuarios` ADD COLUMN `Provincia` varchar(150) NOT NULL DEFAULT '''' AFTER `Sexo`',
+    'ALTER TABLE `game` ADD COLUMN `en_curso` TINYINT GENERATED ALWAYS AS (IF(`status` = ''EN_CURSO'', 1, NULL)) STORED',
     'SELECT 1'
   )
   FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME = 'usuarios'
-    AND COLUMN_NAME = 'Provincia'
+    AND TABLE_NAME = 'game'
+    AND COLUMN_NAME = 'en_curso'
 );
+PREPARE sentencia_en_curso FROM @migracion_en_curso;
+EXECUTE sentencia_en_curso;
+DEALLOCATE PREPARE sentencia_en_curso;
 
-PREPARE sentencia_provincia FROM @migracion_provincia;
-EXECUTE sentencia_provincia;
-DEALLOCATE PREPARE sentencia_provincia;
+SET @migracion_uk_en_curso = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `game` ADD UNIQUE KEY `uk_game_en_curso` (`user_id`, `en_curso`)',
+    'SELECT 1'
+  )
+  FROM information_schema.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'game'
+    AND INDEX_NAME = 'uk_game_en_curso'
+);
+PREPARE sentencia_uk_en_curso FROM @migracion_uk_en_curso;
+EXECUTE sentencia_uk_en_curso;
+DEALLOCATE PREPARE sentencia_uk_en_curso;

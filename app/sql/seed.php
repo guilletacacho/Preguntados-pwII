@@ -18,7 +18,9 @@ $run = static function ($sql, $params = []) use ($db) {
     return $statement;
 };
 
-// Primera opción correcta. Cuatro preguntas por categoría, de dificultad variable.
+// Primera opción correcta. Cuatro preguntas por categoría.
+// Todas arrancan en dificultad MEDIA (2) y 20 puntos: después el modo
+// adaptativo las reclasifica según cuántas veces se entregaron y acertaron.
 $catalog = [
     'Geografía' => [
         ['¿Cuál es la capital de Argentina?', 'Buenos Aires', 'Rosario', 'Córdoba', 'Mendoza'],
@@ -87,8 +89,8 @@ try {
                 $questions[] = [$questionId, $points, $correct[0]['id'], $wrong[0]['id']];
                 continue;
             }
-            $difficulty = $index % 3 + 1;
-            $points = $difficulty * 10;
+            $difficulty = 2;
+            $points = 20;
             $run('INSERT INTO questions (category_id, question, difficulty_level, points) VALUES (?, ?, ?, ?)', [$id, $item[0], $difficulty, $points]);
             $questionId = $db->lastInsertId();
             $optionIds = [];
@@ -140,8 +142,8 @@ try {
                     $correct = (($answer * 3 + $gameIndex + $index) % 10) < (3 + $index % 7);
                     $earned = $correct ? $question[1] : 0;
                     $seconds = 3 + (($answer * 7 + $index + $gameIndex) % 160) / 10;
-                    $run('INSERT INTO game_answers (game_id, question_id, response_id, response_time_seconds, earned_points, answered_at) VALUES (?, ?, ?, ?, ?, ?)', [
-                        $gameId, $question[0], $correct ? $question[2] : $question[3], $seconds, $earned,
+                    $run('INSERT INTO game_answers (game_id, question_id, response_id, response_time_seconds, earned_points, turn_number, answered_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [
+                        $gameId, $question[0], $correct ? $question[2] : $question[3], $seconds, $earned, $answer + 1,
                         $format($start->modify('+' . (($answer + 1) * 20) . ' seconds')),
                     ]);
                     $score += $earned;

@@ -1,8 +1,19 @@
 <main class="roulette-shell">
-    <section class="roulette-panel" aria-labelledby="roulette-title" data-roulette>
+    <section class="roulette-panel" aria-labelledby="roulette-title" data-roulette data-base-path="{{basePath}}" data-spun="{{#ruletaGirada}}true{{/ruletaGirada}}">
         <div class="roulette-top"><span class="eyebrow">EL AZAR ELIGE. VOS RESPONDÉS.</span><span>{{puntos}} puntos</span></div>
         <h1 id="roulette-title">Tu próxima categoría</h1>
         <p class="roulette-description">Una categoría, cuatro preguntas. Girá y descubrí cuál te toca.</p>
+
+        {{#partidaReanudada}}
+            <p class="roulette-notice" role="status">Ya tenías una partida en curso: seguís desde donde estabas.</p>
+        {{/partidaReanudada}}
+
+        <div class="partida-meta" aria-label="Nivel">
+            <span class="partida-chip">Tu nivel: {{nivelJugador}}</span>
+            <span class="partida-chip">Dificultad: {{dificultadPregunta}}</span>
+            <span class="partida-chip">Pregunta {{preguntaNumero}}</span>
+        </div>
+
         <div class="roulette-window">
             <div class="roulette-marker" aria-hidden="true"></div>
             <div class="roulette-track" aria-hidden="true">
@@ -15,11 +26,12 @@
                 {{/categorias}}
             </div>
         </div>
-        <p class="roulette-status" role="status" aria-live="polite">¿Qué categoría te tocará?</p>
-        <button type="button" class="submit-btn roulette-spin">Girar ruleta <span aria-hidden="true">→</span></button>
-        <a class="submit-btn roulette-continue" href="{{basePath}}/partida/pregunta" hidden>Ir a la pregunta →</a>
+        <p class="roulette-status" role="status" aria-live="polite">{{#ruletaGirada}}¡Te tocó esta categoría!{{/ruletaGirada}}{{^ruletaGirada}}¿Qué categoría te tocará?{{/ruletaGirada}}</p>
+        <button type="button" class="submit-btn roulette-spin"{{#ruletaGirada}} hidden{{/ruletaGirada}}>Girar ruleta <span aria-hidden="true">→</span></button>
+        <a class="submit-btn roulette-continue" href="{{basePath}}/partida/pregunta"{{^ruletaGirada}} hidden{{/ruletaGirada}}>Ir a la pregunta →</a>
         <noscript><p>Activá JavaScript para ver la animación o <a href="{{basePath}}/partida/pregunta">continuá a tu pregunta</a>.</p></noscript>
         <div class="roulette-categories" aria-label="Categorías disponibles">{{#categorias}}<span>{{name}}</span>{{/categorias}}</div>
     </section>
 </main>
+<script src="{{basePath}}/public/js/partida-navegacion.js" defer></script>
 <script src="{{basePath}}/public/js/ruleta.js" defer></script>

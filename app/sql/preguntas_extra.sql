@@ -216,7 +216,7 @@ JOIN questions q ON q.category_id = c.id AND q.question = t.pregunta
 SET t.existente_id = q.id;
 
 INSERT INTO questions (category_id, question, difficulty_level, points)
-SELECT c.id, t.pregunta, 1, 10
+SELECT c.id, t.pregunta, 2, 20
 FROM carga_preguntas_extra t JOIN category c ON c.name = t.categoria
 WHERE t.existente_id IS NULL;
 
