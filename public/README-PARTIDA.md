@@ -13,8 +13,10 @@ renderiza Mustache.
 
 Métodos públicos:
 
-- `iniciar`: crea una partida o **reanuda** la que ya está `EN_CURSO`. Nunca
-  crea una segunda partida activa para el mismo usuario.
+- `iniciar`: crea una partida o **reanuda** la que ya está `EN_CURSO` en la
+  misma sesión. Si la partida activa quedó de una sesión anterior (sesión
+  perdida), la marca `ABANDONADA` y crea una nueva. Nunca hay dos partidas
+  `EN_CURSO` para el mismo usuario.
 - `show`: muestra la ruleta. La categoría y la pregunta se eligen **una sola
   vez por turno** y quedan guardadas en sesión, así F5 no las cambia.
 - `girar`: marca la ruleta como girada (`POST`). El JS lo llama al terminar la
@@ -35,8 +37,10 @@ Métodos públicos:
 
 Métodos internos importantes:
 
-- `partidaActiva`: busca la partida `EN_CURSO` del usuario y sincroniza los
-  contadores desde la base (el navegador nunca es la fuente de verdad).
+- `partidaActiva`: busca la partida `EN_CURSO` que pertenece a esta sesión y
+  sincroniza los contadores desde la base (el navegador nunca es la fuente de
+  verdad). Si la sesión perdió esa partida, no la adopta: la marca
+  `ABANDONADA` y manda al home.
 - `elegirPregunta`: prueba categorías al azar hasta encontrar una pregunta
   compatible con el nivel del jugador.
 - `nuevaRonda`: arma el turno en `$_SESSION['turno']` (pregunta, categoría,
@@ -202,8 +206,9 @@ forjados no suman puntos ni insertan filas.
 - **EN_CURSO**: activa. Hay como máximo una por usuario.
 - **FINALIZADA**: respuesta incorrecta o tiempo agotado. Se guarda
   `finished_at`.
-- **ABANDONADA**: el usuario salió con una navegación controlada
-  (`partida/abandonar`). Se guarda `finished_at`.
+- **ABANDONADA**: el usuario salió desde "Mi perfil" o "Salir"
+  (`partida/abandonar`), o la sesión se perdió y la partida ya no pertenece a
+  la sesión actual. Se guarda `finished_at`.
 
 ## Migración de base de datos
 
@@ -226,11 +231,20 @@ arrancan en medio).
 
 ## Navegación que abandona una partida
 
+El logo "Preguntados" ya **no** abandona: va a `/home/show` y la partida sigue
+`EN_CURSO` (el reloj del servidor no se pausa). Para retomar, se entra a
+"Jugar".
+
+Estas navegaciones sí llaman a `partida/abandonar`:
+
 ```text
-/partida/abandonar?destino=/home/show
 /partida/abandonar?destino=/perfil
 /partida/abandonar?destino=/login/logout
 ```
+
+Cerrar la pestaña o el navegador tampoco abandona mientras la sesión siga viva.
+Si la sesión se perdió, la partida anterior se marca `ABANDONADA` y la próxima
+vez se empieza una nueva.
 
 `destinoSeguro` solo acepta rutas internas que empiecen con `/`; cualquier otra
 cosa cae en `/home/show`.

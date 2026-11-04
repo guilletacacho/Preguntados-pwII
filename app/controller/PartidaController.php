@@ -40,9 +40,10 @@ class PartidaController{
     // ─────────────────────────────────────────────────────────────
 
     /**
-     * Inicia una partida o reanuda la que ya está EN_CURSO.
-     * Nunca crea una segunda partida activa para el mismo usuario:
-     * el índice uk_game_en_curso de la base lo impide.
+     * Inicia una partida o reanuda la que ya está EN_CURSO en esta sesión.
+     * Si la partida activa quedó de una sesión anterior (sesión perdida),
+     * la marca ABANDONADA y crea una nueva. Nunca hay dos EN_CURSO para el
+     * mismo usuario: el índice uk_game_en_curso de la base lo impide.
      */
     public function iniciar(){
 
@@ -52,6 +53,17 @@ class PartidaController{
         $gameId = (int) $partida['id'];
 
         $mismoJuego = (int) ($_SESSION['game_id'] ?? 0) === $gameId;
+
+        // Si hay una partida EN_CURSO pero no pertenece a esta sesión,
+        // la sesión se perdió (o se abrió desde otro dispositivo).
+        // No se retoma con una pregunta nueva: se marca ABANDONADA y se
+        // empieza una partida limpia.
+        if (!$mismoJuego && empty($partida['nueva'])) {
+            $this->model->abandonoPartida($gameId);
+            $partida = $this->model->iniciarPartida($userId);
+            $gameId = (int) $partida['id'];
+            $mismoJuego = false;
+        }
 
         // Si había un resultado sin leer, no lo pisamos.
         if ($mismoJuego && !empty($_SESSION['resultado'])) {
@@ -456,8 +468,9 @@ class PartidaController{
     }
 
     /**
-     * Devuelve la partida EN_CURSO del usuario, adoptándola en la sesión
-     * si hace falta. Si no hay ninguna, manda al home.
+     * Devuelve la partida EN_CURSO que pertenece a esta sesión. Si la
+     * sesión perdió esa partida, no la adopta: la marca ABANDONADA y
+     * manda al home para que el jugador empiece una nueva con "Jugar".
      */
     private function partidaActiva(){
 
@@ -469,20 +482,15 @@ class PartidaController{
         if ($partida === null
             || (int) $partida['user_id'] !== $userId
             || $partida['status'] !== 'EN_CURSO') {
-            $partida = $this->model->obtenerPartidaEnCurso($userId);
-            $gameId = $partida !== null ? (int) $partida['id'] : 0;
-        }
 
-        if ($partida === null) {
+            // Quedó una partida EN_CURSO de una sesión anterior:
+            // no se retoma con otra pregunta, se abandona.
+            $enCurso = $this->model->obtenerPartidaEnCurso($userId);
+            if ($enCurso !== null) {
+                $this->model->abandonoPartida((int) $enCurso['id']);
+            }
+
             \Redirect::to('/Preguntados/home/show');
-        }
-
-        if ((int) ($_SESSION['game_id'] ?? 0) !== $gameId) {
-            // Otra pestaña / otra sesión había arrancado esta partida:
-            // se retoma desde el estado guardado en la base.
-            unset($_SESSION['turno'], $_SESSION['resultado']);
-            $_SESSION['game_id'] = $gameId;
-            $_SESSION['pregunta_numero'] = $this->model->ultimoTurno($gameId) + 1;
         }
 
         // Los contadores siempre salen de la base, no del navegador.
