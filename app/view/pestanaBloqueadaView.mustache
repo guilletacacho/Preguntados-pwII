@@ -1,0 +1,18 @@
+<main class="partida-shell pestana-shell">
+    <section class="pestana-bloqueada" data-pestana-bloqueada>
+        <span class="pestana-sello" aria-hidden="true">
+            <span class="pestana-ventana pestana-ventana-atras"></span>
+            <span class="pestana-ventana pestana-ventana-frente"></span>
+        </span>
+        <h1>Otra pestaña tiene esta partida</h1>
+        <p>Una cuenta juega en una sola pestaña a la vez. Volvé a la pestaña donde estás jugando, o tomá el control desde acá: la otra queda bloqueada en su próxima jugada.</p>
+        <div class="pestana-bloqueada-acciones">
+            <form method="post" action="{{basePath}}/partida/pestana">
+                <input type="hidden" name="pesta" value="" data-pestana-sello>
+                <button type="submit" class="submit-btn pestana-accion pestana-accion-primaria">Seguir jugando acá</button>
+            </form>
+            <a class="pestana-accion pestana-accion-secundaria" href="{{basePath}}/partida/salir">Volver al inicio</a>
+        </div>
+    </section>
+</main>
+<script src="{{basePath}}/public/js/partida-navegacion.js" defer></script>

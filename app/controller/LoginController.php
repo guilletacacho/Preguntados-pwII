@@ -18,6 +18,12 @@ class LoginController
 
     
     public function show(){
+        // Con la cuenta ya abierta este formulario es un callejón sin salida:
+        // la pestaña nueva tiene que parar en su inicio, no en "Iniciar sesión".
+        if (isset($_SESSION['usuario_id'])) {
+            Redirect::to('/Preguntados/home/show');
+        }
+
         $error = "";
         if (Request::get("login_error") === "1") {
             $error = "Usuario o contraseña incorrectos.";

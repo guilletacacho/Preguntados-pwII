@@ -1,18 +1,18 @@
 <main class="roulette-shell">
     <section class="roulette-panel" aria-labelledby="roulette-title" data-roulette data-base-path="{{basePath}}" data-spun="{{#ruletaGirada}}true{{/ruletaGirada}}">
-        <div class="roulette-top"><span class="eyebrow">EL AZAR ELIGE. VOS RESPONDÉS.</span><span>{{puntos}} puntos</span></div>
+        <div class="roulette-top">
+            <span class="eyebrow">EL AZAR ELIGE. VOS RESPONDÉS.</span>
+            <span class="roulette-metricas">
+                <span class="roulette-ronda"><span>Ronda</span><strong>{{rondaNumero}}</strong></span>
+                <span class="roulette-puntos">{{puntos}} puntos</span>
+            </span>
+        </div>
         <h1 id="roulette-title">Tu próxima categoría</h1>
         <p class="roulette-description">Una categoría, cuatro preguntas. Girá y descubrí cuál te toca.</p>
 
         {{#partidaReanudada}}
-            <p class="roulette-notice" role="status">Ya tenías una partida en curso: seguís desde donde estabas.</p>
+            <p class="roulette-notice" role="status">Retomamos tu partida: vas por la ronda {{rondaNumero}}.</p>
         {{/partidaReanudada}}
-
-        <div class="partida-meta" aria-label="Nivel">
-            <span class="partida-chip">Tu nivel: {{nivelJugador}}</span>
-            <span class="partida-chip">Dificultad: {{dificultadPregunta}}</span>
-            <span class="partida-chip">Pregunta {{preguntaNumero}}</span>
-        </div>
 
         <div class="roulette-window">
             <div class="roulette-marker" aria-hidden="true"></div>
@@ -26,7 +26,7 @@
                 {{/categorias}}
             </div>
         </div>
-        <p class="roulette-status" role="status" aria-live="polite">{{#ruletaGirada}}¡Te tocó esta categoría!{{/ruletaGirada}}{{^ruletaGirada}}¿Qué categoría te tocará?{{/ruletaGirada}}</p>
+        <p class="roulette-status" role="status" aria-live="polite">{{#ruletaGirada}}Te tocó: <strong>{{categoria}}</strong>. Andá a la pregunta.{{/ruletaGirada}}{{^ruletaGirada}}¿Qué categoría te tocará?{{/ruletaGirada}}</p>
         <button type="button" class="submit-btn roulette-spin"{{#ruletaGirada}} hidden{{/ruletaGirada}}>Girar ruleta <span aria-hidden="true">→</span></button>
         <a class="submit-btn roulette-continue" href="{{basePath}}/partida/pregunta"{{^ruletaGirada}} hidden{{/ruletaGirada}}>Ir a la pregunta →</a>
         <noscript><p>Activá JavaScript para ver la animación o <a href="{{basePath}}/partida/pregunta">continuá a tu pregunta</a>.</p></noscript>

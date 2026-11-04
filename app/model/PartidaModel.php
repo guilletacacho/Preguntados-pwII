@@ -79,7 +79,9 @@ class PartidaModel{
     }
 
     public function ultimoTurno($gameId){
-        $sql = "SELECT COALESCE(MAX(turn_number), 0) AS ultimo
+        // COUNT(*) cubre las respuestas viejas, que no tienen turn_number:
+        // sin eso la partida arranca en "Ronda 1" con puntos ya ganados.
+        $sql = "SELECT GREATEST(COALESCE(MAX(turn_number), 0), COUNT(*)) AS ultimo
                 FROM game_answers
                 WHERE game_id = ?";
 
@@ -88,13 +90,31 @@ class PartidaModel{
         return (int) ($fila['ultimo'] ?? 0);
     }
 
-    public function actualizarPartida($totalPoints, $correctAnswers, $gameId){
+    /**
+     * Recalcula los totales desde game_answers. Los puntos del jugador no
+     * vienen del navegador ni de un acumulador: salen de las respuestas
+     * efectivamente registradas, así un reenvío no puede inflarlos.
+     */
+    public function actualizarPartida($gameId){
+        $totales = $this->database->queryOne(
+            "SELECT COALESCE(SUM(earned_points), 0) AS puntos,
+                    COALESCE(SUM(CASE WHEN earned_points > 0 THEN 1 ELSE 0 END), 0) AS correctas
+             FROM game_answers
+             WHERE game_id = ?",
+            [$gameId]
+        );
+
+        $puntos = (int) ($totales['puntos'] ?? 0);
+        $correctas = (int) ($totales['correctas'] ?? 0);
+
         $sql = "UPDATE game
                 SET total_points = ?,
                     correct_answers = ?
                 WHERE id = ?";
 
-        return $this->database->execute($sql, [$totalPoints, $correctAnswers, $gameId]);
+        $this->database->execute($sql, [$puntos, $correctas, $gameId]);
+
+        return ['puntos' => $puntos, 'correctas' => $correctas];
     }
 
     public function finalizarPartida($gameId){

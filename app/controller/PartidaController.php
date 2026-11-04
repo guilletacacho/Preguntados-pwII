@@ -9,6 +9,11 @@ class PartidaController{
     private const TIEMPO_LIMITE = 20;
     private const TIEMPO_GRACIA = 2;
 
+    /** Parametro que lleva el sello de la pestaña. */
+    private const SELLO_PESTANA = 'pesta';
+    /** Pestañas ya vistas que se recuerdan para poder bloquearlas. */
+    private const MAX_PESTANAS = 5;
+
     /** Categoría => archivo de imagen en public/img/personajes. */
     private const SLUGS = [
         'Geografía' => 'geografia',
@@ -54,7 +59,7 @@ class PartidaController{
         }
 
         if (!$mismoJuego) {
-            unset($_SESSION['turno'], $_SESSION['resultado'], $_SESSION['ruleta_girada']);
+            unset($_SESSION['turno'], $_SESSION['resultado']);
         }
 
         $_SESSION['game_id'] = $gameId;
@@ -123,16 +128,14 @@ class PartidaController{
         }
         unset($categoria);
 
-        $nivel = $this->nivelJugador();
-
         $this->render->renderiza('ruleta', [
             'categorias' => $categorias,
             'puntos' => (int) ($_SESSION['puntos'] ?? 0),
-            'preguntaNumero' => (int) $turno['numero'],
-            'ruletaGirada' => !empty($_SESSION['ruleta_girada']),
+            'rondaNumero' => (int) $turno['numero'],
+            'ruletaGirada' => !empty($turno['girada']),
             'partidaReanudada' => !empty($_SESSION['partida_reanudada']),
-            'nivelJugador' => $nivel['etiqueta'],
-            'dificultadPregunta' => Dificultad::etiqueta((int) $turno['dificultad']),
+            'categoria' => $turno['categoria'],
+            'categoriaSlug' => $turno['slug'],
         ]);
 
         // El aviso de partida reanudada se muestra una sola vez.
@@ -147,8 +150,8 @@ class PartidaController{
 
         $this->requiereUsuario();
 
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-            $_SESSION['ruleta_girada'] = true;
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_SESSION['turno'])) {
+            $_SESSION['turno']['girada'] = true;
         }
 
         if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
@@ -179,6 +182,13 @@ class PartidaController{
 
         // El reloj arranca cuando el jugador ve la pregunta, no mientras
         // gira la ruleta. Si recarga (F5), se mantiene el mismo inicio.
+        // Llegar a la pregunta implica que la ruleta ya salió: aunque el
+        // navegador recargue, el giro no se vuelve a mostrar.
+        if (empty($turno['girada'])) {
+            $turno['girada'] = true;
+            $_SESSION['turno']['girada'] = true;
+        }
+
         if (empty($turno['inicio'])) {
             $turno['inicio'] = microtime(true);
             $_SESSION['turno']['inicio'] = $turno['inicio'];
@@ -361,7 +371,88 @@ class PartidaController{
             \Redirect::toIndex();
         }
 
+        // Toda página de partida pasa por aquí: la pestaña que no tiene el
+        // control queda bloqueada antes de leer o modificar nada.
+        $this->controlarPestana();
+
         return $userId;
+    }
+
+    /**
+     * Juega una sola pestaña: la última que abrió el juego. Una pestaña nueva
+     * toma el control y la anterior queda bloqueada en su próximo clic; desde
+     * el cartel puede recuperarlo. El estado de la partida nunca se duplica:
+     * lo decide el servidor.
+     *
+     * El sello lo agrega public/js/partida-navegacion.js a cada enlace y
+     * formulario de partida. Sin JavaScript no llega sello, así que no hay
+     * forma de distinguir las pestañas y no se bloquea nada.
+     */
+    private function controlarPestana(){
+
+        $sello = $this->selloPestana();
+        $duena = isset($_SESSION['pestana']) ? (string) $_SESSION['pestana'] : '';
+
+        if ($sello === '' || $sello === $duena) {
+            return;
+        }
+
+        // Sello desconocido: es una pestaña nueva y pasa a mandar.
+        if (!in_array($sello, $_SESSION['pestana_previas'] ?? [], true)) {
+            $this->tomarControl($sello);
+            return;
+        }
+
+        // Sello conocido que ya no manda: es una pestaña vieja, se la bloquea.
+        if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
+            http_response_code(403);
+            exit;
+        }
+
+        $this->render->renderiza('pestanaBloqueada', ['sello' => $sello]);
+        exit;
+    }
+
+    /**
+     * Sello de la pestaña que pide la página; '' si no trae uno válido.
+     * Son 16 caracteres hexadecimales, los genera la propia pestaña.
+     */
+    private function selloPestana(){
+
+        $sello = (string) ($_GET[self::SELLO_PESTANA] ?? $_POST[self::SELLO_PESTANA] ?? '');
+
+        return (strlen($sello) === 16 && ctype_xdigit($sello)) ? $sello : '';
+    }
+
+    /**
+     * Le da el control a $sello y anota a quién se lo quitó, para que esa
+     * pestaña se bloquee en vez de recuperarlo sin avisar.
+     */
+    private function tomarControl($sello){
+
+        $duena = isset($_SESSION['pestana']) ? (string) $_SESSION['pestana'] : '';
+
+        if ($duena !== '' && $duena !== $sello) {
+            $previas = $_SESSION['pestana_previas'] ?? [];
+            // Se recuerdan solo las últimas MAX_PESTANAS: la lista no crece nunca.
+            $_SESSION['pestana_previas'] = array_slice(array_merge($previas, [$duena]), -self::MAX_PESTANAS);
+        }
+
+        $_SESSION['pestana'] = $sello;
+    }
+
+    /**
+     * Botón "Seguir jugando acá" del cartel: la pestaña bloqueada reclama el control.
+     */
+    public function pestana(){
+
+        $sello = $this->selloPestana();
+
+        if ($sello !== '') {
+            $this->tomarControl($sello);
+        }
+
+        \Redirect::to('/Preguntados/partida/show');
     }
 
     /**
@@ -389,7 +480,7 @@ class PartidaController{
         if ((int) ($_SESSION['game_id'] ?? 0) !== $gameId) {
             // Otra pestaña / otra sesión había arrancado esta partida:
             // se retoma desde el estado guardado en la base.
-            unset($_SESSION['turno'], $_SESSION['resultado'], $_SESSION['ruleta_girada']);
+            unset($_SESSION['turno'], $_SESSION['resultado']);
             $_SESSION['game_id'] = $gameId;
             $_SESSION['pregunta_numero'] = $this->model->ultimoTurno($gameId) + 1;
         }
@@ -468,10 +559,11 @@ class PartidaController{
             'pregunta' => $pregunta['pregunta'],
             'dificultad' => (int) $pregunta['dificultad'],
             'inicio' => null,
+            'girada' => false,
             'opciones' => $this->prepararOpciones($respuestas),
         ];
 
-        unset($_SESSION['resultado'], $_SESSION['ruleta_girada']);
+        unset($_SESSION['resultado']);
 
         // Una sola entrega por turno: F5 no infla las estadísticas.
         $this->model->registrarEntrega((int) $pregunta['question_id']);
@@ -581,22 +673,18 @@ class PartidaController{
 
         $this->model->registrarRespuestaEstadistica($questionId, $esCorrecta);
 
-        if ($esCorrecta) {
-            $_SESSION['puntos'] = (int) ($_SESSION['puntos'] ?? 0) + $puntosGanados;
-            $_SESSION['correctas'] = (int) ($_SESSION['correctas'] ?? 0) + 1;
-        }
-
-        $this->model->actualizarPartida(
-            (int) $_SESSION['puntos'],
-            (int) $_SESSION['correctas'],
-            $gameId
-        );
+        // Los totales se recalculan desde game_answers: en el navegador no se
+        // acumula nada, así que un for de reenvíos no puede inflar el puntaje.
+        $totales = $this->model->actualizarPartida($gameId);
+        $_SESSION['puntos'] = $totales['puntos'];
+        $_SESSION['correctas'] = $totales['correctas'];
 
         $gameOver = !$esCorrecta;
         $correcta = $gameOver ? $this->model->obtenerRespuestaCorrecta($questionId) : null;
 
         if ($gameOver) {
             $this->model->finalizarPartida($gameId);
+            unset($_SESSION['pestana'], $_SESSION['pestana_previas']);
         } else {
             $_SESSION['pregunta_numero'] = (int) $turno['numero'] + 1;
         }
@@ -624,7 +712,7 @@ class PartidaController{
         ];
 
         // El turno ya se consumió: no se puede volver a responder ni recargar.
-        unset($_SESSION['turno'], $_SESSION['ruleta_girada']);
+        unset($_SESSION['turno']);
 
         \Redirect::to('/Preguntados/partida/resultado');
     }
@@ -640,6 +728,7 @@ class PartidaController{
 
         if (empty($_SESSION['resultado'])) {
             $this->model->finalizarPartida($gameId);
+            unset($_SESSION['pestana'], $_SESSION['pestana_previas']);
             $this->model->registrarRespuestaEstadistica($questionId, false);
         }
 
@@ -662,7 +751,7 @@ class PartidaController{
             'nivelJugador' => $this->nivelJugador()['etiqueta'],
         ];
 
-        unset($_SESSION['turno'], $_SESSION['ruleta_girada']);
+        unset($_SESSION['turno']);
 
         \Redirect::to('/Preguntados/partida/resultado');
     }
@@ -691,7 +780,8 @@ class PartidaController{
             $_SESSION['pregunta_numero'],
             $_SESSION['turno'],
             $_SESSION['resultado'],
-            $_SESSION['ruleta_girada'],
+            $_SESSION['pestana'],
+            $_SESSION['pestana_previas'],
             $_SESSION['partida_reanudada'],
             // claves del flujo viejo, por si quedaron dando vueltas
             $_SESSION['pregunta_pendiente'],

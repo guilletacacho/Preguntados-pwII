@@ -38,25 +38,23 @@
     };
 
     // Le avisa al servidor que el giro ya se mostró, para que F5 no
-    // repita la animación ni cambie la categoría.
+    // repita la animación ni cambie la categoría. La categoría la eligió el
+    // servidor antes de pintar la página, así que si el aviso no llega,
+    // simplemente se vuelve a mostrar el giro.
     const avisarGiro = () => {
-        if (!basePath) return;
-        try {
-            fetch(basePath + '/partida/girar', {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin',
-                keepalive: true
-            }).catch(() => {});
-        } catch (error) {
-            // Si falla, la categoría igual no cambia: la eligió el servidor.
-        }
+        fetch(window.pestanaDePartida.conSello(basePath + '/partida/girar'), {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            keepalive: true
+        }).catch(() => {});
     };
 
-    const mostrarGanadora = () => {
+    const mostrarGanadora = (conCelebracion) => {
         finished = true;
+        root.classList.add('ganadora');
         selected.classList.add('is-winner');
-        celebrate();
+        if (conCelebracion) celebrate();
         root.classList.remove('is-spinning');
         status.textContent = `¡Te tocó ${winner.dataset.name}!`;
         spin.hidden = true;
@@ -65,12 +63,23 @@
     };
 
     if (root.dataset.spun === 'true') {
-        // F5 después del giro: mismo resultado, sin animación.
-        selected = winner;
-        mostrarGanadora();
+        // F5 después del giro: la categoría ya está ahí plantada, sin animación
+        // y sin volver a ofrecer el botón de girar.
+        const relleno = cards.filter((card) => card !== winner);
+        track.replaceChildren();
+        for (let i = 0; i < relleno.length; i++) {
+            track.append(relleno[i].cloneNode(true));
+        }
+        selected = winner.cloneNode(true);
+        track.append(selected);
+        for (let i = 0; i < relleno.length; i++) {
+            track.append(relleno[i].cloneNode(true));
+        }
+        mostrarGanadora(false);
     } else {
         spin.addEventListener('click', async () => {
             spin.disabled = true;
+            avisarGiro();
             status.textContent = 'Eligiendo tu categoría…';
             root.classList.add('is-spinning');
             track.replaceChildren();
@@ -98,8 +107,7 @@
             track.style.transform = `translateX(${center(selected)}px)`;
             animation.cancel();
             animation = null;
-            mostrarGanadora();
-            avisarGiro();
+            mostrarGanadora(true);
         });
     }
 

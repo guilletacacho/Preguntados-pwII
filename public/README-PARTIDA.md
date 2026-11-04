@@ -40,7 +40,7 @@ Métodos internos importantes:
 - `elegirPregunta`: prueba categorías al azar hasta encontrar una pregunta
   compatible con el nivel del jugador.
 - `nuevaRonda`: arma el turno en `$_SESSION['turno']` (pregunta, categoría,
-  dificultad, inicio en `null` y opciones con token).
+  dificultad, `girada` en `false`, `inicio` en `null` y opciones con token).
 - `prepararOpciones`: elige 4 respuestas (siempre incluye la correcta) y les
   asigna un token aleatorio. El id real de la respuesta no sale del servidor.
 - `procesarRespuesta` / `procesarTiempoAgotado`: calculan el resultado, lo
@@ -133,6 +133,32 @@ cercana para no trabar la partida mientras se calibra.
   `question_id` ni `response_id` enviados por el navegador.
 - Las opciones se mezclan; la correcta no tiene una posición ni un id previsible.
 
+## Reenvíos y loops de peticiones (el “for” para sumar puntos infinitos)
+
+Tres capas, probadas con requests reales:
+
+- **El turno se consume al responder.** `procesarRespuesta` hace
+  `unset($_SESSION['turno'])` y deja `$_SESSION['resultado']`; cualquier POST
+  posterior a `partida/responderPregunta` cae en la redirección a
+  `partida/resultado` sin tocar la base.
+- **Llave única por turno.** `uk_game_answers_turn (game_id, turn_number)`
+  (más el `turn_number` que toma el servidor, nunca el navegador). Si el mismo
+  turno llegara a insertarse dos veces, `registrarRespuesta` captura el error
+  1062, devuelve `0` y el flujo **no suma puntos**.
+- **El puntaje se recalcula desde la base.** `PartidaModel::actualizarPartida`
+  hace `SUM(earned_points)` y `COUNT(earned_points > 0)` sobre `game_answers` y
+  con eso escribe `game.total_points` / `game.correct_answers`. No es un
+  acumulador: aunque alguna ruta llegara a sumar dos veces en sesión, el número
+  final sigue atado a las respuestas realmente registradas.
+- **Nada de esto limita cuantas veces se juega.** Un token que no pertenece al
+  turno (24 hex, `random_bytes(12)`) solo devuelve la pregunta; no cierra la
+  partida ni suma nada. La partida termina cuando el jugador falla.
+
+Medido: 25 POSTs secuenciales con la respuesta correcta suman **+20 una sola
+vez**; 20 POSTs en paralelo idem (el bloqueo del `$_SESSION` de PHP serializa
+las peticiones y la llave única descartan el resto); 12 POSTs con tokens
+forjados no suman puntos ni insertan filas.
+
 ## F5, botón “atrás” y multi-pestaña
 
 - `index.php` envía `Cache-Control: no-store`, así el navegador no reutiliza
@@ -143,14 +169,33 @@ cercana para no trabar la partida mientras se calibra.
   muestra lo mismo y no reenvía la respuesta.
 - Si hay un resultado pendiente, `partida/show` redirige a `partida/resultado`:
   no se puede volver a la pregunta anterior.
-- La categoría se fija al crear el turno y `partida/girar` marca
-  `ruleta_girada`; F5 después del giro muestra la misma categoría sin repetir la
-  animación.
+- La categoría se fija al crear el turno. Al apretar Girar, `ruleta.js` avisa al
+  servidor ANTES de la animación y `partida/girar` marca `$_SESSION['turno']['girada']`;
+  `partida/pregunta` también la marca, así que aunque el navegador recargue a
+  mitad del giro o se vuelva atrás, la ruleta ya aparece con la categoría
+  caída y el botón "Ir a la pregunta". El reloj de la pregunta no se reinicia.
+- La ruleta no muestra nivel del jugador ni dificultad de la pregunta: solo el
+  número de ronda y los puntos. La dificultad se ve únicamente en la pregunta.
 - **Una sola partida activa por cuenta**: la columna generada
   `game.en_curso` vale 1 solo para `EN_CURSO`, y el índice único
   `uk_game_en_curso (user_id, en_curso)` impide dos. `iniciar` reanuda la
   existente; si dos pestañas intentan crear a la vez, la segunda recibe el
   error 1062 y también reanuda.
+- **Una sola pestaña jugando (la última manda)**. El PHP `$_SESSION` es compartido
+  por las pestañas del navegador, así que el servidor no las distingue solo con
+  la cookie. `partida-navegacion.js` guarda un sello de 16 caracteres hex en
+  `sessionStorage` (por pestaña) y lo agrega a todo enlace, formulario y pedido
+  de `/partida/`. `PartidaController::controlarPestana` (lo llama
+  `requiereUsuario`, o sea todas las páginas de partida) hace:
+  - sello nuevo o sin dueña -> esa pestaña toma el control
+    (`$_SESSION['pestana']`) y la anterior pasa a `$_SESSION['pestana_previas']`;
+  - sello conocido que ya no manda -> se corta la respuesta con la vista
+    `pestanaBloqueadaView` ("Otra pestaña tiene esta partida"), o 403 si es
+    un XHR;
+  - la bloqueada puede tocar "Seguir jugando acá" (`POST /partida/pestana`) y
+    recupera el control, bloqueando a la otra.
+  Con JavaScript apagado no hay sello: no se bloquea nada y manda solo la
+  restricción de una partida por cuenta.
 
 ## Estados de partida
 

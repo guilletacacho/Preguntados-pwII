@@ -8,6 +8,7 @@
 .roulette-marker { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: #f2c230; z-index: 3; box-shadow: 0 0 18px #f2c23066; }
 .roulette-marker::before { content: ''; position: absolute; top: 0; left: -7px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 12px solid #f2c230; }
 .roulette-track { display: flex; gap: 12px; position: relative; will-change: transform; }
+.roulette-panel.ganadora .roulette-track { z-index: 4; }
 .roulette-card { --category-color: var(--ciencia); flex: 0 0 170px; height: 220px; padding: 18px 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; background: var(--superficie); border: 1px solid var(--borde); border-bottom: 4px solid var(--category-color); border-radius: 8px; }
 .roulette-card[data-color="historia"] { --category-color: var(--historia); }
 .roulette-card[data-color="arte"] { --category-color: var(--arte); }
@@ -17,8 +18,12 @@
 .roulette-card-label { color: var(--texto-tenue); font-size: .6rem; letter-spacing: .18em; }
 .roulette-card img { width: 100px; height: 112px; object-fit: contain; }
 .roulette-card strong { font-size: .9rem; }
-.roulette-card.is-winner { border-color: var(--category-color); box-shadow: inset 0 0 30px color-mix(in srgb, var(--category-color) 20%, transparent); animation: roulette-reveal 650ms ease-out; }
-.roulette-burst { position: absolute; z-index: 4; top: 50%; left: 50%; pointer-events: none; }
+.roulette-card.is-winner { position: relative; z-index: 4; border-color: var(--category-color); box-shadow: inset 0 0 34px color-mix(in srgb, var(--category-color) 26%, transparent), 0 14px 34px rgba(6, 12, 20, .45); transform: scale(1.05); animation: roulette-pop 560ms cubic-bezier(.24, 1.5, .4, 1), roulette-reveal 900ms ease-out; }
+.roulette-card.is-winner strong { color: var(--category-color); }
+.roulette-card.is-winner img { animation: roulette-bounce 620ms ease-out; }
+@keyframes roulette-pop { 0% { transform: scale(.94); } 55% { transform: scale(1.09); } 100% { transform: scale(1.05); } }
+@keyframes roulette-bounce { 0% { transform: translateY(0); } 35% { transform: translateY(-14px); } 70% { transform: translateY(4px); } 100% { transform: translateY(0); } }
+.roulette-burst { position: absolute; z-index: 5; top: 50%; left: 50%; pointer-events: none; }
 .roulette-burst i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; opacity: 0; animation: roulette-spark 700ms ease-out var(--delay) both; }
 @keyframes roulette-spark { 0% { opacity: 0; transform: translate(0, 0) scale(.5); } 15% { opacity: .85; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.25); } }
 @keyframes roulette-reveal { 0%, 100% { filter: brightness(1); } 35% { filter: brightness(1.18); } }
@@ -27,8 +32,27 @@
 .roulette-spin:disabled { opacity: .6; cursor: wait; }
 .roulette-panel [hidden] { display: none !important; }
 .roulette-categories { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 20px; margin-top: 36px; color: var(--texto-sec); font-size: .75rem; }
+.roulette-metricas { display: inline-flex; align-items: center; gap: 10px; }
+.roulette-ronda { display: inline-flex; align-items: baseline; gap: 7px; padding: 5px 13px; border: 1px solid var(--borde); border-radius: 999px; background: var(--hundido); color: var(--texto-tenue); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; }
+.roulette-ronda strong { color: var(--texto); font-size: .95rem; letter-spacing: 0; }
+.pestana-shell { align-items: center; }
+.pestana-bloqueada { width: min(100%, 620px); margin: 0 auto; padding: clamp(30px, 6vw, 46px) clamp(22px, 5vw, 40px); text-align: center; background: var(--superficie); border: 1px solid var(--borde); border-radius: 16px; box-shadow: 0 22px 52px rgba(6, 12, 20, .45); }
+.pestana-bloqueada h1 { margin: 0 0 14px; font-size: clamp(1.4rem, 4vw, 2rem); }
+.pestana-bloqueada p { max-width: 46ch; margin: 0 auto; color: var(--texto-sec); line-height: 1.6; }
+.pestana-sello { position: relative; display: block; width: 88px; height: 64px; margin: 0 auto 24px; }
+.pestana-ventana { position: absolute; width: 48px; height: 36px; border: 2px solid var(--borde); border-radius: 8px; background: var(--hundido); }
+.pestana-ventana::before { content: ''; position: absolute; top: 0; right: 0; left: 0; height: 9px; border-bottom: 2px solid var(--borde); border-radius: 5px 5px 0 0; background: var(--borde); }
+.pestana-ventana-atras { top: 0; left: 0; opacity: .8; }
+.pestana-ventana-frente { right: 0; bottom: 0; border-color: var(--arte); box-shadow: 0 0 20px rgba(242, 194, 48, .25); }
+.pestana-ventana-frente::before { border-bottom-color: var(--arte); background: var(--arte); }
+.pestana-bloqueada-acciones { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
+.pestana-bloqueada-acciones form { margin: 0; }
+.pestana-accion { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; padding: 0 22px; border-radius: var(--radio); font-weight: 700; text-decoration: none; }
+.pestana-accion-secundaria { border: 1px solid var(--borde); color: var(--texto-sec); }
+.pestana-accion-secundaria:hover, .pestana-accion-secundaria:focus { border-color: var(--borde-fuerte); color: var(--texto); }
+@media (min-width: 480px) { .pestana-bloqueada-acciones { flex-direction: row; justify-content: center; } .pestana-accion { width: auto; min-width: 216px; } }
 @media (max-width: 540px) { .roulette-top { flex-direction: column; margin-bottom: 24px; } .roulette-card { flex-basis: 140px; height: 200px; } .roulette-description { margin-bottom: 24px; } .roulette-spin, .roulette-continue { width: 100%; gap: 16px; } .roulette-categories { gap: 10px 14px; } }
-@media (prefers-reduced-motion: reduce) { .roulette-card.is-winner, .roulette-burst i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .roulette-card.is-winner, .roulette-card.is-winner img, .roulette-burst i { animation: none; } }
 
 :root {
     --fondo: #1E2633;

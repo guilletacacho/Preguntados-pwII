@@ -19,6 +19,10 @@ class RegistroController{
     }
 
     public function show(){
+        if (isset($_SESSION['usuario_id'])) {
+            Redirect::to('/Preguntados/home/show');
+        }
+
         $data = ["anioActual" => date('Y')];
         $this->render->renderiza("registro",$data);
     }
