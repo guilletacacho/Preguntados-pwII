@@ -1,4 +1,4 @@
-<main class="partida-shell">
+<main class="partida-shell" data-question="{{questionId}}" data-result="{{#resultadoMostrado}}true{{/resultadoMostrado}}">
     {{#sinPreguntas}}
         <div class="partida-contenido partida-vacia">
             <p>No hay preguntas disponibles en este momento.</p>
@@ -86,3 +86,4 @@
 {{^sinPreguntas}}{{^resultadoMostrado}}
 <script src="{{basePath}}/public/js/partida-temporizador.js" defer></script>
 {{/resultadoMostrado}}{{/sinPreguntas}}
+<script src="{{basePath}}/public/js/partida-vista.js" defer></script>

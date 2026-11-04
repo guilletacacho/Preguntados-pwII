@@ -9,11 +9,13 @@ class LoginController
 {
     private $model;
     private $render;
+    private $presence;
 
-    public function __construct($model,$render)
+    public function __construct($model,$render,$presence)
     {
         $this->model = $model;
         $this->render = $render;
+        $this->presence = $presence;
     }
 
     
@@ -48,14 +50,17 @@ class LoginController
             return;
         }
 
+        $this->presence->remove(session_id());
         session_regenerate_id(true);
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario'] = $usuario['usuario'];
+        $this->presence->touch($usuario['id'], session_id());
         Redirect::to('/Preguntados/home');
     }
 
     public function logout()
     {
+        $this->presence->remove(session_id());
         $_SESSION = [];
         session_destroy();
         Redirect::toIndex();
