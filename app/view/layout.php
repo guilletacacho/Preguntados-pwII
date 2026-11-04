@@ -18,9 +18,31 @@ $assetBase = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCR
     <link href="<?= $assetBase ?>/app/css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>" rel="stylesheet">
 </head>
 <body>
+<?php if (isset($_SESSION['usuario_id'])): ?>
+<main id="single-tab-status" class="container py-5" role="alert">
+    <h1>Comprobando pestaña…</h1>
+    <p>Esperá un momento para continuar.</p>
+</main>
+<template id="single-tab-content">
+<?php
+if (!isset($_SESSION['presence_token'])) {
+    $_SESSION['presence_token'] = bin2hex(random_bytes(32));
+}
+?>
+<script src="<?= $assetBase ?>/public/js/presencia.js?v=1"
+        data-url="<?= $assetBase ?>/presence/ping"
+        data-token="<?= htmlspecialchars($_SESSION['presence_token'], ENT_QUOTES, 'UTF-8') ?>" defer></script>
+<?php endif; ?>
 <?php require __DIR__ . '/header.php'; ?>
 <?= $content ?>
 <?php require __DIR__ . '/footer.php'; ?>
+<?php if (isset($_SESSION['usuario_id'])): ?>
+</template>
+<script src="<?= $assetBase ?>/public/js/single-tab.js?v=<?= filemtime(__DIR__ . '/../../public/js/single-tab.js') ?>"
+        data-user="<?= htmlspecialchars((string) $_SESSION['usuario_id'], ENT_QUOTES, 'UTF-8') ?>"
+        data-base="<?= $assetBase ?>" defer></script>
+<noscript>Necesitás activar JavaScript para usar una sola pestaña por usuario.</noscript>
+<?php endif; ?>
 </body>
 </html>
 

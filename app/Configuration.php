@@ -33,15 +33,28 @@ class Configuration
     {
         return new LoginController(
             $this->getLoginModel(),
-            $this->gerRender()
+            $this->gerRender(),
+            $this->getPresenceModel()
         );
     }
 
     public function getHomeController()
     {
         return new HomeController(
-            $this->gerRender()
+            $this->gerRender(),
+            $this->getPresenceModel(),
+            new \app\model\CuriosityModel()
         );
+    }
+
+    public function getPresenceController()
+    {
+        return new \app\controller\PresenceController($this->getPresenceModel());
+    }
+
+    private function getPresenceModel()
+    {
+        return new \app\model\PresenceModel($this->getDatabase());
     }
 
     public function getRegistroController(){
