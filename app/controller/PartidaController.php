@@ -392,9 +392,9 @@ class PartidaController{
 
     /**
      * Juega una sola pestaña: la última que abrió el juego. Una pestaña nueva
-     * toma el control y la anterior queda bloqueada en su próximo clic; desde
-     * el cartel puede recuperarlo. El estado de la partida nunca se duplica:
-     * lo decide el servidor.
+     * toma el control y la anterior queda con la sesión cerrada en su próximo
+     * clic: no puede recuperar el control. El estado de la partida nunca se
+     * duplica: lo decide el servidor.
      *
      * El sello lo agrega public/js/partida-navegacion.js a cada enlace y
      * formulario de partida. Sin JavaScript no llega sello, así que no hay
@@ -415,13 +415,14 @@ class PartidaController{
             return;
         }
 
-        // Sello conocido que ya no manda: es una pestaña vieja, se la bloquea.
+        // Sello conocido que ya no manda: es una pestaña vieja. No recupera
+        // el control: queda con la sesión cerrada.
         if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
             http_response_code(403);
             exit;
         }
 
-        $this->render->renderiza('pestanaBloqueada', ['sello' => $sello]);
+        $this->render->renderiza('sesionCerrada');
         exit;
     }
 
@@ -438,7 +439,7 @@ class PartidaController{
 
     /**
      * Le da el control a $sello y anota a quién se lo quitó, para que esa
-     * pestaña se bloquee en vez de recuperarlo sin avisar.
+     * pestaña quede con la sesión cerrada en vez de recuperarlo sin avisar.
      */
     private function tomarControl($sello){
 
@@ -451,20 +452,6 @@ class PartidaController{
         }
 
         $_SESSION['pestana'] = $sello;
-    }
-
-    /**
-     * Botón "Seguir jugando acá" del cartel: la pestaña bloqueada reclama el control.
-     */
-    public function pestana(){
-
-        $sello = $this->selloPestana();
-
-        if ($sello !== '') {
-            $this->tomarControl($sello);
-        }
-
-        \Redirect::to('/Preguntados/partida/show');
     }
 
     /**

@@ -39,18 +39,13 @@
 .pestana-bloqueada { width: min(100%, 620px); margin: 0 auto; padding: clamp(30px, 6vw, 46px) clamp(22px, 5vw, 40px); text-align: center; background: var(--superficie); border: 1px solid var(--borde); border-radius: 16px; box-shadow: 0 22px 52px rgba(6, 12, 20, .45); }
 .pestana-bloqueada h1 { margin: 0 0 14px; font-size: clamp(1.4rem, 4vw, 2rem); }
 .pestana-bloqueada p { max-width: 46ch; margin: 0 auto; color: var(--texto-sec); line-height: 1.6; }
+.pestana-bloqueada p + p { margin-top: 14px; }
 .pestana-sello { position: relative; display: block; width: 88px; height: 64px; margin: 0 auto 24px; }
 .pestana-ventana { position: absolute; width: 48px; height: 36px; border: 2px solid var(--borde); border-radius: 8px; background: var(--hundido); }
 .pestana-ventana::before { content: ''; position: absolute; top: 0; right: 0; left: 0; height: 9px; border-bottom: 2px solid var(--borde); border-radius: 5px 5px 0 0; background: var(--borde); }
 .pestana-ventana-atras { top: 0; left: 0; opacity: .8; }
 .pestana-ventana-frente { right: 0; bottom: 0; border-color: var(--arte); box-shadow: 0 0 20px rgba(242, 194, 48, .25); }
 .pestana-ventana-frente::before { border-bottom-color: var(--arte); background: var(--arte); }
-.pestana-bloqueada-acciones { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
-.pestana-bloqueada-acciones form { margin: 0; }
-.pestana-accion { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; padding: 0 22px; border-radius: var(--radio); font-weight: 700; text-decoration: none; }
-.pestana-accion-secundaria { border: 1px solid var(--borde); color: var(--texto-sec); }
-.pestana-accion-secundaria:hover, .pestana-accion-secundaria:focus { border-color: var(--borde-fuerte); color: var(--texto); }
-@media (min-width: 480px) { .pestana-bloqueada-acciones { flex-direction: row; justify-content: center; } .pestana-accion { width: auto; min-width: 216px; } }
 @media (max-width: 540px) { .roulette-top { flex-direction: column; margin-bottom: 24px; } .roulette-card { flex-basis: 140px; height: 200px; } .roulette-description { margin-bottom: 24px; } .roulette-spin, .roulette-continue { width: 100%; gap: 16px; } .roulette-categories { gap: 10px 14px; } }
 @media (prefers-reduced-motion: reduce) { .roulette-card.is-winner, .roulette-card.is-winner img, .roulette-burst i { animation: none; } }
 

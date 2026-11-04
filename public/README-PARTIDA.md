@@ -178,6 +178,9 @@ forjados no suman puntos ni insertan filas.
   `partida/pregunta` también la marca, así que aunque el navegador recargue a
   mitad del giro o se vuelva atrás, la ruleta ya aparece con la categoría
   caída y el botón "Ir a la pregunta". El reloj de la pregunta no se reinicia.
+- Si el jugador vuelve a la ruleta y espera, el reloj de la pregunta sigue
+  corriendo: al entrar de nuevo a la pregunta, el servidor descuenta el tiempo
+  transcurrido o la marca agotada.
 - La ruleta no muestra nivel del jugador ni dificultad de la pregunta: solo el
   número de ronda y los puntos. La dificultad se ve únicamente en la pregunta.
 - **Una sola partida activa por cuenta**: la columna generada
@@ -194,10 +197,13 @@ forjados no suman puntos ni insertan filas.
   - sello nuevo o sin dueña -> esa pestaña toma el control
     (`$_SESSION['pestana']`) y la anterior pasa a `$_SESSION['pestana_previas']`;
   - sello conocido que ya no manda -> se corta la respuesta con la vista
-    `pestanaBloqueadaView` ("Otra pestaña tiene esta partida"), o 403 si es
+    `sesionCerradaView` ("Sesión cerrada en esta pestaña"), o 403 si es
     un XHR;
-  - la bloqueada puede tocar "Seguir jugando acá" (`POST /partida/pestana`) y
-    recupera el control, bloqueando a la otra.
+  - la pestaña desplazada no recupera el control ni puede volver a jugar
+    desde ahí: la sesión de esa pestaña queda cerrada y la pestaña nueva
+    sigue con la partida;
+  - la pestaña no se cierra: queda abierta con el cartel de sesión cerrada,
+    y el usuario puede cerrarla con la X del navegador.
   Con JavaScript apagado no hay sello: no se bloquea nada y manda solo la
   restricción de una partida por cuenta.
 
