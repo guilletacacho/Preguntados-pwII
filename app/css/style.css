@@ -353,6 +353,49 @@ a:hover { color: var(--texto); }
     }
 }
 
+/* Compact game screens without clipping long questions or enlarging text. */
+.partida-shell { min-height: 0; align-items: safe center; }
+.partida-contenido, .roulette-panel { scroll-margin-block: 12px; }
+.partida-respuesta strong { min-width: 0; overflow-wrap: anywhere; }
+
+@media (max-width: 767.98px), (max-height: 800px) {
+    body:has(.partida-shell, .roulette-shell) .site-nav { min-height: 60px; }
+    body:has(.partida-shell, .roulette-shell) .footer-content { min-height: 36px; }
+    .partida-shell, .roulette-shell { padding: 12px clamp(12px, 3vw, 24px); }
+    .partida-header { min-height: 60px; padding: .5rem .75rem; gap: .5rem; }
+    .partida-categoria { grid-template-columns: 34px minmax(0, 1fr); column-gap: .5rem; }
+    .partida-categoria-icono { width: 34px; height: 34px; }
+    .partida-puntos strong { font-size: 1.2rem; }
+    .partida-progreso { height: 14px; padding: 4px; }
+    .partida-progreso span { height: 6px; }
+    .partida-tiempo { margin-top: .25rem; font-size: .8rem; }
+    .partida-pregunta { min-height: 0; margin: .75rem 0; grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .partida-pregunta-icono { display: none; }
+    .partida-pregunta h1 { max-width: none; font-size: clamp(1.05rem, 2.5vw, 1.4rem); line-height: 1.35; }
+    .partida-respuestas { gap: .5rem; }
+    .partida-respuesta { min-height: 48px; padding: .5rem .75rem; gap: .65rem; }
+    .partida-opcion { width: 30px; height: 30px; flex-basis: 30px; }
+    .partida-ayuda { margin-top: .5rem; font-size: .8rem; }
+    .partida-resultado { margin-top: .65rem; padding: .65rem; gap: .5rem; }
+    .partida-acciones { gap: .5rem; }
+    .roulette-top { flex-direction: row; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; }
+    .roulette-panel h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin-bottom: 0; }
+    .roulette-description { margin: 8px 0 14px; font-size: .9rem; }
+    .roulette-window { padding-block: 12px; }
+    .roulette-card { flex-basis: 140px; height: clamp(120px, 25svh, 180px); padding: 10px; }
+    .roulette-card img { width: 70px; height: clamp(50px, 12svh, 90px); }
+    .roulette-status { margin: 12px 0; font-size: 1rem; min-height: 24px; }
+    .roulette-spin, .roulette-continue { padding: 12px 20px; }
+    .roulette-categories { margin-top: 14px; gap: 6px 12px; }
+}
+
+/* Landscape phones can use their width to keep all four answers nearby. */
+@media (min-width: 640px) and (max-height: 600px) {
+    .partida-respuestas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .partida-respuestas form, .partida-respuesta { min-width: 0; }
+    .partida-respuestas form .partida-respuesta { height: 100%; }
+}
+
 .partida-vacia {
     padding: 2rem;
     border-radius: 16px;
@@ -1083,8 +1126,13 @@ a:hover { color: var(--texto); }
 .home-play-button:disabled { opacity: .65; cursor: not-allowed; }
 .home-play small { display: block; margin-top: .7rem; color: var(--texto-sec); font-size: .75rem; }
 .home-character { width: 28%; max-width: 175px; }
-.home-curiosity { background: linear-gradient(120deg, rgba(154,107,242,.12), transparent), var(--superficie); }
-.home-category { display: inline-block; padding: .3rem .7rem; border-radius: 8px; background: var(--hundido); color: #BEA1F7; font-size: .75rem; font-weight: 600; }
+.home-curiosity { --curiosity-color: var(--ciencia); border-color: color-mix(in srgb, var(--curiosity-color) 45%, var(--borde)); background: linear-gradient(120deg, color-mix(in srgb, var(--curiosity-color) 14%, transparent), transparent), var(--superficie); }
+.home-curiosity[data-category="geografia"] { --curiosity-color: var(--geografia); }
+.home-curiosity[data-category="deporte"] { --curiosity-color: var(--deporte); }
+.home-curiosity[data-category="arte"] { --curiosity-color: var(--arte); }
+.home-curiosity[data-category="cine"] { --curiosity-color: var(--cine); }
+.home-curiosity[data-category="historia"] { --curiosity-color: var(--historia); }
+.home-category { display: inline-block; padding: .3rem .7rem; border-radius: 8px; background: var(--hundido); color: var(--curiosity-color, var(--ciencia)); font-size: .75rem; font-weight: 600; }
 .home-ranking-card { display: flex; flex-direction: column; align-items: flex-start; text-decoration: none; color: var(--texto); transition: border-color .2s, transform .2s; }
 .home-ranking-card:hover { border-color: var(--ciencia); transform: translateY(-3px); }
 .home-ranking-card h2 { font-size: 1.15rem; }

@@ -32,6 +32,7 @@
         window.setTimeout(() => burst.remove(), 1000);
     };
     spin.addEventListener('click', async () => {
+        if (spin.disabled || finished) return;
         spin.disabled = true;
         status.textContent = 'Eligiendo tu categoría…';
         root.classList.add('is-spinning');
@@ -43,10 +44,16 @@
         track.append(selected);
         for (let i = 0; i < 6; i++) track.append(cards[i % cards.length].cloneNode(true));
         const reduced = reducedMotion.matches;
-        animation = track.animate([
+
+        if (reduced) track.style.transform = `translateX(${center(selected)}px)`;
+        animation = track.animate(reduced ? [
+            { opacity: 1 },
+            { opacity: .25, offset: .35 },
+            { opacity: 1 }
+        ] : [
             { transform: `translateX(${center(track.firstElementChild)}px)` },
             { transform: `translateX(${center(selected)}px)` }
-        ], { duration: reduced ? 1 : 6200, easing: 'cubic-bezier(.12,.74,.12,1)', fill: 'forwards' });
+        ], { duration: reduced ? 700 : 6200, easing: 'cubic-bezier(.12,.74,.12,1)', fill: 'forwards' });
         await animation.finished;
         finished = true;
         track.style.transform = `translateX(${center(selected)}px)`;
@@ -63,6 +70,10 @@
         if (finished) {
             track.style.transform = `translateX(${center(selected)}px)`;
         } else if (animation && animation.playState === 'running') {
+            if (reducedMotion.matches) {
+                track.style.transform = `translateX(${center(selected)}px)`;
+                return;
+            }
             // Keep the current progress when rotating the phone mid-spin.
             animation.effect.setKeyframes([
                 { transform: `translateX(${center(track.firstElementChild)}px)` },
