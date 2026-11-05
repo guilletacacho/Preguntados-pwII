@@ -62,6 +62,13 @@ class LoginController
 
     public function logout()
     {
+        $userId = (int) ($_SESSION['usuario_id'] ?? 0);
+        $sessionKey = (string) ($_SESSION['sesion_unica'] ?? '');
+
+        if ($userId > 0 && $sessionKey !== '') {
+            $this->model->liberarSesionUnica($userId, $sessionKey);
+        }
+
         $_SESSION = [];
         session_destroy();
         Redirect::toIndex();

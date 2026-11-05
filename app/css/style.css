@@ -46,6 +46,12 @@
 .pestana-ventana-atras { top: 0; left: 0; opacity: .8; }
 .pestana-ventana-frente { right: 0; bottom: 0; border-color: var(--arte); box-shadow: 0 0 20px rgba(242, 194, 48, .25); }
 .pestana-ventana-frente::before { border-bottom-color: var(--arte); background: var(--arte); }
+.pestana-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+.pestana-acciones a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 1px solid var(--borde); border-radius: var(--radio); color: var(--texto); font-weight: 700; text-decoration: none; }
+.pestana-acciones a:hover, .pestana-acciones a:focus { border-color: var(--borde-fuerte); color: var(--texto); }
+.pestana-acciones a:focus-visible { outline: 3px solid var(--texto); outline-offset: 2px; }
+.pestana-acciones a.pestana-accion-primaria { border-color: var(--deporte); background: var(--deporte); color: #14200A; }
+.pestana-acciones a.pestana-accion-primaria:hover, .pestana-acciones a.pestana-accion-primaria:focus { border-color: #8ED255; background: #8ED255; color: #14200A; }
 @media (max-width: 540px) { .roulette-top { flex-direction: column; margin-bottom: 24px; } .roulette-card { flex-basis: 140px; height: 200px; } .roulette-description { margin-bottom: 24px; } .roulette-spin, .roulette-continue { width: 100%; gap: 16px; } .roulette-categories { gap: 10px 14px; } }
 @media (prefers-reduced-motion: reduce) { .roulette-card.is-winner, .roulette-card.is-winner img, .roulette-burst i { animation: none; } }
 

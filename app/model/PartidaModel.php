@@ -14,6 +14,19 @@ class PartidaModel{
         $this->database = $database;
     }
 
+    /**
+     * Bloqueo de una sola sesión por cuenta (normal + incógnito, etc.).
+     */
+    public function reclamarSesionUnica($userId, $sessionKey, $segundosVigencia)
+    {
+        return \SesionUnica::reclamar($this->database, $userId, $sessionKey, $segundosVigencia);
+    }
+
+    public function liberarSesionUnica($userId, $sessionKey)
+    {
+        \SesionUnica::liberar($this->database, $userId, $sessionKey);
+    }
+
     // ─────────────────────────────────────────────────────────────
     // PARTIDA
     // ─────────────────────────────────────────────────────────────

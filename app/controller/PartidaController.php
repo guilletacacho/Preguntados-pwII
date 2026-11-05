@@ -14,6 +14,9 @@ class PartidaController{
     /** Pestañas ya vistas que se recuerdan para poder bloquearlas. */
     private const MAX_PESTANAS = 5;
 
+    /** Segundos sin actividad antes de que otra sesión pueda tomar la cuenta. */
+    private const SESION_VIGENCIA = 45;
+
     /** Categoría => archivo de imagen en public/img/personajes. */
     private const SLUGS = [
         'Geografía' => 'geografia',
@@ -333,11 +336,25 @@ class PartidaController{
         }
 
         if (!empty($resultado['gameOver'])) {
+            // La partida terminó: la cuenta queda libre para empezar otra,
+            // incluso desde una sesión distinta.
+            $this->liberarSesionUnicaActual();
             unset($_SESSION['game_id']);
             \Redirect::to('/Preguntados/home/show');
         }
 
         \Redirect::to('/Preguntados/partida/show');
+    }
+
+    /**
+     * Latido de la pestaña que está jugando. Mantiene vivo el bloqueo por
+     * cuenta y, si otra sesión tomó el control, devuelve 403 para que el JS
+     * muestre el cartel correspondiente.
+     */
+    public function latido(){
+
+        $this->requiereUsuario();
+        http_response_code(204);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -354,6 +371,8 @@ class PartidaController{
 
     public function abandonar(){
 
+        $this->liberarSesionUnicaActual();
+
         if(isset($_SESSION['game_id']) && (int) $_SESSION['game_id'] > 0){
             $this->model->abandonoPartida((int) $_SESSION['game_id']);
         }
@@ -366,6 +385,7 @@ class PartidaController{
 
     public function salir(){
 
+        $this->liberarSesionUnicaActual();
         $this->limpiarSesionPartida();
 
         \Redirect::to('/Preguntados/home/show');
@@ -387,7 +407,61 @@ class PartidaController{
         // control queda bloqueada antes de leer o modificar nada.
         $this->controlarPestana();
 
+        // Además de la pestaña, la cuenta entera queda tomada por una sola
+        // sesión. Esto cubre el caso de una ventana de incógnito u otro
+        // dispositivo, que tiene otra cookie PHP y no comparte $_SESSION.
+        $this->verificarSesionUnica($userId);
+
         return $userId;
+    }
+
+    /**
+     * Clave opaca de esta sesión PHP. No se expone al navegador: solo se
+     * guarda en la base para distinguir sesiones de la misma cuenta.
+     */
+    private function claveSesionUnica(){
+
+        if (empty($_SESSION['sesion_unica'])) {
+            $_SESSION['sesion_unica'] = bin2hex(random_bytes(16));
+        }
+
+        return (string) $_SESSION['sesion_unica'];
+    }
+
+    /**
+     * Reclama la cuenta para esta sesión. Si otra sesión la tiene tomada y
+     * sigue activa, muestra el cartel y no deja tocar la partida.
+     */
+    private function verificarSesionUnica($userId){
+
+        $clave = $this->claveSesionUnica();
+
+        if ($this->model->reclamarSesionUnica($userId, $clave, self::SESION_VIGENCIA)) {
+            return;
+        }
+
+        // Los latidos automáticos no necesitan HTML: el JS recibe 403 y
+        // recarga para mostrar el cartel en pantalla.
+        if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
+            http_response_code(403);
+            exit;
+        }
+
+        $this->render->renderiza('sesionActiva');
+        exit;
+    }
+
+    /**
+     * Suelta la cuenta solo si esta sesión es la que la tenía tomada.
+     */
+    private function liberarSesionUnicaActual(){
+
+        $userId = (int) ($_SESSION['usuario_id'] ?? 0);
+        $sessionKey = (string) ($_SESSION['sesion_unica'] ?? '');
+
+        if ($userId > 0 && $sessionKey !== '') {
+            $this->model->liberarSesionUnica($userId, $sessionKey);
+        }
     }
 
     /**

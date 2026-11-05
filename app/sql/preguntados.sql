@@ -305,3 +305,15 @@ SET @migracion_uk_en_curso = (
 PREPARE sentencia_uk_en_curso FROM @migracion_uk_en_curso;
 EXECUTE sentencia_uk_en_curso;
 DEALLOCATE PREPARE sentencia_uk_en_curso;
+
+-- Una sola sesion por cuenta: normal + incognito/dispositivo.
+CREATE TABLE IF NOT EXISTS `user_session_lock` (
+  `user_id` INT NOT NULL,
+  `session_key` VARCHAR(64) NOT NULL,
+  `last_seen` DATETIME NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `idx_user_session_lock_seen` (`last_seen`),
+  CONSTRAINT `fk_user_session_lock_user` FOREIGN KEY (`user_id`)
+    REFERENCES `usuarios` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -189,6 +189,23 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 -- ------------------------------------------------------------
+-- 6. Una sola sesion por cuenta (normal + incognito/dispositivo)
+--    Las pestañas del mismo navegador comparten cookie; una ventana de
+--    incognito u otro dispositivo abre otra sesion PHP. Esta tabla guarda
+--    que sesion esta jugando y cuando se la vio por ultima vez.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `user_session_lock` (
+  `user_id` INT NOT NULL,
+  `session_key` VARCHAR(64) NOT NULL,
+  `last_seen` DATETIME NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `idx_user_session_lock_seen` (`last_seen`),
+  CONSTRAINT `fk_user_session_lock_user` FOREIGN KEY (`user_id`)
+    REFERENCES `usuarios` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ------------------------------------------------------------
 -- Verificación
 -- ------------------------------------------------------------
 SELECT 'Provincia' AS chequeo, COUNT(*) AS ok
@@ -214,6 +231,10 @@ UNION ALL
 SELECT 'idx_game_answers_game_question', COUNT(*)
 FROM information_schema.STATISTICS
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'game_answers' AND INDEX_NAME = 'idx_game_answers_game_question';
+
+SELECT 'user_session_lock' AS chequeo, COUNT(*) AS ok
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_session_lock';
 
 SELECT `difficulty_level`, COUNT(*) AS preguntas
 FROM `questions`

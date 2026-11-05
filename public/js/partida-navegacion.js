@@ -14,8 +14,9 @@
     });
 
     // Sello de ESTA pestaña. El servidor lo usa para que solo una pestaña
-    // de la cuenta pueda jugar: la segunda queda bloqueada hasta que el
-    // usuario elija tomar el control.
+    // pueda jugar: la última que entra a Jugar toma el control y la anterior
+    // queda con la sesión cerrada. Además, el servidor bloquea la cuenta
+    // entera si se abre otra sesión (incógnito u otro dispositivo).
     var clave = 'preguntados-pestana';
     var parametro = 'pesta';
     var sello = '';
@@ -60,6 +61,28 @@
     }
 
     window.pestanaDePartida = { sello: sello, conSello: conSello };
+
+    // Latido de la sesión: mantiene vivo el bloqueo por cuenta y detecta si
+    // otra sesión tomó el control. Los carteles no laten para no quedar en
+    // un loop de recargas.
+    var cartel = document.querySelector('[data-sesion-cerrada], [data-sesion-activa]');
+    if (!cartel) {
+        var latir = function () {
+            var destino = window.location.pathname.replace(/\/[^/]*$/, '/latido');
+            fetch(conSello(destino), {
+                method: 'POST',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function (respuesta) {
+                if (respuesta.status === 403) {
+                    var cartelUrl = window.location.pathname.replace(/\/[^/]*$/, '/show');
+                    window.location.href = conSello(cartelUrl);
+                }
+            }).catch(function () { /* sin red: el servidor decide en el próximo clic */ });
+        };
+        window.setInterval(latir, 15000);
+    }
 
     marcarVinculos();
 

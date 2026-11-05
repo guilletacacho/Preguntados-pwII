@@ -1,0 +1,16 @@
+<main class="partida-shell pestana-shell">
+    <section class="pestana-bloqueada" data-sesion-activa>
+        <span class="pestana-sello" aria-hidden="true">
+            <span class="pestana-ventana pestana-ventana-atras"></span>
+            <span class="pestana-ventana pestana-ventana-frente"></span>
+        </span>
+        <h1>Esta cuenta ya está jugando en otra sesión</h1>
+        <p>Para que no haya dos partidas al mismo tiempo, desde acá no se puede entrar a jugar mientras la otra pestaña o dispositivo siga activo.</p>
+        <p>Si la otra sesión ya está cerrada, esperá unos segundos y volvé a intentar. Si querés seguir en esta, cerrá la otra ventana o dispositivo.</p>
+        <div class="pestana-acciones">
+            <a href="{{basePath}}/home/show">Volver al inicio</a>
+            <a class="pestana-accion-primaria" href="{{basePath}}/partida/iniciar">Reintentar</a>
+        </div>
+    </section>
+</main>
+<script src="{{basePath}}/public/js/partida-navegacion.js" defer></script>

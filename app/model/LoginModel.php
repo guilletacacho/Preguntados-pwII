@@ -22,4 +22,9 @@ class LoginModel
 
         return $this->database->queryOne($sql);
     }
+
+    public function liberarSesionUnica($userId, $sessionKey)
+    {
+        \SesionUnica::liberar($this->database, $userId, $sessionKey);
+    }
 }
