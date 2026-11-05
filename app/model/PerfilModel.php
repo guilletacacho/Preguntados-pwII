@@ -54,15 +54,62 @@ class PerfilModel {
         return $this->database->execute($sql,[md5($contrasena), $id]);
     }
 
-    public function obtenerUltimasPartidasFinalizadas($userId){
+    public function obtenerUltimasPartidas($userId){
 
-        $sql = "SELECT id, total_points, finished_at
+        $sql = "SELECT id, status, total_points, finished_at
                 FROM game
                 WHERE user_id = ? 
-                AND status = 'FINALIZADA'
+                AND status IN ('FINALIZADA', 'ABANDONADA')
                 ORDER BY finished_at DESC, id DESC
                 LIMIT 3";
         
         return $this->database->queryAll($sql, [$userId]);
     }
+
+    public function obtenerPuntajeTotal($userId){
+        
+        $sql = "SELECT COALESCE(SUM(total_points),0) AS puntaje
+                FROM game
+                WHERE user_id = ?
+                AND status = 'FINALIZADA'";
+
+        return $this->database->queryOne($sql, [$userId]);
+    }
+
+    public function obtenerCantidadPartidasFinalizadas($userId){
+
+        $sql = "SELECT COUNT(*) AS cantidad
+                FROM game
+                WHERE user_id = ?
+                AND status = 'FINALIZADA'";
+
+        return $this->database->queryOne($sql, [$userId]);
+    }
+
+    public function obtenerPuestoSemanal($userId){
+
+        $sql = "WITH ranking_semanal AS (
+                SELECT
+                    u.Id,
+                    SUM(g.total_points) AS puntos,
+                    ROW_NUMBER() OVER (
+                        ORDER BY SUM(g.total_points) DESC, u.Id ASC
+                    ) AS puesto
+                FROM usuarios u
+                JOIN game g ON g.user_id = u.Id
+                WHERE g.status = 'FINALIZADA'
+                  AND g.finished_at >= DATE_SUB(
+                      CURDATE(),
+                      INTERVAL WEEKDAY(CURDATE()) DAY
+                  )
+                  AND g.finished_at <= NOW()
+                GROUP BY u.Id
+            )
+            SELECT puesto
+            FROM ranking_semanal
+            WHERE Id = ?";
+
+        return $this->database->queryOne($sql, [$userId]);
+    }
+
 }

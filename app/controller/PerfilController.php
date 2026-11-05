@@ -28,18 +28,29 @@ class PerfilController
         if (!$fila) {
             \Redirect::toIndex();
         }
+
+        $userId = (int) $fila['Id'];
         
-        $partidas = $this->model->obtenerUltimasPartidasFinalizadas((int) $fila['Id']);
+        $partidas = $this->model->obtenerUltimasPartidas((int) $fila['Id']);
         $partidasView = [];
         foreach ($partidas as $partida) {
+            
+            $esFinalizada = $partida['status'] === 'FINALIZADA';
             $partidasView[] = [
-            'fecha' => $partida['finished_at']
-            ? date('d/m/Y H:i', strtotime($partida['finished_at']))
-            : '',
-            'puntos' => (int) $partida['total_points'],
+                'estado' => $esFinalizada ? 'FINALIZADA' : 'ABANDONADA',
+                'fecha' => $partida['finished_at']
+                ? date('d/m/Y H:i', strtotime($partida['finished_at']))
+                : '',
+                'esFinalizada' => $esFinalizada,
+                'puntos' => $esFinalizada 
+                ? (int) $partida['total_points']
+                : null,
         ];
     }
 
+        $puntajeTotal = $this->model->obtenerPuntajeTotal($userId);
+        $cantidadPartidas = $this->model->obtenerCantidadPartidasFinalizadas($userId);
+        $puestoSemanal = $this->model->obtenerPuestoSemanal($userId);
 
         $data = [
             'nombre' => $fila['Nombre'],
@@ -51,9 +62,9 @@ class PerfilController
             'ubicacion' => implode(', ', array_filter([$fila['Provincia'], $fila['Pais']])),
             'fotoUrl' => $fila['Foto_url'],
             'esMiPerfil' => (int) $fila['Id'] === (int) $_SESSION['usuario_id'],
-            'puntaje' => 0,
-            'puesto' => null,
-            'cantidadPartidas' => 0,
+            'puntaje' => (int) $puntajeTotal['puntaje'],
+            'puesto' => $puestoSemanal ? (int) $puestoSemanal['puesto'] : null,
+            'cantidadPartidas' => (int) $cantidadPartidas['cantidad'],
             'hayPartidas' => count($partidasView) > 0,
             'partidas' => $partidasView,
             'enlacePerfil' => $this->armarEnlacePerfil($fila['Usuario']),

@@ -51,20 +51,24 @@
         <section class="perfil-contenido" aria-label="Estadísticas">
             <dl class="perfil-numeros">
                 <div><dt>Puntaje total</dt><dd>{{puntaje}}</dd></div>
-                <div><dt>Puesto en el ranking</dt><dd>{{#puesto}}{{puesto}}.º{{/puesto}}{{^puesto}}—{{/puesto}}</dd></div>
+                <div><dt>Puesto en el ranking semanal</dt><dd>{{#puesto}}{{puesto}}.º{{/puesto}}{{^puesto}}—{{/puesto}}</dd></div>
                 <div><dt>Partidas jugadas</dt><dd>{{cantidadPartidas}}</dd></div>
             </dl>
 
             <div class="perfil-columnas">
                 <section>
-                    <h2>Últimas partidas</h2>
+                    <h2>Últimas 3 partidas</h2>
                     {{#hayPartidas}}
                     <ul class="perfil-partidas">
 {{#partidas}}
 <li>
     <div class="perfil-partida-texto">
-        <strong>Estado: Finalizada</strong>
+        <strong>Estado: {{estado}}</strong>
+        <span>Fecha: {{fecha}}</span>
+
+        {{#esFinalizada}}
         <span>Puntos: {{puntos}}</span>
+        {{/esFinalizada}}
     </div>
 </li>
 {{/partidas}}
