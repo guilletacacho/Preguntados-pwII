@@ -272,6 +272,9 @@ a:hover { color: var(--texto); }
 
 .partida-respuestas form {
     width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
 }
 
 .partida-respuesta-boton {
@@ -427,6 +430,7 @@ a:hover { color: var(--texto); }
     .partida-pregunta-icono { display: none; }
     .partida-pregunta h1 { max-width: none; font-size: clamp(1.05rem, 2.5vw, 1.4rem); line-height: 1.35; }
     .partida-respuestas { gap: .5rem; }
+    .partida-respuestas form { gap: .5rem; }
     .partida-respuesta { min-height: 48px; padding: .5rem .75rem; gap: .65rem; }
     .partida-opcion { width: 30px; height: 30px; flex-basis: 30px; }
     .partida-ayuda { margin-top: .5rem; font-size: .8rem; }
@@ -441,13 +445,6 @@ a:hover { color: var(--texto); }
     .roulette-status { margin: 12px 0; font-size: 1rem; min-height: 24px; }
     .roulette-spin, .roulette-continue { padding: 12px 20px; }
     .roulette-categories { margin-top: 14px; gap: 6px 12px; }
-}
-
-/* Landscape phones can use their width to keep all four answers nearby. */
-@media (min-width: 640px) and (max-height: 600px) {
-    .partida-respuestas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .partida-respuestas form, .partida-respuesta { min-width: 0; }
-    .partida-respuestas form .partida-respuesta { height: 100%; }
 }
 
 .partida-vacia {
