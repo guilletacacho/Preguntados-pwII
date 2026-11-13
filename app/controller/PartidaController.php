@@ -6,7 +6,7 @@ use Dificultad;
 
 class PartidaController{
 
-    private const TIEMPO_LIMITE = 20;
+    private const TIEMPO_LIMITE = 10;
     private const TIEMPO_GRACIA = 2;
 
     /** Parametro que lleva el sello de la pestaña. */

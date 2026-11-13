@@ -41,9 +41,9 @@ class Dificultad
     public const RATIO_DIFICIL = 0.30;
 
     private const PUNTOS = [
-        self::FACIL   => 10,
-        self::MEDIO   => 20,
-        self::DIFICIL => 30,
+        self::FACIL   => 1,
+        self::MEDIO   => 1,
+        self::DIFICIL => 1,
     ];
 
     private const ETIQUETAS = [
