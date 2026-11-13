@@ -16,8 +16,7 @@
             <span class="eyebrow">TU PUNTO DE PARTIDA</span>
             <h1>Hola, {{usuario}}.</h1>
             <p>Siempre hay algo nuevo por descubrir.</p>
-            <!-- Contador temporal fijo; conectar a actividad real cuando haya partidas. -->
-            <div class="home-online"><span class="home-online-dot" aria-hidden="true"></span><span>356 personas jugando ahora</span></div>
+            <div class="home-online" role="status"><span class="home-online-dot" aria-hidden="true"></span><span data-online-count>{{usuariosOnline}} usuarios conectados</span></div>
         </header>
         <div class="home-grid">
             <div class="home-main-cards">
@@ -32,11 +31,11 @@
                     </div>
                     <img src="{{basePath}}/public/img/personajes/ciencia.svg" alt="" class="home-character">
                 </section>
-                <section class="home-card home-curiosity" aria-labelledby="home-curiosity-title">
+                <section class="home-card home-curiosity" data-category="{{curiosidad.color}}" aria-labelledby="home-curiosity-title">
                     <span class="eyebrow">LA CURIOSIDAD SUMA</span>
                     <h2 id="home-curiosity-title">¿Sabías que…?</h2>
-                    <p>La luz del Sol tarda unos ocho minutos en llegar a la Tierra.</p>
-                    <span class="home-category">Ciencia</span>
+                    <p>{{curiosidad.texto}}</p>
+                    <span class="home-category">{{curiosidad.categoria}}</span>
                 </section>
             </div>
             <aside class="home-rankings" aria-label="Rankings destacados">
