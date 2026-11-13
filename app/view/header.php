@@ -7,7 +7,7 @@ $currentPage = $_GET['controller'] ?? 'login';
 ?>
 <header class="site-header">
     <nav class="container site-nav" aria-label="Navegación principal">
-        <a class="site-brand" href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/home/show') ?>">
+        <a class="site-brand" href="<?= $siteUrl ?>/home/show">
             <span>Preguntados</span>
             <span class="cinta" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span>
         </a>
