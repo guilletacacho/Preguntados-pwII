@@ -229,7 +229,7 @@ JOIN questions q ON q.category_id = c.id AND q.question = t.pregunta
 SET t.existente_id = q.id;
 
 INSERT INTO questions (category_id, question, difficulty_level, points)
-SELECT c.id, t.pregunta, 2, 20
+SELECT c.id, t.pregunta, 2, 1
 FROM carga_preguntas t
 JOIN category c ON c.name = t.categoria
 WHERE t.existente_id IS NULL;
@@ -263,7 +263,7 @@ JOIN questions q ON q.category_id = c.id AND q.question = t.pregunta
 WHERE t.existente_id IS NULL;
 
 INSERT INTO question_stats (question_id, times_delivered, times_answered, times_correct, difficulty_level, points)
-SELECT id, 0, 0, 0, 2, 20 FROM questions
+SELECT id, 0, 0, 0, 2, 1 FROM questions
 ON DUPLICATE KEY UPDATE question_id = question_id;
 
 COMMIT;

@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `category_id` INT NOT NULL,
   `question` VARCHAR(500) NOT NULL,
   `difficulty_level` TINYINT NOT NULL DEFAULT 2,
-  `points` INT NOT NULL DEFAULT 20,
+  `points` INT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `idx_questions_category` (`category_id`),
   CONSTRAINT `chk_questions_difficulty` CHECK (`difficulty_level` BETWEEN 1 AND 3),
