@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `question_stats` (
   `times_answered` INT NOT NULL DEFAULT 0,
   `times_correct` INT NOT NULL DEFAULT 0,
   `difficulty_level` TINYINT NOT NULL DEFAULT 2,
-  `points` INT NOT NULL DEFAULT 20,
+  `points` INT NOT NULL DEFAULT 1,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`question_id`),
   KEY `idx_question_stats_difficulty` (`difficulty_level`),
