@@ -437,4 +437,30 @@ class PartidaModel{
             throw $exception;
         }
     }
+    public function preguntasReportadas($userId){
+        return $this->database->queryAll(
+            "SELECT question_id FROM question_reports WHERE user_id = ?", [$userId]
+        );
+    }
+
+    public function reportarPregunta($gameId, $questionId, $turnNumber, $userId, array $resultado, array $motivos, $comentario){
+        try {
+            return $this->database->execute(
+                "INSERT INTO question_reports
+                    (user_id, question_id, game_id, turn_number, question_snapshot, reasons, comment)
+                 SELECT user_id, ?, id, ?, ?, ?, ? FROM game WHERE id = ? AND user_id = ?",
+                [
+                    $questionId, $turnNumber,
+                    json_encode($resultado, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+                    json_encode($motivos, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+                    $comentario, $gameId, $userId,
+                ]
+            );
+        } catch (PDOException $exception) {
+            if ((int) ($exception->errorInfo[1] ?? 0) === 1062) {
+                return 0;
+            }
+            throw $exception;
+        }
+    }
 }

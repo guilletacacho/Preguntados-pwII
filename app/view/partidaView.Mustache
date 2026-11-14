@@ -28,6 +28,11 @@
         <div class="partida-pregunta">
             <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" class="partida-pregunta-icono">
             <h1>{{pregunta}}</h1>
+            {{#resultadoMostrado}}{{#reportes}}{{#actual}}
+            <button type="button" class="reporte-disparador" data-reporte-abrir="reporte-{{id}}" aria-label="Reportar esta pregunta" title="Reportar esta pregunta" aria-haspopup="dialog">
+                <span aria-hidden="true">!</span>
+            </button>
+            {{/actual}}{{/reportes}}{{/resultadoMostrado}}
         </div>
 
         <div class="partida-respuestas">
@@ -79,9 +84,45 @@
                 </div>
             {{/esCorrecta}}
         {{/resultadoMostrado}}
+        {{#resultadoMostrado}}
+        <section class="partida-reportes" aria-label="Reportar preguntas">
+            {{#reporteMensaje}}<p class="reporte-aviso reporte-aviso-exito" role="status"><span aria-hidden="true">✓</span> {{reporteMensaje}}</p>{{/reporteMensaje}}
+            {{#reporteError}}<p class="reporte-aviso reporte-aviso-error" role="alert">{{reporteError}}</p>{{/reporteError}}
+            {{#gameOver}}<details class="reporte-resumen"><summary>Revisar preguntas de esta partida <span aria-hidden="true">⌄</span></summary><div class="reporte-resumen-lista">
+                {{#reportes}}<div class="reporte-resumen-fila"><span class="reporte-numero">{{numero}}</span><span>{{pregunta}}</span><button type="button" class="reporte-enlace" data-reporte-abrir="reporte-{{id}}" aria-haspopup="dialog">{{#reportada}}Reportada{{/reportada}}{{^reportada}}Reportar{{/reportada}}</button></div>{{/reportes}}
+            </div></details>{{/gameOver}}
+            {{#reportes}}
+            <dialog id="reporte-{{id}}" class="reporte-dialogo" aria-labelledby="reporte-titulo-{{id}}">
+                <div class="reporte-cabecera"><span class="reporte-emblema" aria-hidden="true">!</span><button type="button" class="reporte-cerrar" data-reporte-cerrar aria-label="Cerrar reporte">×</button></div>
+                <p class="reporte-antetitulo">AYUDANOS A MEJORAR</p>
+                <h2 id="reporte-titulo-{{id}}">Reportar pregunta</h2>
+                <p class="reporte-descripcion">¿Encontraste un error? Contanos qué pasó para que podamos revisarlo.</p>
+                <div class="reporte-contexto"><span>Pregunta {{numero}}</span><strong>{{pregunta}}</strong></div>
+                <details class="reporte-opciones"><summary>Ver respuestas de la pregunta</summary><ul>{{#respuestas}}<li><span>{{letra}}</span><div>{{texto}}<small>{{#correcta}}Respuesta correcta{{/correcta}}{{#seleccionada}} · Tu respuesta{{/seleccionada}}</small></div></li>{{/respuestas}}</ul></details>
+                {{#reportada}}<p class="reporte-aviso reporte-aviso-exito">✓ Ya reportaste esta pregunta. Gracias por ayudarnos a mejorar.</p>{{/reportada}}
+                {{^reportada}}
+                <form method="post" action="{{basePath}}/partida/reportar" class="reporte-formulario">
+                    <input type="hidden" name="csrf" value="{{csrf}}">
+                    <input type="hidden" name="turn_number" value="{{id}}">
+                    <fieldset>
+                        <legend>¿Cuál es el problema? <span>Podés elegir más de uno</span></legend>
+                        {{#motivos}}<label class="reporte-motivo"><input type="checkbox" name="motivos[]" value="{{codigo}}"><span>{{etiqueta}}</span></label>{{/motivos}}
+                    </fieldset>
+                    <label class="reporte-comentario" for="reporte-comentario-{{id}}">Contanos un poco más <span data-reporte-opcional>Opcional</span></label>
+                        <textarea id="reporte-comentario-{{id}}" name="comentario" maxlength="2000" rows="3" placeholder="Por ejemplo: la opción correcta debería ser…" aria-describedby="reporte-ayuda-{{id}}"></textarea>
+                    <div class="reporte-textarea-pie"><span id="reporte-ayuda-{{id}}">Obligatorio si elegís «Otro motivo».</span><span data-reporte-contador>0 / 2000</span></div>
+                    <p class="reporte-nota"><span aria-hidden="true">ⓘ</span> Tu puntaje se mantiene. Revisaremos el contenido.</p>
+                    <div class="reporte-pie"><button type="button" class="reporte-cancelar" data-reporte-cerrar>Cancelar</button><button type="submit" class="reporte-enviar">Enviar reporte <span aria-hidden="true">↗</span></button></div>
+                </form>
+                {{/reportada}}
+            </dialog>
+            {{/reportes}}
+        </section>
+        {{/resultadoMostrado}}
     </section>
 </main>
 <script src="{{basePath}}/public/js/partida-navegacion.js" defer></script>
+{{#resultadoMostrado}}<script src="{{basePath}}/public/js/partida-reportes.js" defer></script>{{/resultadoMostrado}}
 {{^resultadoMostrado}}
 <script src="{{basePath}}/public/js/partida-temporizador.js" defer></script>
 {{/resultadoMostrado}}
