@@ -74,16 +74,24 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {{#preguntas}}
                         <tr>
-                            <td>148</td>
-                            <td>¿Cuál es la capital de Australia?</td>
-                            <td><span class="moderador-categoria categoria-geografia">Geografía</span></td>
-                            <td><span class="moderador-dificultad dificultad-media" aria-label="Dificultad media"><i></i><i></i><i></i></span></td>
-                            <td>212</td>
-                            <td>41%</td>
+                            <td>{{id}}</td>
+                            <td>{{question}}</td>
+                            <td><span class="moderador-categoria" data-categoria="{{categoria}}">{{categoria}}</span></td>
+                            <td><span class="moderador-dificultad" data-dificultad="{{dificultad}}" aria-label="Dificultad nivel {{dificultad}} de 3"><i></i><i></i><i></i></span></td>
+                            <td>{{entregas}}</td>
+                            <td>{{acierto}}%</td>
                             <td><span class="moderador-reporte-cantidad">⚑ 3</span></td>
                             <td class="moderador-acciones"><button type="button" class="moderador-accion-editar">Editar</button><button type="button" class="moderador-accion-baja">Baja</button></td>
                         </tr>
+                        {{/preguntas}}
+                        {{^preguntas}}
+                        <tr>
+                            <td colspan="8">Todavía no hay preguntas cargadas.</td>
+                        </tr>
+                        {{/preguntas}}
+                        {{! FILA INACTIVA DE EJEMPLO; NO FORMA PARTE DEL TOTAL PAGINADO. }}
                         <tr class="pregunta-inactiva">
                             <td>77</td>
                             <td>¿Quién es el actual presidente de Francia?</td>
@@ -99,10 +107,20 @@
             </div>
 
             <footer class="moderador-paginacion">
-                <span>Mostrando 1–10 de 316</span>
+                <span>Mostrando {{desde}}–{{hasta}} de {{totalPreguntas}}</span>
                 <nav aria-label="Paginación de preguntas">
-                    <button type="button">← Anterior</button>
-                    <button type="button">Siguiente →</button>
+                    {{#hayPaginaAnterior}}
+                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaAnterior}}">← Anterior</a>
+                    {{/hayPaginaAnterior}}
+                    {{^hayPaginaAnterior}}
+                    <span class="paginacion-deshabilitada" aria-disabled="true">← Anterior</span>
+                    {{/hayPaginaAnterior}}
+                    {{#hayPaginaSiguiente}}
+                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaSiguiente}}">Siguiente →</a>
+                    {{/hayPaginaSiguiente}}
+                    {{^hayPaginaSiguiente}}
+                    <span class="paginacion-deshabilitada" aria-disabled="true">Siguiente →</span>
+                    {{/hayPaginaSiguiente}}
                 </nav>
             </footer>
         </section>

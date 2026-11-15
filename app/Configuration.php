@@ -14,6 +14,7 @@ use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
 use app\model\RankingModel;
+use app\model\ModeradorModel;
 use MustacheRender;
 use MyDatabase;
 use Router;
@@ -89,8 +90,11 @@ class Configuration
     }
 
     public function getModeradorController()
-    {
-        return new ModeradorController($this->gerRender());
+    {   
+        return new ModeradorController(
+            $this->getModeradorModel(),
+            $this->gerRender()
+        );
     }
 
     public function getPerfilController()
@@ -157,6 +161,12 @@ class Configuration
 
     private function getPartidaModel(){
         return new PartidaModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getModeradorModel(){
+        return new ModeradorModel(
             $this->getDatabase()
         );
     }
