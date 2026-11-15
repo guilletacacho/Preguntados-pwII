@@ -144,3 +144,6 @@ CREATE TABLE IF NOT EXISTS `statistics` (
   PRIMARY KEY (`user_id`),
   CONSTRAINT `fk_statistics_user` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE usuarios
+    ADD COLUMN rol ENUM('JUGADOR', 'MODERADOR','ADMIN') NOT NULL DEFAULT 'JUGADOR';

@@ -8,6 +8,7 @@ use app\controller\RegistroController;
 use app\controller\EmailController;
 use app\controller\RankingController;
 use app\controller\PartidaController;
+use app\controller\ModeradorController;
 use app\model\PartidaModel;
 use app\model\PerfilModel;
 use app\model\LoginModel;
@@ -85,6 +86,11 @@ class Configuration
             $this->getPartidaModel(),
             $this->gerRender()
         );
+    }
+
+    public function getModeradorController()
+    {
+        return new ModeradorController($this->gerRender());
     }
 
     public function getPerfilController()

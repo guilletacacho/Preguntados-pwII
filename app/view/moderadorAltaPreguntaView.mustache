@@ -1,0 +1,106 @@
+<main class="moderador-shell">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu">
+            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="false" aria-controls="moderador-alta-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links" id="moderador-alta-side-links">
+                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
+                <a href="{{basePath}}/home/show#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
+                <a href="{{basePath}}/moderador" aria-label="Panel moderador" aria-current="page"><span aria-hidden="true"><svg class="side-flag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4m0 1c5-4 9 4 14 0v11c-5 4-9-4-14 0"></path></svg></span><span class="side-label">Panel moderador</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="moderador-content">
+        <header class="moderador-header">
+            <div>
+                <span class="moderador-eyebrow">PANEL MODERADOR</span>
+                <h1>Nueva pregunta</h1>
+                <p>Se suma al juego apenas la guardás.</p>
+            </div>
+            <button class="moderador-nueva-pregunta" type="button" aria-current="page">+ Nueva pregunta</button>
+        </header>
+
+        <nav class="moderador-tabs" aria-label="Secciones del panel">
+            <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
+            <button class="moderador-tab" type="button">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></button>
+            <button class="moderador-tab" type="button">Sugeridas <span class="moderador-badge">3</span></button>
+            <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
+        </nav>
+
+        <form class="moderador-alta-formulario">
+            <div class="moderador-alta-campo">
+                <label for="nueva-categoria">Categoría</label>
+                <select id="nueva-categoria" name="categoria">
+                    <option selected>Geografía</option>
+                    <option>Cine y TV</option>
+                    <option>Ciencia</option>
+                    <option>Arte</option>
+                    <option>Historia</option>
+                    <option>Deporte</option>
+                </select>
+            </div>
+
+            <div class="moderador-alta-campo">
+                <label for="nueva-pregunta">Pregunta</label>
+                <textarea id="nueva-pregunta" name="pregunta" rows="2"></textarea>
+            </div>
+
+            <fieldset class="moderador-respuestas">
+                <legend class="moderador-respuestas-titulo">Respuestas</legend>
+                <p class="moderador-ayuda">Marcá cuál es la correcta. Tienen que ser 4 y no se pueden repetir.</p>
+                <div class="moderador-respuesta">
+                    <label class="visually-hidden" for="respuesta-a">Respuesta A</label>
+                    <input class="moderador-respuesta-input" id="respuesta-a" name="respuesta_a" type="text" placeholder="A">
+                    <label class="moderador-respuesta-correcta" for="correcta-a"><input id="correcta-a" type="radio" name="respuesta_correcta" value="a"> Correcta</label>
+                </div>
+                <div class="moderador-respuesta">
+                    <label class="visually-hidden" for="respuesta-b">Respuesta B</label>
+                    <input class="moderador-respuesta-input" id="respuesta-b" name="respuesta_b" type="text" placeholder="B">
+                    <label class="moderador-respuesta-correcta" for="correcta-b"><input id="correcta-b" type="radio" name="respuesta_correcta" value="b"> Correcta</label>
+                </div>
+                <div class="moderador-respuesta">
+                    <label class="visually-hidden" for="respuesta-c">Respuesta C</label>
+                    <input class="moderador-respuesta-input" id="respuesta-c" name="respuesta_c" type="text" placeholder="C">
+                    <label class="moderador-respuesta-correcta" for="correcta-c"><input id="correcta-c" type="radio" name="respuesta_correcta" value="c"> Correcta</label>
+                </div>
+                <div class="moderador-respuesta">
+                    <label class="visually-hidden" for="respuesta-d">Respuesta D</label>
+                    <input class="moderador-respuesta-input" id="respuesta-d" name="respuesta_d" type="text" placeholder="D">
+                    <label class="moderador-respuesta-correcta" for="correcta-d"><input id="correcta-d" type="radio" name="respuesta_correcta" value="d"> Correcta</label>
+                </div>
+            </fieldset>
+
+            <fieldset class="moderador-dificultad-campo">
+                <legend class="moderador-dificultad-titulo">Dificultad</legend>
+                <div class="moderador-dificultad-grupo">
+                    <label class="moderador-dificultad-opcion"><input type="radio" name="dificultad" value="facil"> Fácil</label>
+                    <label class="moderador-dificultad-opcion"><input type="radio" name="dificultad" value="media" checked> Media</label>
+                    <label class="moderador-dificultad-opcion"><input type="radio" name="dificultad" value="dificil"> Difícil</label>
+                </div>
+            </fieldset>
+            <p class="moderador-dificultad-nota">Es la dificultad inicial; después se ajusta sola según cuántos la aciertan.</p>
+
+            <div class="moderador-alta-acciones">
+                <button class="moderador-alta-guardar" type="button">Crear pregunta</button>
+                <a href="{{basePath}}/moderador/preguntas">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+<script>
+    document.querySelector('.moderador-shell .home-side-toggle').addEventListener('click', function () {
+        const expanded = this.getAttribute('aria-expanded') !== 'true';
+        this.setAttribute('aria-expanded', String(expanded));
+        this.parentElement.classList.toggle('is-expanded', expanded);
+    });
+    document.querySelector('.moderador-shell .home-side-menu').addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            this.classList.remove('is-expanded');
+            this.querySelector('button').setAttribute('aria-expanded', 'false');
+            this.querySelector('button').focus();
+        }
+    });
+</script>
