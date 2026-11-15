@@ -30,6 +30,51 @@ class ModeradorController
             Redirect::toIndex();
         }
 
+        $categoriaInput = $_GET['categoria_id'] ?? '';
+        $categoriaId = null;
+
+        if ($categoriaInput !== '') {
+            $categoriaId = (is_string($categoriaInput) || is_int($categoriaInput))
+                ? filter_var($categoriaInput, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+                : false;
+
+            if ($categoriaId === false) {
+                http_response_code(400);
+                echo 'La categoría no es válida.';
+                return;
+            }
+        }
+
+        $dificultadInput = $_GET['dificultad'] ?? '';
+        $dificultad = null;
+
+        if ($dificultadInput !== '') {
+            if (!is_string($dificultadInput) || !in_array($dificultadInput, ['1', '2', '3'], true)) {
+                http_response_code(400);
+                echo 'La dificultad no es válida.';
+                return;
+            }
+
+            $dificultad = (int) $dificultadInput;
+        }
+
+        $estadoInput = $_GET['estado'] ?? 'activa';
+
+        if (!is_string($estadoInput) || !in_array($estadoInput, ['activa', 'inactiva', 'todas'], true)) {
+            http_response_code(400);
+            echo 'El estado no es válido.';
+            return;
+        }
+
+        $estado = $estadoInput === 'todas' ? null : $estadoInput;
+
+        $categorias = $this->model->obtenerCategorias();
+        foreach ($categorias as &$categoria) {
+            $categoria['seleccionada'] = $categoriaId !== null
+                && (int) $categoria['id'] === $categoriaId;
+        }
+        unset($categoria);
+
         // PAGINA LOS RESULTADOS Y PREPARA LOS DATOS DEL CONTADOR Y LOS ENLACES.
         $porPagina = 10;
         $paginaInput = $_GET['pagina'] ?? '1';
@@ -38,15 +83,34 @@ class ModeradorController
             : false;
         $pagina = $pagina === false ? 1 : $pagina;
 
-        $totalPreguntas = $this->model->contarPreguntas();
+        $totalPreguntas = $this->model->contarPreguntas(
+            $categoriaId,
+            $dificultad,
+            $estado
+        );
         $ultimaPagina = max(1, (int) ceil($totalPreguntas / $porPagina));
         $pagina = min($pagina, $ultimaPagina);
         $offset = ($pagina - 1) * $porPagina;
 
         $desde = $totalPreguntas > 0 ? $offset + 1 : 0;
         $hasta = min($offset + $porPagina, $totalPreguntas);
+        $queryFiltros = http_build_query([
+            'categoria_id' => $categoriaId,
+            'dificultad' => $dificultad,
+            'estado' => $estadoInput,
+        ]);
         $datos = [
-            'preguntas' => $this->model->obtenerPreguntas($porPagina, $offset),
+            'preguntas' => $this->model->obtenerPreguntas($porPagina, $offset, $categoriaId, $dificultad, $estado),
+            'categorias' => $categorias,
+            'todasCategoriasSeleccionada' => $categoriaId === null,
+            'todaDificultadSeleccionada' => $dificultad === null,
+            'dificultadFacilSeleccionada' => $dificultad === 1,
+            'dificultadMediaSeleccionada' => $dificultad === 2,
+            'dificultadDificilSeleccionada' => $dificultad === 3,
+            'estadoActivaSeleccionada' => $estadoInput === 'activa',
+            'estadoTodasSeleccionada' => $estadoInput === 'todas',
+            'estadoInactivaSeleccionada' => $estadoInput === 'inactiva',
+            'queryFiltros' => $queryFiltros,
             'desde' => $desde,
             'hasta' => $hasta,
             'totalPreguntas' => $totalPreguntas,

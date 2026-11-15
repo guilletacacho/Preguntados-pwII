@@ -49,10 +49,16 @@ class ModeradorModel{
     }
     
     // OBTIENE UNA PAGINA DE PREGUNTAS, CON UN LIMITE Y DESPLAZAMIENTO CONTROLADOS.
-    public function obtenerPreguntas($limite = 10, $offset = 0){
+    public function obtenerPreguntas($limite = 10, $offset = 0, $categoriaId = null, $dificultad = null, $estado = null){
         $limite = max(1, (int) $limite);
         $offset = max(0, (int) $offset);
 
+        $filtros = $this->construirFiltrosPreguntas(
+        $categoriaId,
+        $dificultad,
+        $estado
+        );
+        
         // USA LA MISMA DIFICULTAD EFECTIVA QUE APLICA LA PARTIDA.
         $expresionDificultad = \Dificultad::sqlDificultad();
 
@@ -70,20 +76,32 @@ class ModeradorModel{
                 FROM questions q
                 INNER JOIN category c ON c.id = q.category_id
                 LEFT JOIN question_stats qs ON qs.question_id = q.id
+                {$filtros['where']}
                 ORDER BY q.id ASC
                 LIMIT {$limite} OFFSET {$offset}";
 
-        return $this->database->queryAll($sql);
+        return $this->database->queryAll($sql,$filtros['parametros']);
     }
 
     // CUENTA TODAS LAS PREGUNTAS PARA MOSTRAR EL TOTAL REAL DE LA PAGINACION.
-    public function contarPreguntas()
-{
-    $sql = "SELECT COUNT(*) AS total FROM questions";
-    $fila = $this->database->queryOne($sql);
+    public function contarPreguntas($categoriaId = null, $dificultad = null, $estado = null)
+    {
+
+    $filtros = $this->construirFiltrosPreguntas(
+        $categoriaId,
+        $dificultad,
+        $estado
+    );
+
+    $sql = "SELECT COUNT(q.id) AS total
+            FROM questions q
+            LEFT JOIN question_stats qs ON qs.question_id = q.id
+            {$filtros['where']}";
+
+    $fila = $this->database->queryOne($sql, $filtros['parametros']);
 
     return (int) ($fila['total'] ?? 0);
-}
+    }
 
     public function buscarPreguntaPorId($id){
         return ;
@@ -94,5 +112,37 @@ class ModeradorModel{
         $sql = "SELECT id, name FROM category ORDER BY name";
 
         return $this->database->queryAll($sql);
+    }
+
+    private function construirFiltrosPreguntas($categoriaId, $dificultad, $estado)
+    {
+        $condiciones = [];
+        $parametros = [];
+
+        if ($categoriaId !== null && $categoriaId !== '') {
+            $condiciones[] = "q.category_id = ?";
+            $parametros[] = (int) $categoriaId;
+        }
+
+        if ($dificultad !== null && $dificultad !== '') {
+            $expresionDificultad = \Dificultad::sqlDificultad();
+            $condiciones[] = "({$expresionDificultad}) = ?";
+            $parametros[] = (int) $dificultad;
+        }
+
+        if ($estado === 'activa') {
+            $condiciones[] = "q.is_active = 1";
+        } elseif ($estado === 'inactiva') {
+            $condiciones[] = "q.is_active = 0";
+        }
+
+        $where = empty($condiciones)
+            ? ''
+            : ' WHERE ' . implode(' AND ', $condiciones);
+
+        return [
+            'where' => $where,
+            'parametros' => $parametros
+        ];
     }
 }

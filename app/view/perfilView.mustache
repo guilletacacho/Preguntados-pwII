@@ -60,18 +60,20 @@
                     <h2>Últimas 3 partidas</h2>
                     {{#hayPartidas}}
                     <ul class="perfil-partidas">
-{{#partidas}}
-<li>
-    <div class="perfil-partida-texto">
-        <strong>Estado: {{estado}}</strong>
-        <span>Fecha: {{fecha}}</span>
-
-        {{#esFinalizada}}
-        <span>Puntos: {{puntos}}</span>
-        {{/esFinalizada}}
-    </div>
-</li>
-{{/partidas}}
+                    {{#partidas}}
+                    <li>
+                        <div class="perfil-partida-texto">
+                            <strong>Estado: {{estado}}</strong>
+                            <span>Fecha: {{fecha}}</span>
+                            {{#esFinalizada}}
+                            <span>Puntos: {{puntos}}</span>
+                            {{/esFinalizada}}
+                            {{#esAbandonada}}
+                            <span>Puntos perdidos: {{puntos}}</span>
+                            {{/esAbandonada}}
+                        </div>
+                    </li>
+                    {{/partidas}}
                     </ul>
                     {{/hayPartidas}}
                     {{^hayPartidas}}

@@ -31,31 +31,28 @@
         </nav>
 
         <section class="moderador-preguntas" aria-label="Administrar preguntas">
-            <form class="moderador-filtros" role="search">
+            <form class="moderador-filtros" method="get" action="{{basePath}}/moderador/preguntas" role="search">
                 <label class="visually-hidden" for="moderador-busqueda">Buscar pregunta por texto o identificador</label>
                 <input id="moderador-busqueda" type="search" placeholder="Buscar por texto o #id">
                 <label class="visually-hidden" for="moderador-categoria">Filtrar por categoría</label>
-                <select id="moderador-categoria">
-                    <option>Todas las categorías</option>
-                    <option>Geografía</option>
-                    <option>Deporte</option>
-                    <option>Ciencia</option>
-                    <option>Cine y TV</option>
-                    <option>Arte</option>
-                    <option>Historia</option>
+                <select id="moderador-categoria" name="categoria_id">
+                    <option value="" {{#todasCategoriasSeleccionada}}selected{{/todasCategoriasSeleccionada}}>Todas las categorías</option>
+                    {{#categorias}}
+                    <option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>
+                    {{/categorias}}
                 </select>
                 <label class="visually-hidden" for="moderador-dificultad">Filtrar por dificultad</label>
-                <select id="moderador-dificultad">
-                    <option>Toda dificultad</option>
-                    <option>Fácil</option>
-                    <option>Media</option>
-                    <option>Difícil</option>
+                <select id="moderador-dificultad" name="dificultad">
+                    <option value="" {{#todaDificultadSeleccionada}}selected{{/todaDificultadSeleccionada}}>Toda dificultad</option>
+                    <option value="1" {{#dificultadFacilSeleccionada}}selected{{/dificultadFacilSeleccionada}}>Fácil</option>
+                    <option value="2" {{#dificultadMediaSeleccionada}}selected{{/dificultadMediaSeleccionada}}>Media</option>
+                    <option value="3" {{#dificultadDificilSeleccionada}}selected{{/dificultadDificilSeleccionada}}>Difícil</option>
                 </select>
                 <label class="visually-hidden" for="moderador-estado">Filtrar por estado</label>
-                <select id="moderador-estado">
-                    <option>Activas</option>
-                    <option>Todas</option>
-                    <option>Dadas de baja</option>
+                <select id="moderador-estado" name="estado">
+                    <option value="activa" {{#estadoActivaSeleccionada}}selected{{/estadoActivaSeleccionada}}>Activas</option>
+                    <option value="todas" {{#estadoTodasSeleccionada}}selected{{/estadoTodasSeleccionada}}>Todas</option>
+                    <option value="inactiva" {{#estadoInactivaSeleccionada}}selected{{/estadoInactivaSeleccionada}}>Dadas de baja</option>
                 </select>
             </form>
 
@@ -104,20 +101,9 @@
                         {{/preguntas}}
                         {{^preguntas}}
                         <tr>
-                            <td colspan="8">Todavía no hay preguntas cargadas.</td>
+                            <td colspan="8">No hay preguntas que coincidan con los filtros seleccionados.</td>
                         </tr>
                         {{/preguntas}}
-                        {{! FILA INACTIVA DE EJEMPLO; NO FORMA PARTE DEL TOTAL PAGINADO. }}
-                        <tr class="pregunta-inactiva">
-                            <td>77</td>
-                            <td>¿Quién es el actual presidente de Francia?</td>
-                            <td><span class="moderador-categoria categoria-historia">Historia</span></td>
-                            <td><span class="moderador-dificultad dificultad-media" aria-label="Dificultad media"><i></i><i></i><i></i></span></td>
-                            <td>150</td>
-                            <td>62%</td>
-                            <td><span class="moderador-estado-baja">DADA DE BAJA</span></td>
-                            <td class="moderador-acciones"><button type="button" class="moderador-accion-reactivar">Reactivar</button></td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -126,13 +112,13 @@
                 <span>Mostrando {{desde}}–{{hasta}} de {{totalPreguntas}}</span>
                 <nav aria-label="Paginación de preguntas">
                     {{#hayPaginaAnterior}}
-                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaAnterior}}">← Anterior</a>
+                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaAnterior}}{{#queryFiltros}}&amp;{{queryFiltros}}{{/queryFiltros}}">← Anterior</a>
                     {{/hayPaginaAnterior}}
                     {{^hayPaginaAnterior}}
                     <span class="paginacion-deshabilitada" aria-disabled="true">← Anterior</span>
                     {{/hayPaginaAnterior}}
                     {{#hayPaginaSiguiente}}
-                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaSiguiente}}">Siguiente →</a>
+                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaSiguiente}}{{#queryFiltros}}&amp;{{queryFiltros}}{{/queryFiltros}}">Siguiente →</a>
                     {{/hayPaginaSiguiente}}
                     {{^hayPaginaSiguiente}}
                     <span class="paginacion-deshabilitada" aria-disabled="true">Siguiente →</span>
@@ -143,6 +129,11 @@
     </div>
 </main>
 <script>
+    document.querySelectorAll('.moderador-filtros select').forEach(function (select) {
+        select.addEventListener('change', function () {
+            this.form.submit();
+        });
+    });
     document.querySelector('.moderador-shell .home-side-toggle').addEventListener('click', function () {
         const expanded = this.getAttribute('aria-expanded') !== 'true';
         this.setAttribute('aria-expanded', String(expanded));

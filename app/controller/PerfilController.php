@@ -36,15 +36,16 @@ class PerfilController
         foreach ($partidas as $partida) {
             
             $esFinalizada = $partida['status'] === 'FINALIZADA';
+            $esAbandonada = $partida['status'] === 'ABANDONADA';
+
             $partidasView[] = [
                 'estado' => $esFinalizada ? 'FINALIZADA' : 'ABANDONADA',
                 'fecha' => $partida['finished_at']
                 ? date('d/m/Y H:i', strtotime($partida['finished_at']))
                 : '',
                 'esFinalizada' => $esFinalizada,
-                'puntos' => $esFinalizada 
-                ? (int) $partida['total_points']
-                : null,
+                'esAbandonada' => $esAbandonada,
+                'puntos' => (int) $partida['total_points'],
         ];
     }
 

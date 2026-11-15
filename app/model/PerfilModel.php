@@ -59,7 +59,10 @@ class PerfilModel {
         $sql = "SELECT id, status, total_points, finished_at
                 FROM game
                 WHERE user_id = ? 
-                AND status IN ('FINALIZADA', 'ABANDONADA')
+                AND (
+                    status = 'FINALIZADA'
+                    OR (status = 'ABANDONADA' AND total_points >= 1)
+                )
                 ORDER BY finished_at DESC, id DESC
                 LIMIT 3";
         
