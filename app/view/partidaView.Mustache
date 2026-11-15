@@ -59,29 +59,6 @@
 
         {{^resultadoMostrado}}
             <p class="partida-ayuda">Elegí una respuesta antes de que se acabe el tiempo.</p>
-
-            {{#mensajeReporte}}
-                <p class="partida-reporte-mensaje partida-reporte-mensaje-{{tipo}}" role="status">{{texto}}</p>
-            {{/mensajeReporte}}
-
-            <details class="partida-reportar">
-                <summary>Reportar pregunta</summary>
-                <form method="post" action="{{basePath}}/reportarPregunta/crear" class="partida-reportar-form">
-                    <input type="hidden" name="question_id" value="{{questionId}}">
-                    <input type="hidden" name="csrf_token" value="{{csrfReportarPregunta}}">
-                    <label for="reporte-motivo">Motivo</label>
-                    <select id="reporte-motivo" name="reason" required>
-                        <option value="">Seleccioná un motivo</option>
-                        <option value="RESPUESTA_INCORRECTA">La respuesta correcta parece incorrecta</option>
-                        <option value="AMBIGUA">La pregunta es ambigua</option>
-                        <option value="ERROR_TEXTO">Hay un error de texto</option>
-                        <option value="OTRO">Otro problema</option>
-                    </select>
-                    <label for="reporte-detalle">Detalle (opcional)</label>
-                    <textarea id="reporte-detalle" name="detail" maxlength="500" rows="3"></textarea>
-                    <button type="submit" class="partida-reportar-enviar">Enviar reporte</button>
-                </form>
-            </details>
         {{/resultadoMostrado}}
 
         {{#resultadoMostrado}}

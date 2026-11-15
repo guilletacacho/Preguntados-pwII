@@ -1,4 +1,5 @@
 <main class="moderador-shell">
+    {{^modoEditor}}
     <header class="moderador-encabezado">
         <div>
             <p class="moderador-eyebrow">Preguntados · Moderación</p>
@@ -16,12 +17,16 @@
         <a class="{{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderador?estado=PENDIENTE&orden={{orden}}">Pendientes</a>
         <a class="{{#estadoResuelto}}activo{{/estadoResuelto}}" href="{{basePath}}/moderador?estado=RESUELTO&orden={{orden}}">Resueltos</a>
         <a class="{{#estadoDescartado}}activo{{/estadoDescartado}}" href="{{basePath}}/moderador?estado=DESCARTADO&orden={{orden}}">Descartados</a>
-        <div class="moderador-orden" aria-label="Ordenar reportes">
-            <span>Orden:</span>
-            <a class="{{#ordenMasReportadas}}activo{{/ordenMasReportadas}}" href="{{basePath}}/moderador?estado={{estado}}&orden=mas_reportadas">Más reportadas</a>
-            <a class="{{#ordenMasViejas}}activo{{/ordenMasViejas}}" href="{{basePath}}/moderador?estado={{estado}}&orden=mas_viejas">Más viejas</a>
-            <a class="{{#ordenMasNuevas}}activo{{/ordenMasNuevas}}" href="{{basePath}}/moderador?estado={{estado}}&orden=mas_nuevas">Más nuevas</a>
-        </div>
+        <form class="moderador-orden" method="get" action="{{basePath}}/moderador">
+            <label for="moderador-orden">Orden:</label>
+            <select id="moderador-orden" name="orden" onchange="this.form.submit()">
+                <option value="mas_reportadas" {{#ordenMasReportadas}}selected{{/ordenMasReportadas}}>Más reportadas</option>
+                <option value="mas_viejas" {{#ordenMasViejas}}selected{{/ordenMasViejas}}>Más viejas</option>
+                <option value="mas_nuevas" {{#ordenMasNuevas}}selected{{/ordenMasNuevas}}>Más nuevas</option>
+            </select>
+            <input type="hidden" name="estado" value="{{estado}}">
+            {{#hayDetalle}}<input type="hidden" name="id" value="{{detalle.question_id}}">{{/hayDetalle}}
+        </form>
     </nav>
 
     <div class="moderador-columnas">
@@ -76,20 +81,44 @@
                     <h3>Reportes recibidos ({{detalle.reportes.length}})</h3>
                     {{#detalle.reportes}}
                         <article class="moderador-reporte">
-                            <header><strong>{{motivo_texto}}</strong><span class="moderador-estado moderador-estado-{{status}}">{{status}}</span></header>
+                            <header><strong>Motivos reportados</strong><span class="moderador-estado moderador-estado-{{status}}">{{status}}</span></header>
                             <p>Por <strong>{{usuario}}</strong> · {{fecha_formateada}}</p>
-                            {{#detail}}<blockquote>{{detail}}</blockquote>{{/detail}}
+                            <div class="moderador-item-motivos">{{#motivos}}<span>{{texto}}</span>{{/motivos}}</div>
+                            {{#comment}}<blockquote>{{comment}}</blockquote>{{/comment}}
+                            {{#hay_snapshot}}
+                                <details class="moderador-snapshot">
+                                    <summary>Captura al reportar</summary>
+                                    <p><strong>{{question_snapshot.categoria}}</strong> · {{question_snapshot.pregunta}}</p>
+                                    <ol>
+                                        {{#question_snapshot.respuestas}}
+                                            <li class="{{#correcta}}correcta{{/correcta}}">
+                                                <span>{{letra}}. {{texto}}</span>
+                                                {{#correcta}}<b>Correcta</b>{{/correcta}}
+                                                {{#seleccionada}}<b>Elegida</b>{{/seleccionada}}
+                                            </li>
+                                        {{/question_snapshot.respuestas}}
+                                    </ol>
+                                    <p>Puntos obtenidos: {{question_snapshot.puntosGanados}} · Tiempo agotado: {{#question_snapshot.tiempoAgotado}}Sí{{/question_snapshot.tiempoAgotado}}{{^question_snapshot.tiempoAgotado}}No{{/question_snapshot.tiempoAgotado}}</p>
+                                </details>
+                            {{/hay_snapshot}}
+                            {{#reviewed_at}}
+                                <p>Revisado por <strong>{{revisor}}</strong> · {{fecha_revision_formateada}}</p>
+                            {{/reviewed_at}}
+                            {{#resolution_notes}}<p><strong>Resolución:</strong> {{resolution_notes}}</p>{{/resolution_notes}}
                         </article>
                     {{/detalle.reportes}}
                 </section>
 
                 {{#detalle.hayPendientes}}
+                    <div class="moderador-acciones">
+                        <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/moderador/editar?id={{detalle.question_id}}">Corregir pregunta</a>
+                    </div>
                     <form class="moderador-resolucion" method="post">
                         <h3>Registrar decisión</h3>
                         <input type="hidden" name="question_id" value="{{detalle.question_id}}">
                         <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                         <label for="nota-resolucion">Nota (opcional)</label>
-                        <textarea id="nota-resolucion" name="resolution_note" maxlength="500" rows="3" placeholder="Dejá un comentario sobre la decisión."></textarea>
+                        <textarea id="nota-resolucion" name="resolution_notes" maxlength="500" rows="3" placeholder="Dejá un comentario sobre la decisión."></textarea>
                         <div class="moderador-acciones">
                             <button class="moderador-boton moderador-boton-resolver" type="submit" formaction="{{basePath}}/moderador/resolver">Resolver reportes</button>
                             <button class="moderador-boton moderador-boton-descartar" type="submit" formaction="{{basePath}}/moderador/descartar">Descartar reportes</button>
@@ -105,4 +134,105 @@
             {{/hayDetalle}}
         </section>
     </div>
+    {{/modoEditor}}
+
+    {{#modoEditor}}
+        <header class="moderador-editor-encabezado">
+            <a class="moderador-editor-volver" href="{{basePath}}/moderador?estado=PENDIENTE&id={{editorQuestionId}}">← Volver a la bandeja</a>
+            <p class="moderador-eyebrow">Corrección de pregunta · #{{editorQuestionId}}</p>
+            <h1>Corregir pregunta</h1>
+            <p>Actualizá el contenido y resolvé en conjunto los reportes pendientes.</p>
+        </header>
+
+        <div class="moderador-correccion-banner">
+            Corregiendo por <strong>{{cantidadReportesCorreccion}}</strong>
+            {{#pluralReportesCorreccion}}reportes{{/pluralReportesCorreccion}}{{^pluralReportesCorreccion}}reporte{{/pluralReportesCorreccion}}
+        </div>
+
+        {{#editorDisponible}}
+            <div class="moderador-correccion-columnas">
+                <section class="moderador-correccion-formulario">
+                    <form method="post" action="{{basePath}}/moderador/corregir" data-correccion-form>
+                        <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                        <input type="hidden" name="question_id" value="{{editorQuestionId}}">
+
+                        <label for="correccion-categoria">Categoría</label>
+                        <select id="correccion-categoria" name="category_id" required>
+                            {{#editorCategorias}}
+                                <option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>
+                            {{/editorCategorias}}
+                        </select>
+
+                        <label for="correccion-enunciado">Enunciado de la pregunta</label>
+                        <textarea id="correccion-enunciado" name="question" maxlength="500" rows="3" required>{{editorPregunta}}</textarea>
+
+                        <fieldset class="moderador-correccion-opciones">
+                            <legend>Respuestas <span>Elegí cuál es la correcta.</span></legend>
+                            {{#editorOpciones}}
+                                <div class="moderador-correccion-respuesta">
+                                    <label for="correccion-respuesta-{{respuesta_id}}">{{letra}}</label>
+                                    <input type="hidden" name="responses[{{indice}}][id]" value="{{respuesta_id}}">
+                                    <input id="correccion-respuesta-{{respuesta_id}}" class="moderador-correccion-texto" type="text" name="responses[{{indice}}][texto]" value="{{response}}" maxlength="255" required>
+                                    <label class="moderador-correccion-radio" for="correccion-correcta-{{respuesta_id}}">
+                                        <input id="correccion-correcta-{{respuesta_id}}" type="radio" name="correct_response_id" value="{{respuesta_id}}" data-respuesta-radio {{#seleccionada}}checked{{/seleccionada}} required>
+                                        Correcta
+                                    </label>
+                                </div>
+                            {{/editorOpciones}}
+                        </fieldset>
+
+                        <label for="correccion-nota">Nota de resolución</label>
+                        <textarea id="correccion-nota" name="resolution_notes" maxlength="500" rows="3" required placeholder="Contá brevemente qué se corrigió.">{{editorNota}}</textarea>
+
+                        <div class="moderador-correccion-acciones">
+                            <button class="moderador-boton moderador-boton-resolver" type="submit">Guardar corrección y resolver reportes</button>
+                            <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/moderador?estado=PENDIENTE&id={{editorQuestionId}}">Cancelar</a>
+                        </div>
+                    </form>
+                </section>
+
+                <aside class="moderador-correccion-contexto" aria-label="Contexto de los reportes">
+                    <section class="moderador-correccion-comparacion">
+                        <h2>Respuesta correcta</h2>
+                        <p><strong>Antes:</strong> {{respuestaCorrectaAnterior}}</p>
+                        <p><strong>Ahora:</strong> <span data-respuesta-actual>{{respuestaCorrectaActual}}</span></p>
+                    </section>
+
+                    <section class="moderador-correccion-reportes">
+                        <h2>Lo que pidieron los jugadores</h2>
+                        {{#editorReportes}}
+                            <article class="moderador-correccion-reporte">
+                                <p class="moderador-correccion-autor"><strong>{{usuario}}</strong> · {{fecha_formateada}}</p>
+                                <div class="moderador-item-motivos">{{#motivos}}<span>{{texto}}</span>{{/motivos}}</div>
+                                {{#tieneComentario}}<blockquote>{{comment}}</blockquote>{{/tieneComentario}}
+                            </article>
+                        {{/editorReportes}}
+                    </section>
+                </aside>
+            </div>
+        {{/editorDisponible}}
+        {{^editorDisponible}}
+            <p class="moderador-mensaje moderador-mensaje-error">
+                No se puede editar esta pregunta: debe tener cuatro respuestas y al menos una categoría disponible.
+            </p>
+        {{/editorDisponible}}
+    {{/modoEditor}}
 </main>
+
+<script>
+    function actualizarResumenCorrecta(respuesta) {
+        var resumen = document.querySelector('[data-respuesta-actual]');
+        var radio = respuesta.matches('[data-respuesta-radio]')
+            ? respuesta
+            : respuesta.parentElement.querySelector('[data-respuesta-radio]');
+        if (resumen && radio && radio.checked) {
+            resumen.textContent = radio.parentElement.parentElement.querySelector('.moderador-correccion-texto').value;
+        }
+    }
+    document.addEventListener('change', function (event) {
+        if (event.target.matches('[data-respuesta-radio]')) actualizarResumenCorrecta(event.target);
+    });
+    document.addEventListener('input', function (event) {
+        if (event.target.matches('.moderador-correccion-texto')) actualizarResumenCorrecta(event.target);
+    });
+</script>

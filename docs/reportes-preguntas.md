@@ -6,7 +6,7 @@ Se admite un reporte por usuario y pregunta, incluso si vuelve a aparecer en otr
 
 ## Base de datos
 
-Las tablas están incluidas en `app/sql/preguntados.sql` y `app/sql/estructura.sql`. No hay migración nueva. En una instalación existente se puede importar `estructura.sql` seleccionando la base de datos, para crear las tablas faltantes sin cargar nuevamente las preguntas. `CREATE TABLE IF NOT EXISTS` no actualiza estructuras de tablas que ya existan.
+Las tablas están incluidas en `app/sql/preguntados.sql` y `app/sql/estructura.sql`. En una instalación nueva, esos esquemas consolidados son la fuente de verdad. `CREATE TABLE IF NOT EXISTS` no actualiza una tabla `question_reports` existente con el esquema anterior; para esa actualización revisá `app/sql/migracion_reportes_pregunta_resultados.sql`. La migración anterior se retiró porque creaba otra estructura y no adaptaba la tabla existente. La propuesta nueva crea un respaldo, mantiene los campos legados y se puede repetir; debe revisarse y probarse en una copia de la base antes de ejecutarla. No la ejecuté.
 
 - `question_reports` es la única tabla de esta funcionalidad. Guarda usuario, pregunta original, partida, turno, motivos, comentario, fechas y estado inicial `PENDIENTE`.
 - `question_snapshot` guarda una copia en JSON con pregunta, categoría, opciones mostradas, respuesta seleccionada, respuesta considerada correcta, puntos y tiempo agotado. Se toma del resultado guardado en el servidor, y se escribe en la base únicamente cuando el jugador envía el reporte. `question_id` conserva la referencia original aunque luego se elimine la pregunta.
