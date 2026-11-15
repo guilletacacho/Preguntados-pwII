@@ -29,6 +29,15 @@ class PartidaController{
         'Cine'      => 'cine',
     ];
 
+    private const MOTIVOS_REPORTE = [
+        'respuesta_incorrecta' => 'La respuesta marcada como correcta es incorrecta',
+        'varias_validas' => 'Hay más de una respuesta válida',
+        'confusa' => 'La pregunta o las opciones son confusas',
+        'desactualizada' => 'La información está desactualizada',
+        'inapropiada' => 'El contenido es inapropiado',
+        'otro' => 'Otro motivo',
+    ];
+
     private $model;
     private $render;
 
@@ -74,7 +83,7 @@ class PartidaController{
         }
 
         if (!$mismoJuego) {
-            unset($_SESSION['turno'], $_SESSION['resultado']);
+            unset($_SESSION['turno'], $_SESSION['resultado'], $_SESSION['preguntas_partida']);
         }
 
         $_SESSION['game_id'] = $gameId;
@@ -319,6 +328,77 @@ class PartidaController{
     // RESULTADO (GET: sobrevive F5 y al botón "atrás")
     // ─────────────────────────────────────────────────────────────
 
+    private function datosReportes($todos){
+        if (empty($_SESSION['reporte_csrf'])) {
+            $_SESSION['reporte_csrf'] = bin2hex(random_bytes(32));
+        }
+        $reportadas = array_map('intval', array_column($this->model->preguntasReportadas((int) $_SESSION['usuario_id']), 'question_id'));
+        $datos = [];
+        foreach ($_SESSION['preguntas_partida'] ?? [] as $numero => $fila) {
+            if ((int) $fila['game_id'] !== (int) ($_SESSION['game_id'] ?? 0)
+                || (!$todos && (int) $numero !== (int) $_SESSION['resultado']['preguntaNumero'])) {
+                continue;
+            }
+            $resultado = $fila['resultado'];
+            $motivos = [];
+            foreach (self::MOTIVOS_REPORTE as $codigo => $etiqueta) {
+                $motivos[] = ['codigo' => $codigo, 'etiqueta' => $etiqueta];
+            }
+            $datos[] = [
+                'id' => $numero, 'numero' => $numero,
+                'pregunta' => $resultado['pregunta'], 'respuestas' => $resultado['respuestas'],
+                'reportada' => in_array((int) $fila['question_id'], $reportadas, true), 'motivos' => $motivos,
+                'actual' => (int) $numero === (int) $_SESSION['resultado']['preguntaNumero'],
+                'csrf' => $_SESSION['reporte_csrf'],
+            ];
+        }
+        return $datos;
+    }
+
+    public function reportar(){
+        $userId = $this->requiereUsuario();
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || empty($_SESSION['resultado'])) {
+            \Redirect::to('/Preguntados/partida/show');
+        }
+        $token = $_POST['csrf'] ?? null;
+        $motivos = $_POST['motivos'] ?? [];
+        $comentario = $_POST['comentario'] ?? '';
+        $id = filter_var($_POST['turn_number'] ?? null, FILTER_VALIDATE_INT);
+        $valido = is_string($token) && isset($_SESSION['reporte_csrf']) && hash_equals($_SESSION['reporte_csrf'], $token)
+            && is_array($motivos) && count($motivos) > 0 && count($motivos) <= count(self::MOTIVOS_REPORTE)
+            && is_string($comentario) && mb_strlen($comentario) <= 2000;
+        foreach (is_array($motivos) ? $motivos : [] as $motivo) {
+            if (!is_string($motivo) || !isset(self::MOTIVOS_REPORTE[$motivo])) {
+                $valido = false;
+            }
+        }
+        if (is_array($motivos) && in_array('otro', $motivos, true) && (!is_string($comentario) || trim($comentario) === '')) {
+            $valido = false;
+        }
+        $permitidos = array_column($this->datosReportes(!empty($_SESSION['resultado']['gameOver'])), 'id');
+        if (!$valido || !$id || !in_array($id, array_map('intval', $permitidos), true)) {
+            $_SESSION['resultado']['reporteError'] = 'Seleccioná un motivo. Para Otro, escribí un comentario. Máximo: 2000 caracteres.';
+            unset($_SESSION['resultado']['reporteMensaje']);
+        } else {
+            try {
+                $pregunta = $_SESSION['preguntas_partida'][$id];
+                $guardado = $this->model->reportarPregunta(
+                    (int) $_SESSION['game_id'], (int) $pregunta['question_id'], $id, $userId,
+                    $pregunta['resultado'], array_values(array_unique($motivos)), trim($comentario)
+                );
+                $_SESSION['resultado']['reporteMensaje'] = $guardado > 0
+                    ? 'Gracias. Revisaremos la pregunta. El reporte no modifica el puntaje de esta partida.'
+                    : 'Ya reportaste esta pregunta. El puntaje de esta partida no cambia.';
+                unset($_SESSION['resultado']['reporteError']);
+            } catch (\PDOException $exception) {
+                \Log::warning('No se pudo guardar el reporte: ' . $exception->getCode());
+                $_SESSION['resultado']['reporteError'] = 'No pudimos guardar el reporte. Intentá nuevamente.';
+                unset($_SESSION['resultado']['reporteMensaje']);
+            }
+        }
+        \Redirect::to('/Preguntados/partida/resultado');
+    }
+
     public function resultado(){
 
         $this->requiereUsuario();
@@ -327,7 +407,9 @@ class PartidaController{
             \Redirect::to('/Preguntados/partida/show');
         }
 
-        $this->render->renderiza('partida', $_SESSION['resultado']);
+        $datos = $_SESSION['resultado'];
+        $datos['reportes'] = $this->datosReportes(!empty($datos['gameOver']));
+        $this->render->renderiza('partida', $datos);
     }
 
     /**
@@ -790,6 +872,8 @@ class PartidaController{
         ];
 
         // El turno ya se consumió: no se puede volver a responder ni recargar.
+        $this->guardarResultadoReportable($gameId, $questionId);
+
         unset($_SESSION['turno']);
 
         \Redirect::to('/Preguntados/partida/resultado');
@@ -829,9 +913,20 @@ class PartidaController{
             'nivelJugador' => $this->nivelJugador()['etiqueta'],
         ];
 
+        $this->guardarResultadoReportable($gameId, $questionId);
+
         unset($_SESSION['turno']);
 
         \Redirect::to('/Preguntados/partida/resultado');
+    }
+
+    private function guardarResultadoReportable($gameId, $questionId){
+        $numero = (int) $_SESSION['resultado']['preguntaNumero'];
+        $_SESSION['preguntas_partida'][$numero] = [
+            'game_id' => $gameId,
+            'question_id' => $questionId,
+            'resultado' => $_SESSION['resultado'],
+        ];
     }
 
     private function tiempoTranscurrido(array $turno){
@@ -858,6 +953,7 @@ class PartidaController{
             $_SESSION['pregunta_numero'],
             $_SESSION['turno'],
             $_SESSION['resultado'],
+            $_SESSION['preguntas_partida'],
             $_SESSION['pestana'],
             $_SESSION['pestana_previas'],
             $_SESSION['partida_reanudada'],
