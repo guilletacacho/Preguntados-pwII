@@ -163,7 +163,7 @@ class PartidaModel{
                        COUNT(DISTINCT q.id) AS total,
                        COUNT(DISTINCT CASE WHEN ga.question_id IS NULL THEN q.id END) AS preguntas
                 FROM category c
-                LEFT JOIN questions q ON q.category_id = c.id
+                LEFT JOIN questions q ON q.category_id = c.id AND q.is_active = 1
                 LEFT JOIN (
                     SELECT DISTINCT question_id
                     FROM game_answers
@@ -206,6 +206,7 @@ class PartidaModel{
                 ) usos ON usos.question_id = q.id
                 WHERE q.category_id = ?
                     AND ({$expresion}) = ?
+                    AND q.is_active = 1
                 ORDER BY COALESCE(usos.veces, 0) ASC, RAND()
                 LIMIT 1";
 

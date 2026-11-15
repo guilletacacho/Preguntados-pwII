@@ -34,8 +34,18 @@ class ModeradorModel{
         return $this->database->execute($sql, [$questionId, $response, $isCorrect]);
     }
 
-    public function eliminarPregunta(){
-        return ;
+    public function desactivarPregunta($id){
+
+        $sql = "UPDATE questions SET is_active = 0 WHERE id = ? AND is_active = 1";
+        
+        return $this->database->execute($sql, [$id]);
+    }
+
+    public function reactivarPregunta( $id){
+
+        $sql = "UPDATE questions SET is_active = 1 WHERE id = ? AND is_active = 0";
+
+        return $this->database->execute($sql, [$id]);
     }
     
     // OBTIENE UNA PAGINA DE PREGUNTAS, CON UN LIMITE Y DESPLAZAMIENTO CONTROLADOS.
@@ -48,6 +58,7 @@ class ModeradorModel{
 
         $sql = "SELECT
                     q.id,
+                    q.is_active AS activa,
                     q.question,
                     c.name AS categoria,
                     {$expresionDificultad} AS dificultad,
@@ -59,7 +70,7 @@ class ModeradorModel{
                 FROM questions q
                 INNER JOIN category c ON c.id = q.category_id
                 LEFT JOIN question_stats qs ON qs.question_id = q.id
-                ORDER BY q.id DESC
+                ORDER BY q.id ASC
                 LIMIT {$limite} OFFSET {$offset}";
 
         return $this->database->queryAll($sql);

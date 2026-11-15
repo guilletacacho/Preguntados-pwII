@@ -1318,7 +1318,8 @@ body:has(.home-shell) .footer-content { min-height: 70px; }
 .moderador-reporte-cantidad { color: #ff8291; font-weight: 800; }
 .moderador-sin-reportes { color: var(--texto-tenue); }
 .moderador-acciones { white-space: nowrap; }
-.moderador-acciones button + button { margin-left: 7px; }
+.moderador-acciones form { display: inline; margin: 0; }
+.moderador-acciones button + button, .moderador-acciones button + form { margin-left: 7px; }
 .moderador-acciones button, .moderador-paginacion button { min-height: 30px; padding: 0 10px; border: 1px solid var(--borde-fuerte); border-radius: 8px; background: transparent; color: var(--texto); font: 600 .65rem var(--fuente); }
 .moderador-acciones .moderador-accion-baja { border-color: #78424a; color: #ff8291; }
 .moderador-acciones .moderador-accion-reactivar { color: var(--texto-sec); }

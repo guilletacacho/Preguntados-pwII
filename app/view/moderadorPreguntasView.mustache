@@ -75,7 +75,7 @@
                     </thead>
                     <tbody>
                         {{#preguntas}}
-                        <tr>
+                        <tr{{^activa}} class="pregunta-inactiva"{{/activa}}>
                             <td>{{id}}</td>
                             <td>{{question}}</td>
                             <td><span class="moderador-categoria" data-categoria="{{categoria}}">{{categoria}}</span></td>
@@ -83,7 +83,23 @@
                             <td>{{entregas}}</td>
                             <td>{{acierto}}%</td>
                             <td><span class="moderador-reporte-cantidad">⚑ 3</span></td>
-                            <td class="moderador-acciones"><button type="button" class="moderador-accion-editar">Editar</button><button type="button" class="moderador-accion-baja">Baja</button></td>
+                            <td class="moderador-acciones">
+                                {{#activa}}
+                                <button type="button" class="moderador-accion-editar">Editar</button>
+                                {{! ESTE FORMULARIO ENVIA EL ID DE LA PREGUNTA AL CONTROLLER PARA DARLA DE BAJA. }}
+                                <form method="post" action="{{basePath}}/moderador/desactivarPregunta">
+                                    <input type="hidden" name="question_id" value="{{id}}">
+                                    <button type="submit" class="moderador-accion-baja">Baja</button>
+                                </form>
+                                {{/activa}}
+                                {{^activa}}
+                                <span class="moderador-estado-baja">DADA DE BAJA</span>
+                                <form method="post" action="{{basePath}}/moderador/reactivarPregunta">
+                                    <input type="hidden" name="question_id" value="{{id}}">
+                                    <button type="submit" class="moderador-accion-reactivar">Reactivar</button>
+                                </form>
+                                {{/activa}}
+                            </td>
                         </tr>
                         {{/preguntas}}
                         {{^preguntas}}

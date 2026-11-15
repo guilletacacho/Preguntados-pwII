@@ -166,4 +166,72 @@ class ModeradorController
 
         Redirect::to('/Preguntados/moderador/preguntas');
     }
+
+    public function desactivarPregunta()
+    {
+        if (!isset($_SESSION['usuario_id'])) {
+            Redirect::toIndex();
+        }
+
+        // VALIDA QUE EL ID RECIBIDO SEA UN ENTERO POSITIVO.
+        $idInput = $_POST['question_id'] ?? null;
+        $id = (is_string($idInput) || is_int($idInput))
+            ? filter_var($idInput, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+            : false;
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            echo 'Método no permitido.';
+            return;
+        }
+
+        if ($id === false) {
+            http_response_code(400);
+            echo 'El identificador de la pregunta no es válido.';
+            return;
+        }
+
+        // EL MODEL SOLO ACTUALIZA PREGUNTAS QUE TODAVIA ESTAN ACTIVAS.
+        if ($this->model->desactivarPregunta($id) !== 1) {
+            http_response_code(404);
+            echo 'La pregunta no existe o ya está desactivada.';
+            return;
+        }
+
+        Redirect::to('/Preguntados/moderador/preguntas');
+    }
+
+    public function reactivarPregunta()
+    {
+        if (!isset($_SESSION['usuario_id'])) {
+            Redirect::toIndex();
+        }
+
+        // VALIDA QUE EL ID RECIBIDO SEA UN ENTERO POSITIVO.
+        $idInput = $_POST['question_id'] ?? null;
+        $id = (is_string($idInput) || is_int($idInput))
+            ? filter_var($idInput, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+            : false;
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            echo 'Método no permitido.';
+            return;
+        }
+
+        if ($id === false) {
+            http_response_code(400);
+            echo 'El identificador de la pregunta no es válido.';
+            return;
+        }
+
+        // ACTUALIZA PREGUNTAS INACTIVAS a ACTIVAS.
+        if ($this->model->reactivarPregunta($id) !== 1) {
+            http_response_code(404);
+            echo 'La pregunta no existe o ya está activada.';
+            return;
+        }
+
+        Redirect::to('/Preguntados/moderador/preguntas');
+    }
 }
