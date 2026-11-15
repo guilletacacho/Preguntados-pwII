@@ -8,7 +8,11 @@ use app\controller\RegistroController;
 use app\controller\EmailController;
 use app\controller\RankingController;
 use app\controller\PartidaController;
+use app\controller\ReportarPreguntaController;
+use app\controller\ModeradorController;
 use app\model\PartidaModel;
+use app\model\ReportarPreguntaModel;
+use app\model\ModeradorModel;
 use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
@@ -87,6 +91,16 @@ class Configuration
         );
     }
 
+    public function getReportarPreguntaController()
+    {
+        return new ReportarPreguntaController($this->getReportarPreguntaModel());
+    }
+
+    public function getModeradorController()
+    {
+        return new ModeradorController($this->getModeradorModel(), $this->gerRender());
+    }
+
     public function getPerfilController()
     {
         return new \app\controller\PerfilController(
@@ -116,7 +130,7 @@ class Configuration
 
     private function gerRender()
     {
-        return new MustacheRender();
+        return new MustacheRender($this->getModeradorModel());
     }
 
     private function getMailHelper()
@@ -153,6 +167,16 @@ class Configuration
         return new PartidaModel(
             $this->getDatabase()
         );
+    }
+
+    private function getReportarPreguntaModel()
+    {
+        return new ReportarPreguntaModel($this->getDatabase());
+    }
+
+    private function getModeradorModel()
+    {
+        return new ModeradorModel($this->getDatabase());
     }
 
     public function getRouter()

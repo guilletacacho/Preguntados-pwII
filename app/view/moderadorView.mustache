@@ -1,0 +1,108 @@
+<main class="moderador-shell">
+    <header class="moderador-encabezado">
+        <div>
+            <p class="moderador-eyebrow">Preguntados · Moderación</p>
+            <h1>Reportes de preguntas</h1>
+            <p>Revisá los avisos de la comunidad y registrá cómo se resolvieron.</p>
+        </div>
+        <div class="moderador-contador"><strong>{{pendientes}}</strong><span>pendientes</span></div>
+    </header>
+
+    {{#hayMensaje}}
+        <p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="status">{{mensaje.texto}}</p>
+    {{/hayMensaje}}
+
+    <nav class="moderador-filtros" aria-label="Filtrar reportes por estado">
+        <a class="{{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderador?estado=PENDIENTE&orden={{orden}}">Pendientes</a>
+        <a class="{{#estadoResuelto}}activo{{/estadoResuelto}}" href="{{basePath}}/moderador?estado=RESUELTO&orden={{orden}}">Resueltos</a>
+        <a class="{{#estadoDescartado}}activo{{/estadoDescartado}}" href="{{basePath}}/moderador?estado=DESCARTADO&orden={{orden}}">Descartados</a>
+        <div class="moderador-orden" aria-label="Ordenar reportes">
+            <span>Orden:</span>
+            <a class="{{#ordenMasReportadas}}activo{{/ordenMasReportadas}}" href="{{basePath}}/moderador?estado={{estado}}&orden=mas_reportadas">Más reportadas</a>
+            <a class="{{#ordenMasViejas}}activo{{/ordenMasViejas}}" href="{{basePath}}/moderador?estado={{estado}}&orden=mas_viejas">Más viejas</a>
+            <a class="{{#ordenMasNuevas}}activo{{/ordenMasNuevas}}" href="{{basePath}}/moderador?estado={{estado}}&orden=mas_nuevas">Más nuevas</a>
+        </div>
+    </nav>
+
+    <div class="moderador-columnas">
+        <section class="moderador-bandeja" aria-label="Preguntas reportadas">
+            <header class="moderador-seccion-titulo">
+                <h2>{{estado}}</h2>
+                <span>{{cantidadPreguntas}} preguntas</span>
+            </header>
+
+            {{#hayPreguntas}}
+                <div class="moderador-lista">
+                    {{#preguntas}}
+                        <a class="moderador-item{{#seleccionada}} seleccionado{{/seleccionada}}" href="{{basePath}}/moderador/detalle?id={{question_id}}&estado={{estado}}&orden={{orden}}">
+                            <span class="moderador-item-categoria">{{categoria}}</span>
+                            <strong>{{question}}</strong>
+                            <span class="moderador-item-meta"><b>{{total_reportes}}</b> {{#pluralReportes}}reportes{{/pluralReportes}}{{^pluralReportes}}reporte{{/pluralReportes}} · primero: {{primer_reporte_formateado}}</span>
+                            <span class="moderador-item-motivos">
+                                {{#motivos}}<span>{{texto}} ×{{cantidad}}</span>{{/motivos}}
+                            </span>
+                        </a>
+                    {{/preguntas}}
+                </div>
+            {{/hayPreguntas}}
+            {{^hayPreguntas}}
+                <p class="moderador-vacio">No hay preguntas con reportes en este estado.</p>
+            {{/hayPreguntas}}
+        </section>
+
+        <section class="moderador-detalle" aria-label="Detalle del reporte">
+            {{#hayDetalle}}
+                <header class="moderador-detalle-encabezado">
+                    <div>
+                        <span class="moderador-item-categoria">{{detalle.categoria}} · Pregunta #{{detalle.question_id}}</span>
+                        <h2>{{detalle.question}}</h2>
+                    </div>
+                    {{#detalle.hayPendientes}}<span class="moderador-estado moderador-estado-pendiente">PENDIENTE</span>{{/detalle.hayPendientes}}
+                </header>
+
+                <section class="moderador-opciones" aria-label="Opciones de respuesta">
+                    <h3>Opciones</h3>
+                    {{#detalle.hayOpciones}}
+                        <ol>
+                            {{#detalle.opciones}}
+                                <li class="{{#correcta}}correcta{{/correcta}}"><span>{{response}}</span>{{#correcta}}<b>Correcta</b>{{/correcta}}</li>
+                            {{/detalle.opciones}}
+                        </ol>
+                    {{/detalle.hayOpciones}}
+                    {{^detalle.hayOpciones}}<p>No hay opciones cargadas para esta pregunta.</p>{{/detalle.hayOpciones}}
+                </section>
+
+                <section class="moderador-reportes" aria-label="Reportes recibidos">
+                    <h3>Reportes recibidos ({{detalle.reportes.length}})</h3>
+                    {{#detalle.reportes}}
+                        <article class="moderador-reporte">
+                            <header><strong>{{motivo_texto}}</strong><span class="moderador-estado moderador-estado-{{status}}">{{status}}</span></header>
+                            <p>Por <strong>{{usuario}}</strong> · {{fecha_formateada}}</p>
+                            {{#detail}}<blockquote>{{detail}}</blockquote>{{/detail}}
+                        </article>
+                    {{/detalle.reportes}}
+                </section>
+
+                {{#detalle.hayPendientes}}
+                    <form class="moderador-resolucion" method="post">
+                        <h3>Registrar decisión</h3>
+                        <input type="hidden" name="question_id" value="{{detalle.question_id}}">
+                        <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                        <label for="nota-resolucion">Nota (opcional)</label>
+                        <textarea id="nota-resolucion" name="resolution_note" maxlength="500" rows="3" placeholder="Dejá un comentario sobre la decisión."></textarea>
+                        <div class="moderador-acciones">
+                            <button class="moderador-boton moderador-boton-resolver" type="submit" formaction="{{basePath}}/moderador/resolver">Resolver reportes</button>
+                            <button class="moderador-boton moderador-boton-descartar" type="submit" formaction="{{basePath}}/moderador/descartar">Descartar reportes</button>
+                        </div>
+                    </form>
+                {{/detalle.hayPendientes}}
+            {{/hayDetalle}}
+            {{^hayDetalle}}
+                <div class="moderador-detalle-vacio">
+                    <h2>Seleccioná una pregunta</h2>
+                    <p>Elegí un elemento de la bandeja para revisar sus opciones y los reportes recibidos.</p>
+                </div>
+            {{/hayDetalle}}
+        </section>
+    </div>
+</main>

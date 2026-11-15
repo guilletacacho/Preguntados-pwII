@@ -217,12 +217,21 @@ class PartidaController{
         }
 
         $nivel = $this->nivelJugador();
+        if (empty($_SESSION['csrf_reportar_pregunta'])) {
+            $_SESSION['csrf_reportar_pregunta'] = bin2hex(random_bytes(32));
+        }
+
+        $mensajeReporte = $_SESSION['mensaje_reporte_pregunta'] ?? null;
+        unset($_SESSION['mensaje_reporte_pregunta']);
 
         $this->render->renderiza('partida', [
             'resultadoMostrado' => false,
             'categoria' => $turno['categoria'],
             'categoriaSlug' => $turno['slug'],
             'pregunta' => $turno['pregunta'],
+            'questionId' => (int) $turno['question_id'],
+            'csrfReportarPregunta' => $_SESSION['csrf_reportar_pregunta'],
+            'mensajeReporte' => $mensajeReporte,
             // Solo se manda letra + texto + un token opaco.
             // El id real de la respuesta y cuál es la correcta quedan en el servidor.
             'respuestas' => $this->opcionesParaVista($turno),

@@ -7,10 +7,12 @@ class MustacheRender
 {
     private $mustache;
     private $viewPath;
+    private $moderadorModel;
 
-    public function __construct()
+    public function __construct($moderadorModel = null)
     {
         $this->viewPath = dirname(__DIR__) . "/app/view";
+        $this->moderadorModel = $moderadorModel;
         $this->mustache = new Mustache_Engine([
             "delimiters" => "{{ }}",
             "loader" => new Mustache_Loader_FilesystemLoader($this->viewPath, ["extension" => ".mustache"])
@@ -23,6 +25,16 @@ class MustacheRender
         $data["basePath"] = $basePath;
         $content = $this->mustache->render($view . "View", $data);
         $layout = require($this->viewPath . "/layout.php");
-        $layout($content);
+
+        $layoutData = ['esModerador' => false, 'reportesPendientes' => 0];
+        if (isset($_SESSION['usuario_id']) && $this->moderadorModel !== null) {
+            $layoutData['esModerador'] = $this->moderadorModel->esModerador((int) $_SESSION['usuario_id']);
+            $_SESSION['rol'] = $layoutData['esModerador'] ? 'MODERADOR' : 'JUGADOR';
+            if ($layoutData['esModerador']) {
+                $layoutData['reportesPendientes'] = $this->moderadorModel->contarReportesPendientes();
+            }
+        }
+
+        $layout($content, $layoutData);
     }
 }

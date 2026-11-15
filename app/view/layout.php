@@ -1,5 +1,5 @@
 <?php
-return static function (string $content) {
+return static function (string $content, array $layoutData = []) {
 $assetBase = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/"), ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
