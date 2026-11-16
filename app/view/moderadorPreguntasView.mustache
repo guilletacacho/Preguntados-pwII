@@ -81,21 +81,23 @@
                             <td>{{acierto}}%</td>
                             <td><span class="moderador-reporte-cantidad">⚑ 3</span></td>
                             <td class="moderador-acciones">
-                                {{#activa}}
-                                <a class="moderador-accion-editar" href="{{basePath}}/moderador/editarPregunta?id={{id}}">Editar</a>
-                                {{! ESTE FORMULARIO ENVIA EL ID DE LA PREGUNTA AL CONTROLLER PARA DARLA DE BAJA. }}
-                                <form method="post" action="{{basePath}}/moderador/desactivarPregunta">
-                                    <input type="hidden" name="question_id" value="{{id}}">
-                                    <button type="submit" class="moderador-accion-baja">Baja</button>
-                                </form>
-                                {{/activa}}
-                                {{^activa}}
-                                <span class="moderador-estado-baja">DADA DE BAJA</span>
-                                <form method="post" action="{{basePath}}/moderador/reactivarPregunta">
-                                    <input type="hidden" name="question_id" value="{{id}}">
-                                    <button type="submit" class="moderador-accion-reactivar">Reactivar</button>
-                                </form>
-                                {{/activa}}
+                                <div class="moderador-acciones-contenido">
+                                    {{#activa}}
+                                    <a class="moderador-accion-editar" href="{{basePath}}/moderador/editarPregunta?id={{id}}">Editar</a>
+                                    {{! ESTE FORMULARIO ENVIA EL ID DE LA PREGUNTA AL CONTROLLER PARA DARLA DE BAJA. }}
+                                    <form method="post" action="{{basePath}}/moderador/desactivarPregunta">
+                                        <input type="hidden" name="question_id" value="{{id}}">
+                                        <button type="submit" class="moderador-accion-baja">Baja</button>
+                                    </form>
+                                    {{/activa}}
+                                    {{^activa}}
+                                    <span class="moderador-estado-baja">DADA DE BAJA</span>
+                                    <form method="post" action="{{basePath}}/moderador/reactivarPregunta">
+                                        <input type="hidden" name="question_id" value="{{id}}">
+                                        <button type="submit" class="moderador-accion-reactivar">Reactivar</button>
+                                    </form>
+                                    {{/activa}}
+                                </div>
                             </td>
                         </tr>
                         {{/preguntas}}
