@@ -23,8 +23,6 @@ class MustacheRender
     {
         $basePath = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/");
         $data["basePath"] = $basePath;
-        $content = $this->mustache->render($view . "View", $data);
-        $layout = require($this->viewPath . "/layout.php");
 
         $layoutData = ['esModerador' => false, 'reportesPendientes' => 0];
         if (isset($_SESSION['usuario_id']) && $this->moderadorModel !== null) {
@@ -35,6 +33,9 @@ class MustacheRender
             }
         }
 
+        $data['esModerador'] = $layoutData['esModerador'];
+        $content = $this->mustache->render($view . "View", $data);
+        $layout = require($this->viewPath . "/layout.php");
         $layout($content, $layoutData);
     }
 }

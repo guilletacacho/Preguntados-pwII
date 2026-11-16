@@ -8,7 +8,7 @@
                 <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
                 <a href="#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
                 <a href="#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
-                <a href="{{basePath}}/moderador" aria-label="Panel moderador"><span aria-hidden="true"><svg class="side-flag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4m0 1c5-4 9 4 14 0v11c-5 4-9-4-14 0"></path></svg></span><span class="side-label">Panel moderador</span></a>
+                {{#esModerador}}<a href="{{basePath}}/moderador" aria-label="Panel moderador"><span aria-hidden="true"><svg class="side-flag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4m0 1c5-4 9 4 14 0v11c-5 4-9-4-14 0"></path></svg></span><span class="side-label">Panel moderador</span></a>{{/esModerador}}
             </div>
         </div>
     </nav>
