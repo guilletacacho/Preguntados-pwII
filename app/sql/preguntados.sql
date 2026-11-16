@@ -170,8 +170,14 @@ CREATE TABLE IF NOT EXISTS question_reports (
   CONSTRAINT fk_report_reviewer FOREIGN KEY (reviewed_by) REFERENCES usuarios(Id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Ultimos cambios en la bdd 
 ALTER TABLE usuarios
     ADD COLUMN rol ENUM('JUGADOR', 'MODERADOR','ADMIN') NOT NULL DEFAULT 'JUGADOR';
 
 ALTER TABLE questions
     ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1;
+
+INSERT INTO usuarios
+    (Nombre, Anio_nacimiento, Sexo, Provincia, Pais, Usuario, Email, Contrasena, Verificado, Token, Foto_url, rol)
+VALUES
+    ('Nahuel Moderador', 2000, 'Otro', '', 'Argentina', 'moderador', 'moderador@gmail.com', MD5('Moderador123'), 1, NULL, NULL, 'MODERADOR');
