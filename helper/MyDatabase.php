@@ -49,4 +49,24 @@ $this->conexion->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
     {
         return $this->conexion->lastInsertId();
     }
+
+    public function beginTransaction()
+    {
+        return $this->conexion->beginTransaction();
+    }
+
+    public function commit()
+    {
+        return $this->conexion->commit();
+    }
+
+    public function rollBack()
+    {
+        return $this->conexion->rollBack();
+    }
+
+    public function inTransaction()
+    {
+        return $this->conexion->inTransaction();
+    }
 }

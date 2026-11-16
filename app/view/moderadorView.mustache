@@ -24,14 +24,16 @@
 
         <nav class="moderador-tabs" aria-label="Secciones del panel">
             <button class="moderador-tab is-active" type="button" aria-current="page">Resumen</button>
-            <button class="moderador-tab" type="button">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></button>
+            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">
+            Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span>
+            </a>
             <button class="moderador-tab" type="button">Sugeridas <span class="moderador-badge">3</span></button>
             <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
         </nav>
 
         <section class="moderador-metricas" aria-label="Resumen de actividad">
             <article class="moderador-metrica">
-                <strong class="es-alerta">7</strong>
+                <strong class="es-alerta">{{pendientes}}</strong>
                 <span>Reportes pendientes</span>
                 <small>sobre 4 preguntas · el más viejo hace 2 días</small>
             </article>

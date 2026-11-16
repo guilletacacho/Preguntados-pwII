@@ -16,6 +16,12 @@ $currentPage = $_GET['controller'] ?? 'login';
                 <details class="profile-menu">
                     <summary><span class="profile-avatar" aria-hidden="true"><?= $escape(strtoupper(substr($_SESSION['usuario'] ?? 'U', 0, 1))) ?></span><span class="profile-label"><?= $escape($_SESSION['usuario'] ?? 'Jugador') ?></span><span class="menu-chevron" aria-hidden="true"></span></summary>
                     <div class="profile-dropdown">
+                        <?php if (!empty($layoutData['esModerador'])): ?>
+                            <a class="moderador-menu-link" href="<?= $siteUrl ?>/moderador">
+                                <span>Panel moderador</span>
+                                <span class="moderador-menu-badge"><?= (int) ($layoutData['reportesPendientes'] ?? 0) ?></span>
+                            </a>
+                        <?php endif; ?>
                         <a href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/perfil') ?>">
                         Mi perfil
                         </a>

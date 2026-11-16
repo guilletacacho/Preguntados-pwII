@@ -10,11 +10,11 @@ use app\controller\RankingController;
 use app\controller\PartidaController;
 use app\controller\ModeradorController;
 use app\model\PartidaModel;
+use app\model\ModeradorModel;
 use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
 use app\model\RankingModel;
-use app\model\ModeradorModel;
 use MustacheRender;
 use MyDatabase;
 use Router;
@@ -126,7 +126,7 @@ class Configuration
 
     private function gerRender()
     {
-        return new MustacheRender();
+        return new MustacheRender($this->getModeradorModel());
     }
 
     private function getMailHelper()
