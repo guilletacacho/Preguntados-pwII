@@ -26,9 +26,28 @@ class ModeradorController
             Redirect::toIndex();
         }
 
-        $this->render->renderiza("moderador", [
+        $ultimosReportes = $this->model->obtenerUltimosReportes(4);
+
+        $clasesEstado = [
+            'PENDIENTE' => 'estado-pendiente',
+            'EN_REVISION' => 'estado-revision',
+            'RESUELTO' => 'estado-resuelto',
+            'DESCARTADO' => 'estado-descartado',
+        ];
+
+        foreach ($ultimosReportes as &$reporte) {
+            $reporte['claseEstado'] = $clasesEstado[$reporte['status']] ?? '';
+            $reporte['fechaFormateada'] = $this->formatearFecha($reporte['created_at']);
+        }
+        unset($reporte);
+
+        $datos = [
             'pendientes' => $this->model->contarReportesPendientes(),
-        ]);
+            'preguntasActivas' => $this->model->contarPreguntas(null,null,'activa'),
+            'reportesResueltos' => $this->model->contarReportesResueltos(),
+            'ultimosReportes' => $ultimosReportes,
+        ];
+        $this->render->renderiza("moderador",$datos);
     }
 
 
@@ -591,6 +610,7 @@ class ModeradorController
             'estado' => $estadoInput,
         ]);
         $datos = [
+            'pendientes' => $this->model->contarReportesPendientes(),
             'preguntas' => $this->model->obtenerPreguntas($porPagina, $offset, $categoriaId, $dificultad, $estado),
             'categorias' => $categorias,
             'todasCategoriasSeleccionada' => $categoriaId === null,
@@ -620,7 +640,10 @@ class ModeradorController
             Redirect::toIndex();
         }
 
-        $datos = ['categorias' => $this->model->obtenerCategorias()];
+        $datos = [
+            'categorias' => $this->model->obtenerCategorias(),
+            'pendientes' => $this->model->contarReportesPendientes(),
+        ];
 
         $this->render->renderiza("moderadorAltaPregunta", $datos);
     }
@@ -707,6 +730,7 @@ class ModeradorController
         if ($errores) {
             $this->render->renderiza('moderadorAltaPregunta', [
                 'categorias' => $categorias,
+                'pendientes' => $this->model->contarReportesPendientes(),
                 'error' => implode(' ', array_unique($errores)),
             ]);
             return;

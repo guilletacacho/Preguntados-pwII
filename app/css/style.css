@@ -1405,12 +1405,20 @@ body:has(.home-shell) .footer-content { min-height: 70px; }
 .icono-verde { color: var(--deporte); }
 .icono-violeta { color: var(--ciencia); }
 .icono-rojo { color: var(--cine); }
+.moderador-reporte-icono[data-categoria="Geografía"] { color: var(--geografia); }
+.moderador-reporte-icono[data-categoria="Deporte"] { color: var(--deporte); }
+.moderador-reporte-icono[data-categoria="Ciencia"] { color: var(--ciencia); }
+.moderador-reporte-icono[data-categoria="Cine y TV"] { color: var(--cine); }
+.moderador-reporte-icono[data-categoria="Arte"] { color: var(--arte); }
+.moderador-reporte-icono[data-categoria="Historia"] { color: var(--historia); }
 .moderador-reporte-detalle { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; padding-top: 2px; }
 .moderador-reporte-detalle strong { overflow: hidden; color: var(--texto); font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
 .moderador-reporte-detalle small { color: var(--texto-tenue); font-size: .62rem; }
 .moderador-estado { flex: 0 0 auto; margin: 2px 0 0 auto; padding: 4px 7px; border-radius: 5px; font-size: .56rem; font-weight: 800; white-space: nowrap; }
 .estado-pendiente { background: #593941; color: #ff8291; }
 .estado-revision { background: #514a32; color: #f2c230; }
+.estado-resuelto { background: #294d37; color: #8ED255; }
+.estado-descartado { background: #39434f; color: var(--texto-tenue); }
 .moderador-motivos h2 { margin-bottom: 14px; }
 .moderador-barras { display: grid; gap: 10px; }
 .moderador-barras li { display: grid; grid-template-columns: minmax(110px, .42fr) minmax(0, 1fr) 18px; align-items: center; gap: 10px; color: var(--texto-sec); font-size: .68rem; }

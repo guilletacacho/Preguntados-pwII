@@ -43,14 +43,14 @@
                 <small>esperando aprobación</small>
             </article>
             <article class="moderador-metrica">
-                <strong>312</strong>
+                <strong>{{preguntasActivas}}</strong>
                 <span>Preguntas activas</span>
-                <small>6 categorías · 4 dadas de baja</small>
+                <small>6 categorías</small>
             </article>
             <article class="moderador-metrica">
-                <strong>18</strong>
+                <strong>{{reportesResueltos}}</strong>
                 <span>Resueltos este mes</span>
-                <small>11 corregidas · 5 descartadas · 2 bajas</small>
+                <small>...</small>
             </article>
         </section>
 
@@ -61,38 +61,19 @@
                     <button class="moderador-boton-secundario" type="button">Ver bandeja</button>
                 </header>
                 <ul class="moderador-lista-reportes">
+                    {{#ultimosReportes}}
                     <li class="moderador-reporte">
-                        <span class="moderador-reporte-icono icono-azul" aria-hidden="true">!</span>
+                        <span class="moderador-reporte-icono" data-categoria="{{categoria}}" aria-hidden="true">!</span>
                         <div class="moderador-reporte-detalle">
-                            <strong>«¿Cuál es la capital de Australia?»</strong>
-                            <small>3 jugadores · La respuesta marcada como correcta es incorrecta</small>
+                            <strong>«{{pregunta}}»</strong>
+                            <small>{{motivoResumen}} · {{fechaFormateada}}</small>
                         </div>
-                        <span class="moderador-estado estado-pendiente">PENDIENTE</span>
+                        <span class="moderador-estado {{claseEstado}}">{{status}}</span>
                     </li>
-                    <li class="moderador-reporte">
-                        <span class="moderador-reporte-icono icono-verde" aria-hidden="true">!</span>
-                        <div class="moderador-reporte-detalle">
-                            <strong>«¿Cuántos mundiales ganó Argentina?»</strong>
-                            <small>2 jugadores · La información está desactualizada</small>
-                        </div>
-                        <span class="moderador-estado estado-pendiente">PENDIENTE</span>
-                    </li>
-                    <li class="moderador-reporte">
-                        <span class="moderador-reporte-icono icono-violeta" aria-hidden="true">!</span>
-                        <div class="moderador-reporte-detalle">
-                            <strong>«¿Cuál es el símbolo químico del oro?»</strong>
-                            <small>1 jugador · La pregunta o las opciones son confusas</small>
-                        </div>
-                        <span class="moderador-estado estado-revision">EN REVISIÓN</span>
-                    </li>
-                    <li class="moderador-reporte">
-                        <span class="moderador-reporte-icono icono-rojo" aria-hidden="true">!</span>
-                        <div class="moderador-reporte-detalle">
-                            <strong>«¿Quién dirigió “El secreto de sus ojos”?»</strong>
-                            <small>1 jugador · Otro motivo</small>
-                        </div>
-                        <span class="moderador-estado estado-pendiente">PENDIENTE</span>
-                    </li>
+                    {{/ultimosReportes}}
+                    {{^ultimosReportes}}
+                    <li class="moderador-reporte">Todavía no hay reportes.</li>
+                    {{/ultimosReportes}}
                 </ul>
             </section>
 

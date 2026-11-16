@@ -39,6 +39,13 @@ class ModeradorModel
         return (int) ($fila['cantidad'] ?? 0);
     }
 
+    public function contarReportesResueltos(){
+        $sql = "SELECT COUNT(*) AS cantidad FROM question_reports WHERE status = 'RESUELTO'";
+
+        $fila = $this->database->queryOne($sql);
+
+        return (int) ($fila['cantidad'] ?? 0);
+    }
     public function listarPreguntasReportadas($status, $orden)
     {
         $ordenes = [
@@ -472,6 +479,38 @@ class ModeradorModel
         return $this->database->queryAll($sql);
     }
 
+    public function obtenerUltimosReportes($limite = 4){
+
+        $limite = max(1, (int) $limite);
+
+        $sql = "SELECT qr.status, qr.reasons, qr.question_snapshot, qr.created_at,
+                q.question, c.name AS categoria
+                FROM question_reports qr
+                LEFT JOIN questions q ON q.id = qr.question_id
+                LEFT JOIN category c ON c.id = q.category_id
+                ORDER BY qr.created_at DESC, qr.id DESC
+                LIMIT {$limite}";
+
+        $reportes = $this->database->queryAll($sql);
+
+            foreach ($reportes as &$reporte) {
+            $snapshot = $this->decodificarJson($reporte['question_snapshot']);
+
+            $reporte['pregunta'] = $reporte['question']
+                ?: ($snapshot['pregunta'] ?? 'Pregunta eliminada');
+            $reporte['categoria'] = $reporte['categoria']
+                ?: ($snapshot['categoria'] ?? 'Sin categoría');
+
+            $motivos = [];
+            foreach ($this->codigosMotivos($reporte['reasons']) as $codigo) {
+                $motivos[] = self::MOTIVOS[$codigo] ?? 'Otro motivo';
+            }
+            $reporte['motivoResumen'] = implode(', ', $motivos);
+        }
+        unset($reporte);
+        
+        return $reportes;
+    }
     private function construirFiltrosPreguntas($categoriaId, $dificultad, $estado)
     {
         $condiciones = [];
