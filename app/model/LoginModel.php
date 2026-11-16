@@ -14,13 +14,12 @@ class LoginModel
     {
         $passwordHash = md5($password);
 
-        // A propósito sin prepared statements: lo arreglamos en la clase de refactor
         $sql = "SELECT Id AS id, Usuario as usuario, CAST(Verificado AS UNSIGNED) as verificado, rol
          FROM usuarios
-           WHERE Usuario = '$usuario'
-           AND Contrasena = '$passwordHash'";
+           WHERE Usuario = ?
+           AND Contrasena = ?";
 
-        return $this->database->queryOne($sql);
+        return $this->database->queryOne($sql, [$usuario, $passwordHash]);
     }
 
     public function liberarSesionUnica($userId, $sessionKey)

@@ -355,6 +355,7 @@ class PartidaController{
         $comentario = $_POST['comentario'] ?? '';
         $id = filter_var($_POST['turn_number'] ?? null, FILTER_VALIDATE_INT);
         $valido = is_string($token) && isset($_SESSION['reporte_csrf']) && hash_equals($_SESSION['reporte_csrf'], $token)
+            && ($_POST['confirmar_finalizacion'] ?? null) === '1'
             && is_array($motivos) && count($motivos) > 0 && count($motivos) <= count(self::MOTIVOS_REPORTE)
             && is_string($comentario) && mb_strlen($comentario) <= 2000;
         foreach (is_array($motivos) ? $motivos : [] as $motivo) {
@@ -367,7 +368,7 @@ class PartidaController{
         }
         $permitidos = array_column($this->datosReportes(!empty($_SESSION['resultado']['gameOver'])), 'id');
         if (!$valido || !$id || !in_array($id, array_map('intval', $permitidos), true)) {
-            $_SESSION['resultado']['reporteError'] = 'Seleccioná un motivo. Para Otro, escribí un comentario. Máximo: 2000 caracteres.';
+            $_SESSION['resultado']['reporteError'] = 'Confirmá el envío y la finalización de la partida. Seleccioná un motivo. Para Otro, escribí un comentario. Máximo: 2000 caracteres.';
             unset($_SESSION['resultado']['reporteMensaje']);
         } else {
             try {
@@ -376,9 +377,13 @@ class PartidaController{
                     (int) $_SESSION['game_id'], (int) $pregunta['question_id'], $id, $userId,
                     $pregunta['resultado'], array_values(array_unique($motivos)), trim($comentario)
                 );
+                $_SESSION['resultado']['gameOver'] = true;
+                $_SESSION['resultado']['volverRuleta'] = false;
+                $_SESSION['resultado']['finalizadaPorReporte'] = true;
+                unset($_SESSION['turno']);
                 $_SESSION['resultado']['reporteMensaje'] = $guardado > 0
-                    ? 'Gracias. Revisaremos la pregunta. El reporte no modifica el puntaje de esta partida.'
-                    : 'Ya reportaste esta pregunta. El puntaje de esta partida no cambia.';
+                    ? 'Gracias. Revisaremos la pregunta. La partida finalizó y conservás todos los puntos ganados.'
+                    : 'Ya reportaste esta pregunta. La partida está finalizada y conservás todos los puntos ganados.';
                 unset($_SESSION['resultado']['reporteError']);
             } catch (\PDOException $exception) {
                 \Log::warning('No se pudo guardar el reporte: ' . $exception->getCode());

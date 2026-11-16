@@ -55,7 +55,8 @@ function check($condition, $message) {
 }
 
 $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-$pdo->exec("CREATE TABLE game (id INTEGER PRIMARY KEY, user_id INT, total_points INT);
+$pdo->sqliteCreateFunction('NOW', static fn() => date('Y-m-d H:i:s'));
+$pdo->exec("CREATE TABLE game (id INTEGER PRIMARY KEY, user_id INT, total_points INT, status TEXT DEFAULT 'EN_CURSO', finished_at TEXT);
     CREATE TABLE category (id INTEGER PRIMARY KEY, name TEXT);
     CREATE TABLE questions (id INTEGER PRIMARY KEY, question TEXT, category_id INT, difficulty_level INT DEFAULT 2, points INT DEFAULT 20);
     CREATE TABLE usuarios (Id INTEGER PRIMARY KEY, Usuario TEXT, rol TEXT);
@@ -86,22 +87,39 @@ $data = new ReflectionMethod($controller, 'datosReportes');
 check(count($data->invoke($controller, false)) === 1, 'Debe mostrar el turno actual');
 check((int) $pdo->query('SELECT COUNT(*) FROM question_reports')->fetchColumn() === 0, 'No debe guardar nada hasta reportar');
 $send = static function ($values) use ($controller) {
-    $_POST = array_replace(['csrf' => 'test-token', 'turn_number' => 1, 'motivos' => ['confusa'], 'comentario' => ''], $values);
+    $_POST = array_replace(['csrf' => 'test-token', 'confirmar_finalizacion' => '1', 'turn_number' => 1, 'motivos' => ['confusa'], 'comentario' => ''], $values);
     try { $controller->reportar(); } catch (RuntimeException $e) {
         if (!str_starts_with($e->getMessage(), 'redirect:')) { throw $e; }
     }
 };
-foreach ([['csrf' => 'invalid'], ['motivos' => []], ['motivos' => 'otro'], ['motivos' => [['otro']]], ['motivos' => ['inexistente']], ['motivos' => ['otro'], 'comentario' => '  '], ['comentario' => str_repeat('á', 2001)], ['turn_number' => 999]] as $invalid) {
+foreach ([['confirmar_finalizacion' => null], ['confirmar_finalizacion' => ['1']], ['csrf' => 'invalid'], ['motivos' => []], ['motivos' => 'otro'], ['motivos' => [['otro']]], ['motivos' => ['inexistente']], ['motivos' => ['otro'], 'comentario' => '  '], ['comentario' => str_repeat('á', 2001)], ['turn_number' => 999]] as $invalid) {
     $send($invalid);
     check(isset($_SESSION['resultado']['reporteError']), 'Debe rechazar datos inválidos');
     check((int) $pdo->query('SELECT COUNT(*) FROM question_reports')->fetchColumn() === 0, 'Datos inválidos no deben persistirse');
 }
+$pdo->exec("CREATE TRIGGER fallar_finalizacion BEFORE UPDATE OF status ON game BEGIN SELECT RAISE(ABORT, 'fallo simulado'); END");
+try {
+    $model->reportarPregunta(1, 99, 1, 1, $result, ['confusa'], '');
+    check(false, 'Debe propagar el error de finalización');
+} catch (PDOException $e) {
+    check(str_contains($e->getMessage(), 'fallo simulado'), 'Debe fallar al finalizar');
+}
+check((int) $pdo->query('SELECT COUNT(*) FROM question_reports')->fetchColumn() === 0, 'Si falla la finalización debe revertir el reporte');
+check($pdo->query('SELECT status FROM game WHERE id=1')->fetchColumn() === 'EN_CURSO', 'Si falla la operaci?n debe mantener la partida en curso');
+$pdo->exec('DROP TRIGGER fallar_finalizacion');
+$_SESSION['resultado']['volverRuleta'] = true;
+$_SESSION['turno'] = ['numero' => 2];
 $send(['motivos' => ['confusa', 'otro', 'confusa'], 'comentario' => '  Revisar opciones  ', 'question_id' => 12345, 'question_snapshot' => 'alterado']);
+check($_SESSION['resultado']['gameOver'] && !$_SESSION['resultado']['volverRuleta'] && !isset($_SESSION['turno']), 'Reportar debe cerrar la partida en la sesión e impedir continuar');
+check($pdo->query('SELECT status FROM game WHERE id=1')->fetchColumn() === 'FINALIZADA', 'Reportar debe finalizar la partida en la base');
+check($pdo->query('SELECT finished_at FROM game WHERE id=1')->fetchColumn() !== null, 'Debe guardar la fecha de finalización');
 $report = $pdo->query('SELECT * FROM question_reports')->fetch(PDO::FETCH_ASSOC);
 check($report['status'] === 'PENDIENTE' && $report['comment'] === 'Revisar opciones', 'Debe guardar un reporte pendiente');
 check(json_decode($report['reasons'], true) === ['confusa', 'otro'], 'Debe guardar múltiples motivos sin repeticiones');
 check((int) $report['question_id'] === 99 && json_decode($report['question_snapshot'], true) === $result, 'La copia y los IDs deben salir de la sesión');
+$finishedAt = $pdo->query('SELECT finished_at FROM game WHERE id=1')->fetchColumn();
 $send([]);
+check($pdo->query('SELECT finished_at FROM game WHERE id=1')->fetchColumn() === $finishedAt, 'Reenviar no debe cambiar la fecha de finalización');
 check((int) $pdo->query('SELECT COUNT(*) FROM question_reports')->fetchColumn() === 1, 'No debe duplicar reportes');
 check((int) $pdo->query('SELECT total_points FROM game WHERE id=1')->fetchColumn() === 20, 'Reportar no debe alterar el puntaje');
 check($model->reportarPregunta(2, 100, 1, 1, $result, ['confusa'], '') === 0, 'El modelo debe rechazar partidas ajenas');
@@ -177,7 +195,7 @@ $estadoTrasRollback = $pdo->query('SELECT question, category_id, difficulty_leve
 check($estadoTrasRollback === $preguntaCorregida, 'Los errores de validación deben dejar la pregunta intacta');
 check((int) $pdo->query("SELECT COUNT(*) FROM question_reports WHERE question_id=99 AND status='PENDIENTE'")->fetchColumn() === 1, 'Los errores de validación deben dejar el reporte pendiente');
 $engine = new Mustache_Engine();
-$moderadorTemplate = file_get_contents(__DIR__ . '/../app/view/moderadorView.mustache');
+$moderadorTemplate = file_get_contents(__DIR__ . '/../app/view/ModeradorReportesView.mustache');
 $htmlModerador = $engine->render($moderadorTemplate, [
     'basePath' => '/Preguntados',
     'pendientes' => 1,
@@ -217,7 +235,7 @@ $_SESSION = ['usuario_id' => 3, 'csrf_moderador' => 'moderator-token'];
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_GET = ['id' => '99'];
 $moderadorController->editar();
-check($renderModerador->view === 'moderador'
+check($renderModerador->view === 'ModeradorReportes'
     && $renderModerador->data['modoEditor']
     && $renderModerador->data['editorDisponible']
     && count($renderModerador->data['editorOpciones']) === 4,
@@ -303,7 +321,7 @@ try {
     $moderadorController->corregir();
     check(false, 'La corrección exitosa debe redirigir a la bandeja');
 } catch (RuntimeException $e) {
-    check(str_starts_with($e->getMessage(), 'redirect:/Preguntados/moderador?estado=RESUELTO'), 'La corrección exitosa debe redirigir a reportes resueltos');
+    check(str_starts_with($e->getMessage(), 'redirect:/Preguntados/moderador/reportes?estado=RESUELTO'), 'La corrección exitosa debe redirigir a reportes resueltos');
 }
 $correccionControlador = $pdo->query('SELECT question, difficulty_level FROM questions WHERE id=100')->fetch(PDO::FETCH_ASSOC);
 $reporteControlador = $pdo->query('SELECT status, reviewed_by, reviewed_at, resolution_notes FROM question_reports WHERE question_id=100')->fetch(PDO::FETCH_ASSOC);
@@ -338,6 +356,10 @@ $template = file_get_contents(__DIR__ . '/../app/view/partidaView.Mustache');
 $html = $engine->render($template, ['resultadoMostrado' => true, 'gameOver' => true, 'reportes' => $data->invoke($controller, true)]);
 check(!str_contains($html, '<script>alert(1)</script>') && str_contains($html, '&lt;script&gt;'), 'La vista debe escapar el contenido');
 check(str_contains($html, 'Ya reportaste') && str_contains($html, 'data-reporte-abrir'), 'Debe mostrar el modal y el estado');
+$html = $engine->render($template, ['resultadoMostrado' => true, 'reportes' => [['id' => 1, 'reportada' => false]]]);
+check(str_contains($html, 'name="confirmar_finalizacion"') && str_contains($html, 'Reportar y finalizar'), 'Debe explicar y exigir la confirmación');
+$html = $engine->render($template, ['resultadoMostrado' => true, 'esCorrecta' => true, 'gameOver' => true, 'finalizadaPorReporte' => true, 'volverRuleta' => false]);
+check(!str_contains($html, 'Volver a la ruleta') && str_contains($html, 'Volver al lobby') && str_contains($html, 'Jugar de nuevo'), 'Tras reportar un acierto debe ofrecer salir o iniciar otra partida');
 $html = $engine->render($template, ['resultadoMostrado' => false]);
 check(!str_contains($html, '/partida/reportar') && !str_contains($html, '/reportarPregunta/crear'), 'No debe permitir reportar antes de responder');
 check(!str_contains($html, 'csrf_token') && !str_contains($html, 'name="question_id"'), 'La vista no debe conservar los campos del formulario anterior');

@@ -445,6 +445,29 @@ class PartidaModel{
     }
 
     public function reportarPregunta($gameId, $questionId, $turnNumber, $userId, array $resultado, array $motivos, $comentario){
+        $this->database->beginTransaction();
+        try {
+            $partida = $this->database->queryOne(
+                'SELECT id FROM game WHERE id = ? AND user_id = ?', [$gameId, $userId]
+            );
+            if ($partida === null) {
+                $this->database->commit();
+                return 0;
+            }
+            $guardado = $this->guardarReportePregunta($gameId, $questionId, $turnNumber, $userId, $resultado, $motivos, $comentario);
+            // Finalizar no modifica los puntos ni las respuestas ya registradas.
+            $this->finalizarPartida($gameId);
+            $this->database->commit();
+            return $guardado;
+        } catch (\Throwable $exception) {
+            if ($this->database->inTransaction()) {
+                $this->database->rollBack();
+            }
+            throw $exception;
+        }
+    }
+
+    private function guardarReportePregunta($gameId, $questionId, $turnNumber, $userId, array $resultado, array $motivos, $comentario){
         try {
             return $this->database->execute(
                 "INSERT INTO question_reports

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `Verificado` TINYINT(1) NOT NULL DEFAULT 0,
   `Token` VARCHAR(64) DEFAULT NULL,
   `Foto_url` VARCHAR(255) DEFAULT NULL,
+  `rol` ENUM('JUGADOR', 'MODERADOR', 'ADMIN') NOT NULL DEFAULT 'JUGADOR',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `uk_usuarios_usuario` (`Usuario`),
   UNIQUE KEY `uk_usuarios_email` (`Email`)
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `category_id` INT NOT NULL,
   `question` VARCHAR(500) NOT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `difficulty_level` TINYINT NOT NULL DEFAULT 2,
   `points` INT NOT NULL DEFAULT 20,
   PRIMARY KEY (`id`),
@@ -166,3 +168,22 @@ CREATE TABLE IF NOT EXISTS question_reports (
   CONSTRAINT fk_report_game FOREIGN KEY (game_id) REFERENCES game(id),
   CONSTRAINT fk_report_reviewer FOREIGN KEY (reviewed_by) REFERENCES usuarios(Id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Actualizar instalaciones existentes sin duplicar columnas ni cambiar datos.
+SET @partida_schema_sql = IF(
+    EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'usuarios' AND column_name = 'rol'),
+    'SELECT 1',
+    'ALTER TABLE usuarios ADD COLUMN rol ENUM(''JUGADOR'', ''MODERADOR'', ''ADMIN'') NOT NULL DEFAULT ''JUGADOR'''
+);
+PREPARE partida_schema_stmt FROM @partida_schema_sql;
+EXECUTE partida_schema_stmt;
+DEALLOCATE PREPARE partida_schema_stmt;
+
+SET @partida_schema_sql = IF(
+    EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'questions' AND column_name = 'is_active'),
+    'SELECT 1',
+    'ALTER TABLE questions ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1'
+);
+PREPARE partida_schema_stmt FROM @partida_schema_sql;
+EXECUTE partida_schema_stmt;
+DEALLOCATE PREPARE partida_schema_stmt;

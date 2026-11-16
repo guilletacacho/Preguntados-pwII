@@ -15,7 +15,7 @@
         });
         const form = dialog.querySelector('form');
         if (!form) return;
-        const choices = [...form.querySelectorAll('input[type="checkbox"]')];
+        const choices = [...form.querySelectorAll('input[name="motivos[]"]')];
         const comment = form.querySelector('textarea');
         const update = () => {
             choices[0].setCustomValidity(choices.some(choice => choice.checked) ? '' : 'Elegí al menos un motivo.');

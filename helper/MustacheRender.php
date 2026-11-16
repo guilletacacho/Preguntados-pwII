@@ -23,6 +23,7 @@ class MustacheRender
     {
         $basePath = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/");
         $data["basePath"] = $basePath;
+        $data['ruletaVersion'] = filemtime(__DIR__ . '/../public/js/ruleta.js');
 
         $layoutData = ['esModerador' => false, 'reportesPendientes' => 0];
         if (isset($_SESSION['usuario_id']) && $this->moderadorModel !== null) {
