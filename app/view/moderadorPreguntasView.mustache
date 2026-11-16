@@ -82,7 +82,7 @@
                             <td><span class="moderador-reporte-cantidad">⚑ 3</span></td>
                             <td class="moderador-acciones">
                                 {{#activa}}
-                                <button type="button" class="moderador-accion-editar">Editar</button>
+                                <a class="moderador-accion-editar" href="{{basePath}}/moderador/editarPregunta?id={{id}}">Editar</a>
                                 {{! ESTE FORMULARIO ENVIA EL ID DE LA PREGUNTA AL CONTROLLER PARA DARLA DE BAJA. }}
                                 <form method="post" action="{{basePath}}/moderador/desactivarPregunta">
                                     <input type="hidden" name="question_id" value="{{id}}">

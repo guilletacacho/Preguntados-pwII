@@ -534,6 +534,8 @@ class ModeradorController
         ];
     }
 
+    //EMPIEZA ABM DE SECCION PREGUNTAS
+
     public function preguntas()
     {
         if (!isset($_SESSION['usuario_id'])) {
@@ -814,4 +816,77 @@ class ModeradorController
         Redirect::to('/Preguntados/moderador/preguntas');
     }
 
+    public function editarPregunta(){
+
+    ModeradorAccess::exigir($this->model);
+
+    $id = Request::get('id');
+    if (!is_string($id) || !preg_match('/\A[0-9]+\z/', $id) || (int) $id < 1) {
+        Redirect::to('/Preguntados/moderador/preguntas');
+    }
+
+    $id = (int) $id;
+    $pregunta = $this->model->obtenerDetallePregunta($id);
+
+    if ($pregunta === null) {
+        Redirect::to('/Preguntados/moderador/preguntas');
+    }
+    
+    $categorias = $this->model->listarCategorias();
+    foreach ($categorias as &$categoria) {
+        $categoria['seleccionada'] = (int) $categoria['id'] === (int) $pregunta['category_id'];
+    }
+    unset($categoria);
+
+    $opciones = $this->model->obtenerOpciones($id);
+    foreach ($opciones as $indice => &$opcion) {
+        $opcion['indice'] = $indice;
+        $opcion['letra'] = chr(65 + $indice);
+        $opcion['respuesta_id'] = (int) $opcion['id'];
+        $opcion['seleccionada'] = (int) $opcion['is_correct'] === 1;
+    }
+    unset($opcion);
+
+    $datos = [
+        'editorQuestionId' => $id,
+        'editorPregunta' => $pregunta['question'],
+        'editorCategorias' => $categorias,
+        'editorOpciones' => $opciones,
+        'editorDisponible' => count($opciones) === 4 && count($categorias) > 0,
+    ];
+
+    $this->render->renderiza('moderadorEditarPregunta', $datos);
+
+    }
+
+
+    public function actualizarPregunta(){
+
+        ModeradorAccess::exigir($this->model);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            return;
+        }
+
+        $id = filter_var($_POST['question_id'] ?? null, FILTER_VALIDATE_INT);
+        if (!$id || !is_array($_POST['responses'] ?? null)) {
+            Redirect::to('/Preguntados/moderador/preguntas');
+        }
+
+        $respuestas = [];
+        foreach ($_POST['responses'] as $r) {
+            $respuestas[] = ['id' => $r['id'], 'response' => $r['texto']];
+        }
+
+        $this->model->actualizarPregunta(
+        $id,
+        $_POST['category_id'] ?? '',
+        $_POST['question'] ?? '',
+        $respuestas,
+        $_POST['correct_response_id'] ?? ''
+        );
+
+        Redirect::to('/Preguntados/moderador/preguntas');
+    }
 }

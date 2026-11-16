@@ -413,6 +413,27 @@ class ModeradorModel
         return $this->database->execute($sql, [$id]);
     }
     
+    public function actualizarPregunta($questionId, $categoryId, $question, array $responses, $correctResponseId){
+
+        $sql = "UPDATE questions SET category_id = ?, question = ? WHERE id = ?";
+        $this->database->execute($sql, [(int) $categoryId, $question, (int)$questionId]);
+        
+        // Actualiza cada respuesta y marca como correcta la seleccionada.
+        foreach ($responses as $response) {
+            
+            $sql = "UPDATE response SET response = ?, is_correct = ? WHERE id = ? AND question_id = ?";
+            
+            $responseId = (int) $response['id'];
+            $this->database->execute($sql, [
+                trim($response['response']),
+                $responseId === (int) $correctResponseId ? 1 : 0,
+                $responseId,
+                (int) $questionId,
+            ]);
+        }
+
+    }
+
     // OBTIENE UNA PAGINA DE PREGUNTAS, CON UN LIMITE Y DESPLAZAMIENTO CONTROLADOS.
     public function obtenerPreguntas($limite = 10, $offset = 0, $categoriaId = null, $dificultad = null, $estado = null){
         $limite = max(1, (int) $limite);
