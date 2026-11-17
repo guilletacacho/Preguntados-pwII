@@ -51,7 +51,7 @@ class PerfilController
 
         $puntajeTotal = $this->model->obtenerPuntajeTotal($userId);
         $cantidadPartidas = $this->model->obtenerCantidadPartidasFinalizadas($userId);
-        $puestoSemanal = $this->model->obtenerPuestoSemanal($userId);
+        $puestoHistorico = $this->model->obtenerPuestoHistorico($userId);
 
         $fotoArchivo = 'app/img-foto-perfil/' . basename((string) $fila['Foto_url']);
         $fotoVersion = ($fila['Foto_url'] && is_file($fotoArchivo)) ? filemtime($fotoArchivo) : '';
@@ -68,7 +68,7 @@ class PerfilController
             'fotoVersion' => $fotoVersion,
             'esMiPerfil' => (int) $fila['Id'] === (int) $_SESSION['usuario_id'],
             'puntaje' => (int) $puntajeTotal['puntaje'],
-            'puesto' => $puestoSemanal ? (int) $puestoSemanal['puesto'] : null,
+            'puesto' => $puestoHistorico ? (int) $puestoHistorico['puesto'] : null,
             'cantidadPartidas' => (int) $cantidadPartidas['cantidad'],
             'hayPartidas' => count($partidasView) > 0,
             'partidas' => $partidasView,

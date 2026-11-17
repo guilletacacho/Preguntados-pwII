@@ -89,9 +89,9 @@ class PerfilModel {
         return $this->database->queryOne($sql, [$userId]);
     }
 
-    public function obtenerPuestoSemanal($userId){
+    public function obtenerPuestoHistorico($userId){
 
-        $sql = "WITH ranking_semanal AS (
+        $sql = "WITH ranking_historico AS (
                 SELECT
                     u.Id,
                     SUM(g.total_points) AS puntos,
@@ -101,15 +101,10 @@ class PerfilModel {
                 FROM usuarios u
                 JOIN game g ON g.user_id = u.Id
                 WHERE g.status = 'FINALIZADA'
-                  AND g.finished_at >= DATE_SUB(
-                      CURDATE(),
-                      INTERVAL WEEKDAY(CURDATE()) DAY
-                  )
-                  AND g.finished_at <= NOW()
                 GROUP BY u.Id
             )
             SELECT puesto
-            FROM ranking_semanal
+            FROM ranking_historico
             WHERE Id = ?";
 
         return $this->database->queryOne($sql, [$userId]);
