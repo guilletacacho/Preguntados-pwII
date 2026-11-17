@@ -87,8 +87,8 @@ class PerfilController
             exit;
         }
 
-        require_once 'vendor/phpqrcode/qrlib.php';
-        \QRcode::png($this->armarEnlacePerfil($usuario), false, QR_ECLEVEL_M, 6, 1);
+        header('Content-type: image/png');
+        echo $this->generarQrPng($this->armarEnlacePerfil($usuario));
         exit;
     }
 
@@ -238,6 +238,47 @@ class PerfilController
         }
 
         $this->render->renderiza('editarPerfil', $data);
+    }
+
+    // Genera el PNG sin GD: phpqrcode solo sabe dibujar usando esa extensión.
+    private function generarQrPng($texto)
+    {
+        require_once 'vendor/phpqrcode/qrlib.php';
+
+        $tamanoPunto = 6;
+        $margen = 1;
+
+        $encoder = \QRencode::factory(QR_ECLEVEL_M, $tamanoPunto, $margen);
+        ob_start();
+        $matriz = $encoder->encode($texto);
+        ob_end_clean();
+
+        $alto = count($matriz);
+        $ancho = strlen($matriz[0]);
+        $lado = ($ancho + 2 * $margen) * $tamanoPunto;
+
+        $crudo = '';
+        for ($y = 0; $y < $lado; $y++) {
+            $crudo .= chr(0);
+            $fy = intdiv($y, $tamanoPunto) - $margen;
+            for ($x = 0; $x < $lado; $x++) {
+                $fx = intdiv($x, $tamanoPunto) - $margen;
+                $negro = $fy >= 0 && $fy < $alto && $fx >= 0 && $fx < $ancho && $matriz[$fy][$fx] === '1';
+                $crudo .= chr($negro ? 0 : 255);
+            }
+        }
+
+        $chunk = function ($tipo, $datos) {
+            return pack('N', strlen($datos))
+                . $tipo
+                . $datos
+                . pack('N', crc32($tipo . $datos) & 0xffffffff);
+        };
+
+        return "\x89PNG\r\n\x1a\n"
+            . $chunk('IHDR', pack('NNCCCCC', $lado, $lado, 8, 0, 0, 0, 0))
+            . $chunk('IDAT', gzcompress($crudo, 9))
+            . $chunk('IEND', '');
     }
 
     private function armarEnlacePerfil($usuario)
