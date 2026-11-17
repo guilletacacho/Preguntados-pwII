@@ -17,6 +17,7 @@ class RankingModel
         foreach ($ranking as $indice => $item) {
             $ranking[$indice]['puesto'] = $indice+1;
             $ranking[$indice]['avatar'] = mb_strtoupper(mb_substr($item['usuario'], 0, 1));
+            $ranking[$indice]['usuarioUrl'] = urlencode($item['usuario']);
             $ranking[$indice]['fotoUrl'] = $item['foto_url'] ?? '';
             $ranking[$indice]['tieneFoto'] = !empty($item['foto_url']);
         }

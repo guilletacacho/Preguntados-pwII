@@ -81,11 +81,16 @@
                     {{/hayPartidas}}
                 </section>
 
+                {{#esMiPerfil}}
                 <section>
                     <h2>Dónde juega</h2>
                     <div id="perfil-map" class="perfil-mapa ubicacion-mapa" data-pais="{{pais}}" data-provincia="{{provincia}}" role="application" aria-label="Mapa de OpenStreetMap"></div>
                     <p class="helper mt-2 mb-0 ubicacion-mapa-estado" aria-live="polite"></p>
                 </section>
+                {{/esMiPerfil}}
+                {{^esMiPerfil}}
+                <section aria-hidden="true"></section>
+                {{/esMiPerfil}}
             </div>
 
             <div class="perfil-acciones">
