@@ -786,6 +786,9 @@ a:hover { color: var(--texto); }
 .foto-perfil-elegir { display: flex; align-items: center; gap: .75rem; min-width: 0; margin-top: .3rem; }
 .foto-perfil-boton { flex-shrink: 0; padding: .45rem .9rem; border: 1px solid var(--borde-fuerte); border-radius: 9px; font-size: .85rem; font-weight: 600; cursor: pointer; }
 .foto-perfil-boton:hover { background: #323D4B; }
+.foto-perfil-borrar { flex-shrink: 0; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--borde-fuerte); border-radius: 9px; background: transparent; color: var(--error); cursor: pointer; }
+.foto-perfil-borrar:hover { background: var(--hundido); border-color: var(--error); }
+.foto-perfil-borrar:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
 .foto-perfil-elegir input:focus-visible + .foto-perfil-boton { outline: 3px solid var(--link); outline-offset: 2px; }
 .foto-perfil-nombre { min-width: 0; overflow: hidden; color: var(--texto-sec); font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; }
 .register-submit { display: flex; flex-direction: column; gap: .9rem; margin-top: auto; padding-top: .5rem; }

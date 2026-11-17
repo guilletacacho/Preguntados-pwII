@@ -48,6 +48,12 @@ class PerfilModel {
         return $this->database->execute($sql,[$nombre, $anio, $sexo, $provincia, $pais, $email, $fotoUrl, $id]);
     }
 
+    public function quitarFoto($id){
+        $sql = "UPDATE usuarios SET Foto_url = NULL WHERE Id = ?";
+
+        return $this->database->execute($sql, [$id]);
+    }
+
     public function actualizarContrasena($id, $contrasena){
         $sql = "UPDATE usuarios SET Contrasena = ? WHERE Id = ?";
 

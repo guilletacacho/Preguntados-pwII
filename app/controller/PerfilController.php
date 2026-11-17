@@ -215,6 +215,29 @@ class PerfilController
         \Redirect::to('/Preguntados/perfil');
     }
 
+    public function quitarFoto()
+    {
+        $this->exigirSesion();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            \Redirect::to('/Preguntados/perfil/editar');
+        }
+
+        $id = (int) $_SESSION['usuario_id'];
+        $actual = $this->model->obtenerParaEditar($id);
+
+        if ($actual && $actual['Foto_url']) {
+            $archivo = 'app/img-foto-perfil/' . basename($actual['Foto_url']);
+            $this->model->quitarFoto($id);
+            if (is_file($archivo)) {
+                unlink($archivo);
+            }
+        }
+
+        $_SESSION['foto_url'] = null;
+        \Redirect::to('/Preguntados/perfil/editar');
+    }
+
     private function exigirSesion()
     {
         if (!isset($_SESSION['usuario_id'])) {
