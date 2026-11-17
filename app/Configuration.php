@@ -15,6 +15,7 @@ use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
 use app\model\RankingModel;
+use app\model\SugerenciaModel;
 use MustacheRender;
 use MyDatabase;
 use Router;
@@ -45,7 +46,8 @@ class Configuration
         return new HomeController(
             $this->gerRender(),
             $this->getPresenceModel(),
-            new \app\model\CuriosityModel()
+            new \app\model\CuriosityModel(),
+            $this->getSugerenciaModel()
         );
     }
 
@@ -167,6 +169,12 @@ class Configuration
 
     private function getModeradorModel(){
         return new ModeradorModel(
+            $this->getDatabase()
+        );
+    }
+    
+    private function getSugerenciaModel(){
+        return new SugerenciaModel(
             $this->getDatabase()
         );
     }

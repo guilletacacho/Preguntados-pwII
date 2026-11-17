@@ -9,12 +9,14 @@ class HomeController
     private $render;
     private $presence;
     private $curiosities;
+    private $sugerenciaModel;
 
-    public function __construct($render, $presence, $curiosities)
+    public function __construct($render, $presence, $curiosities, $sugerenciaModel)
     {
         $this->render = $render;
         $this->presence = $presence;
         $this->curiosities = $curiosities;
+        $this->sugerenciaModel = $sugerenciaModel;
     }
 
     public function show()
@@ -34,11 +36,25 @@ class HomeController
         $this->render->renderiza("home", $data);
     }
 
-    public function sugerencias(){
+    public function mostrarSugerencias(){
         if (!isset($_SESSION['usuario_id'])) {
             Redirect::toIndex();
         }
 
         $this->render->renderiza("sugerencias");
+    }
+
+    public function enviarSugerencia(){
+        if (!isset($_SESSION['usuario_id'])) {
+            Redirect::toIndex();
+        }
+
+        $categoryId = $_POST['category'] ?? null;
+        $questionText = $_POST['question'] ?? null;
+        $userId = $_SESSION['usuario_id'] ?? null;
+
+        $this->sugerenciaModel->crearSugerencia($userId, $categoryId, $questionText);
+
+        Redirect::to("/Preguntados/home/show");
     }
 }

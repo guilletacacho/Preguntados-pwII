@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=1">
 <main class="home-shell sugerencias-shell" id="sugerencias">
     <nav class="home-sidenav" aria-label="Secciones del sitio">
         <div class="home-side-menu">
@@ -24,25 +25,30 @@
             <section class="home-card sugerencias-form-card" aria-labelledby="sugerencias-form-title">
                 <h2 id="sugerencias-form-title">¿Qué pregunta te gustaría sugerir?</h2>
                 <p>Elegí una categoría y escribí el enunciado. Las respuestas serán preparadas por el moderador.</p>
-                <button type="button" class="submit-btn sugerencias-cta">Proponer una pregunta</button>
+                <button type="button" class="submit-btn sugerencias-cta" aria-expanded="false" aria-controls="sugerencias-form-wrap">Proponer una pregunta</button>
 
-                <form class="sugerencias-form" action="#" method="post">
+                <div class="sugerencias-form-wrap" id="sugerencias-form-wrap" aria-hidden="true" inert>
+                    <form class="sugerencias-form" action="{{basePath}}/home/enviarSugerencia" method="post">
                     <label for="categoria-sugerida">Categoría</label>
-                    <select id="categoria-sugerida" name="category_id">
+                    <select id="categoria-sugerida" name="category">
                         <option value="" selected disabled>Seleccioná una categoría</option>
-                        <option>Deporte</option>
-                        <option>Historia</option>
-                        <option>Ciencia</option>
-                        <option>Geografía</option>
-                        <option>Cine</option>
-                        <option>Arte</option>
+                        <option value="1" data-color="geografia">Geografía</option>
+                        <option value="2" data-color="historia">Historia</option>
+                        <option value="3" data-color="ciencia">Ciencia</option>
+                        <option value="4" data-color="arte">Arte</option>
+                        <option value="5" data-color="deporte">Deportes</option>
+                        <option value="6" data-color="cine">Cine y TV</option>
                     </select>
 
                     <label for="pregunta-sugerida">Pregunta sugerida</label>
-                    <textarea id="pregunta-sugerida" name="question_text" rows="5" placeholder="Escribí acá el enunciado de tu pregunta"></textarea>
+                    <textarea id="pregunta-sugerida" name="question" rows="5" placeholder="Escribí acá el enunciado de tu pregunta"></textarea>
 
-                    <button type="button" class="submit-btn sugerencias-enviar">Enviar pregunta</button>
+                    <div class="sugerencias-form-actions">
+                        <button type="submit" class="submit-btn sugerencias-enviar">Enviar pregunta</button>
+                        <a class="sugerencias-cancelar" href="{{basePath}}/home/show">Cancelar</a>
+                    </div>
                 </form>
+                </div>
             </section>
 
             <aside class="sugerencias-aprobadas" aria-labelledby="sugerencias-aprobadas-title">
@@ -73,37 +79,4 @@
     </div>
 </main>
 
-<style>
-    .sugerencias-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .8fr); gap: 1.5rem; align-items: start; }
-    .sugerencias-form-card h2, .sugerencias-aprobadas > h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: .75rem; }
-    .sugerencias-form-card > p, .sugerencia-aprobada p { color: var(--texto-sec); font-size: .88rem; line-height: 1.65; }
-    .sugerencias-cta { margin: .5rem 0 1.5rem; padding: .75rem 1.2rem; border: 0; border-radius: 10px; cursor: pointer; }
-    .sugerencias-form { display: grid; gap: .65rem; }
-    .sugerencias-form label { margin-top: .5rem; font-size: .9rem; font-weight: 700; }
-    .sugerencias-form select, .sugerencias-form textarea { width: 100%; padding: .85rem 1rem; border: 1px solid var(--borde); border-radius: 10px; background: var(--hundido); color: var(--texto); font: inherit; }
-    .sugerencias-form select:focus, .sugerencias-form textarea:focus { outline: 2px solid var(--link); outline-offset: 2px; }
-    .sugerencias-form textarea { resize: vertical; }
-    .sugerencias-enviar { justify-self: start; margin-top: .75rem; padding: .8rem 1.3rem; border: 0; border-radius: 10px; cursor: pointer; }
-    .sugerencias-aprobadas { display: grid; gap: 1rem; }
-    .sugerencias-aprobadas > h2 { margin: 0 0 .25rem; }
-    .sugerencia-aprobada { padding: 1.2rem; border-radius: 16px; }
-    .sugerencia-aprobada h3 { margin: .5rem 0 .8rem; font-size: 1rem; font-weight: 700; line-height: 1.5; }
-    .sugerencia-aprobada p { margin: .35rem 0 0; font-size: .8rem; }
-    .sugerencia-aprobada .sugerencia-categoria { margin-top: .7rem; }
-    @media (max-width: 850px) { .sugerencias-layout { grid-template-columns: minmax(0, 1fr); } }
-</style>
-
-<script>
-    document.querySelector('.sugerencias-shell .home-side-toggle').addEventListener('click', function () {
-        const expanded = this.getAttribute('aria-expanded') !== 'true';
-        this.setAttribute('aria-expanded', String(expanded));
-        this.parentElement.classList.toggle('is-expanded', expanded);
-    });
-    document.querySelector('.sugerencias-shell .home-side-menu').addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
-            this.classList.remove('is-expanded');
-            this.querySelector('button').setAttribute('aria-expanded', 'false');
-            this.querySelector('button').focus();
-        }
-    });
-</script>
+<script src="{{basePath}}/public/js/sugerencias.js?v=1" defer></script>

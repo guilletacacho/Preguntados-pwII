@@ -1356,6 +1356,10 @@ a:hover { color: var(--texto); }
 .home-help details { padding: 1rem; border-bottom: 1px solid var(--borde); }
 .home-help summary { cursor: pointer; font-size: .9rem; }
 .home-help p { font-size: .85rem; margin: .8rem 0 0; }
+.home-suggestion-link-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.home-suggestion-link-row p { margin: .8rem 0 0; }
+.home-suggestion-link-row a { flex: 0 0 auto; margin-top: .8rem; color: var(--link); font-size: .85rem; font-weight: 700; text-decoration: none; }
+.home-suggestion-link-row a:hover { text-decoration: underline; }
 .home-shell a:focus-visible, .home-shell summary:focus-visible { outline: 3px solid var(--link); outline-offset: -3px; }
 body:has(.home-shell) .site-footer { padding-bottom: 1.5rem; }
 body:has(.home-shell) .footer-content { min-height: 70px; }
