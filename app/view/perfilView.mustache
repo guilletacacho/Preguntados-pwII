@@ -3,7 +3,7 @@
         <aside class="perfil-credencial">
             <div class="perfil-identidad">
                 <div class="perfil-foto">
-                    {{#fotoUrl}}<img src="{{basePath}}/app/img-foto-perfil/{{fotoUrl}}" alt="">{{/fotoUrl}}
+                    {{#fotoUrl}}<img src="{{basePath}}/app/img-foto-perfil/{{fotoUrl}}?v={{fotoVersion}}" alt="Foto de {{nombre}}">{{/fotoUrl}}
                     {{^fotoUrl}}<span aria-hidden="true">{{inicial}}</span>{{/fotoUrl}}
                 </div>
                 <div>

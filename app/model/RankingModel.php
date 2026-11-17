@@ -16,8 +16,9 @@ class RankingModel
 
         foreach ($ranking as $indice => $item) {
             $ranking[$indice]['puesto'] = $indice+1;
-            $ranking[$indice]['avatar'] = strtoupper(
-            substr($item['usuario'], 0, 1));
+            $ranking[$indice]['avatar'] = mb_strtoupper(mb_substr($item['usuario'], 0, 1));
+            $ranking[$indice]['fotoUrl'] = $item['foto_url'] ?? '';
+            $ranking[$indice]['tieneFoto'] = !empty($item['foto_url']);
         }
 
         return $ranking;
@@ -26,7 +27,7 @@ class RankingModel
     {
         $sql = "SELECT 
       u.Id, 
-      u.Usuario AS usuario, 
+      u.Usuario AS usuario, u.Foto_url AS foto_url, 
       SUM(g.total_points) AS puntos, 
       COUNT(*) AS partidas 
   FROM usuarios u 
@@ -44,7 +45,7 @@ class RankingModel
     {
         $sql = "SELECT 
                   u.Id, 
-                  u.Usuario AS usuario, 
+                  u.Usuario AS usuario, u.Foto_url AS foto_url, 
                   SUM(g.total_points) AS puntos, 
                   COUNT(*) AS partidas 
               FROM usuarios u 
@@ -67,7 +68,7 @@ class RankingModel
         $sql = " 
               SELECT 
                   u.Id, 
-                  u.Usuario AS usuario, 
+                  u.Usuario AS usuario, u.Foto_url AS foto_url, 
                   SUM(g.total_points) AS puntos, 
                   COUNT(*) AS partidas 
               FROM usuarios u 

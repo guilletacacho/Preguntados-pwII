@@ -14,7 +14,8 @@ class LoginModel
     {
         $passwordHash = md5($password);
 
-        $sql = "SELECT Id AS id, Usuario as usuario, CAST(Verificado AS UNSIGNED) as verificado, rol
+        $sql = "SELECT Id AS id, Usuario as usuario, Foto_url AS foto_url,
+                       CAST(Verificado AS UNSIGNED) as verificado, rol
          FROM usuarios
            WHERE Usuario = ?
            AND Contrasena = ?";

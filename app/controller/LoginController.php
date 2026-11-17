@@ -60,6 +60,7 @@ class LoginController
         session_regenerate_id(true);
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario'] = $usuario['usuario'];
+        $_SESSION['foto_url'] = $usuario['foto_url'] ?? null;
         $_SESSION['rol'] = $usuario['rol'];
         $this->presence->touch($usuario['id'], session_id());
         Redirect::to('/Preguntados/home');

@@ -53,6 +53,9 @@ class PerfilController
         $cantidadPartidas = $this->model->obtenerCantidadPartidasFinalizadas($userId);
         $puestoSemanal = $this->model->obtenerPuestoSemanal($userId);
 
+        $fotoArchivo = 'app/img-foto-perfil/' . basename((string) $fila['Foto_url']);
+        $fotoVersion = ($fila['Foto_url'] && is_file($fotoArchivo)) ? filemtime($fotoArchivo) : '';
+
         $data = [
             'nombre' => $fila['Nombre'],
             'usuario' => $fila['Usuario'],
@@ -62,6 +65,7 @@ class PerfilController
             'provincia' => $fila['Provincia'],
             'ubicacion' => implode(', ', array_filter([$fila['Provincia'], $fila['Pais']])),
             'fotoUrl' => $fila['Foto_url'],
+            'fotoVersion' => $fotoVersion,
             'esMiPerfil' => (int) $fila['Id'] === (int) $_SESSION['usuario_id'],
             'puntaje' => (int) $puntajeTotal['puntaje'],
             'puesto' => $puestoSemanal ? (int) $puestoSemanal['puesto'] : null,
@@ -195,6 +199,7 @@ class PerfilController
         }
 
         $this->model->actualizar($id, $data['nombre'], $data['anioNacimiento'], $data['sexo'], $data['provincia'], $data['pais'], $data['email'], $fotoNueva);
+        $_SESSION['foto_url'] = $fotoNueva !== null ? $fotoNueva : ($actual['Foto_url'] ?? null);
 
         if ($cambiaContrasena) {
             $this->model->actualizarContrasena($id, $contrasena);
