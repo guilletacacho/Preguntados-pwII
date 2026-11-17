@@ -489,8 +489,29 @@ class ModeradorModel
     return (int) ($fila['total'] ?? 0);
     }
 
-    public function buscarPreguntaPorId($id){
-        return ;
+    public function buscarPreguntaPorTexto($texto){
+
+        $expresionDificultad = \Dificultad::sqlDificultad();
+
+        $sql = "SELECT
+                    q.id,
+                    q.is_active AS activa,
+                    q.question,
+                    c.name AS categoria,
+                    {$expresionDificultad} AS dificultad,
+                    COALESCE(qs.times_delivered, 0) AS entregas,
+                    CASE
+                        WHEN COALESCE(qs.times_answered, 0) = 0 THEN 0
+                        ELSE ROUND(100 * qs.times_correct / qs.times_answered)
+                    END AS acierto
+                FROM questions q
+                INNER JOIN category c ON c.id = q.category_id
+                LEFT JOIN question_stats qs ON qs.question_id = q.id
+                WHERE q.question LIKE ?
+                ORDER BY q.id ASC";
+
+        $parametro = '%' . $texto . '%';
+        return $this->database->queryAll($sql, [$parametro]);
     }
 
     public function obtenerCategorias(){

@@ -32,8 +32,8 @@
 
         <section class="moderador-preguntas" aria-label="Administrar preguntas">
             <form class="moderador-filtros" method="get" action="{{basePath}}/moderador/preguntas" role="search">
-                <label class="visually-hidden" for="moderador-busqueda">Buscar pregunta por texto o identificador</label>
-                <input id="moderador-busqueda" type="search" placeholder="Buscar por texto o #id">
+                <label class="visually-hidden" for="moderador-busqueda">Buscar pregunta por texto</label>
+                <input id="moderador-busqueda" type="search" placeholder="Buscar por texto" name="texto" value="{{textoBusqueda}}">
                 <label class="visually-hidden" for="moderador-categoria">Filtrar por categoría</label>
                 <select id="moderador-categoria" name="categoria_id">
                     <option value="" {{#todasCategoriasSeleccionada}}selected{{/todasCategoriasSeleccionada}}>Todas las categorías</option>

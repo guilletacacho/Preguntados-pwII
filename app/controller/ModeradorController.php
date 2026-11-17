@@ -544,6 +544,7 @@ class ModeradorController
 
         $categoriaInput = $_GET['categoria_id'] ?? '';
         $categoriaId = null;
+        $texto = trim($_GET['texto'] ?? '');
 
         if ($categoriaInput !== '') {
             $categoriaId = (is_string($categoriaInput) || is_int($categoriaInput))
@@ -611,9 +612,22 @@ class ModeradorController
             'dificultad' => $dificultad,
             'estado' => $estadoInput,
         ]);
+
+        if($texto !== ''){
+            $preguntas = $this->model->buscarPreguntaPorTexto($texto);
+        }else{
+            $preguntas = $this->model->obtenerPreguntas(
+                $porPagina,
+                $offset,
+                $categoriaId,
+                $dificultad,
+                $estado
+            );
+        }
+
         $datos = [
             'pendientes' => $this->model->contarReportesPendientes(),
-            'preguntas' => $this->model->obtenerPreguntas($porPagina, $offset, $categoriaId, $dificultad, $estado),
+            'preguntas' => $preguntas,
             'categorias' => $categorias,
             'todasCategoriasSeleccionada' => $categoriaId === null,
             'todaDificultadSeleccionada' => $dificultad === null,
