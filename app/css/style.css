@@ -683,6 +683,7 @@ a:hover { color: var(--texto); }
     background: var(--deporte);
     color: #14200A;
     font-weight: 700;
+    text-decoration: none;
 }
 .submit-btn:hover,
 .submit-btn:focus { background: #8ED255; color: #14200A; }
