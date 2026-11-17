@@ -1,0 +1,109 @@
+<main class="home-shell sugerencias-shell" id="sugerencias">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu">
+            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="false" aria-controls="sugerencias-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links" id="sugerencias-side-links">
+                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
+                <a href="{{basePath}}/home/show#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
+                {{#esModerador}}<a href="{{basePath}}/moderador" aria-label="Panel moderador"><span aria-hidden="true">⚑</span><span class="side-label">Panel moderador</span></a>{{/esModerador}}
+            </div>
+        </div>
+    </nav>
+
+    <div class="home-content">
+        <header class="home-welcome">
+            <span class="eyebrow">TU IDEA PUEDE SER LA PRÓXIMA PREGUNTA</span>
+            <h1>Sugerir una pregunta</h1>
+            <p>Compartí una pregunta interesante. El equipo la revisará antes de incorporarla al juego.</p>
+        </header>
+
+        <div class="sugerencias-layout">
+            <section class="home-card sugerencias-form-card" aria-labelledby="sugerencias-form-title">
+                <h2 id="sugerencias-form-title">¿Qué pregunta te gustaría sugerir?</h2>
+                <p>Elegí una categoría y escribí el enunciado. Las respuestas serán preparadas por el moderador.</p>
+                <button type="button" class="submit-btn sugerencias-cta">Proponer una pregunta</button>
+
+                <form class="sugerencias-form" action="#" method="post">
+                    <label for="categoria-sugerida">Categoría</label>
+                    <select id="categoria-sugerida" name="category_id">
+                        <option value="" selected disabled>Seleccioná una categoría</option>
+                        <option>Deporte</option>
+                        <option>Historia</option>
+                        <option>Ciencia</option>
+                        <option>Geografía</option>
+                        <option>Cine</option>
+                        <option>Arte</option>
+                    </select>
+
+                    <label for="pregunta-sugerida">Pregunta sugerida</label>
+                    <textarea id="pregunta-sugerida" name="question_text" rows="5" placeholder="Escribí acá el enunciado de tu pregunta"></textarea>
+
+                    <button type="button" class="submit-btn sugerencias-enviar">Enviar pregunta</button>
+                </form>
+            </section>
+
+            <aside class="sugerencias-aprobadas" aria-labelledby="sugerencias-aprobadas-title">
+                <h2 id="sugerencias-aprobadas-title">Últimas preguntas sugeridas aprobadas</h2>
+
+                <article class="home-card sugerencia-aprobada">
+                    <span class="eyebrow">PREGUNTA</span>
+                    <h3>¿Cuál es el planeta más grande del sistema solar?</h3>
+                    <p class="sugerencia-categoria">Categoría: <strong>Ciencia</strong></p>
+                    <p>Sugerida por el usuario: <strong>usuario</strong></p>
+                </article>
+
+                <article class="home-card sugerencia-aprobada">
+                    <span class="eyebrow">PREGUNTA</span>
+                    <h3>¿En qué año se declaró la independencia argentina?</h3>
+                    <p class="sugerencia-categoria">Categoría: <strong>Historia</strong></p>
+                    <p>Sugerida por el usuario: <strong>usuario</strong></p>
+                </article>
+
+                <article class="home-card sugerencia-aprobada">
+                    <span class="eyebrow">PREGUNTA</span>
+                    <h3>¿Qué océano baña la costa este de Argentina?</h3>
+                    <p class="sugerencia-categoria">Categoría: <strong>Geografía</strong></p>
+                    <p>Sugerida por el usuario: <strong>usuario</strong></p>
+                </article>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<style>
+    .sugerencias-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .8fr); gap: 1.5rem; align-items: start; }
+    .sugerencias-form-card h2, .sugerencias-aprobadas > h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: .75rem; }
+    .sugerencias-form-card > p, .sugerencia-aprobada p { color: var(--texto-sec); font-size: .88rem; line-height: 1.65; }
+    .sugerencias-cta { margin: .5rem 0 1.5rem; padding: .75rem 1.2rem; border: 0; border-radius: 10px; cursor: pointer; }
+    .sugerencias-form { display: grid; gap: .65rem; }
+    .sugerencias-form label { margin-top: .5rem; font-size: .9rem; font-weight: 700; }
+    .sugerencias-form select, .sugerencias-form textarea { width: 100%; padding: .85rem 1rem; border: 1px solid var(--borde); border-radius: 10px; background: var(--hundido); color: var(--texto); font: inherit; }
+    .sugerencias-form select:focus, .sugerencias-form textarea:focus { outline: 2px solid var(--link); outline-offset: 2px; }
+    .sugerencias-form textarea { resize: vertical; }
+    .sugerencias-enviar { justify-self: start; margin-top: .75rem; padding: .8rem 1.3rem; border: 0; border-radius: 10px; cursor: pointer; }
+    .sugerencias-aprobadas { display: grid; gap: 1rem; }
+    .sugerencias-aprobadas > h2 { margin: 0 0 .25rem; }
+    .sugerencia-aprobada { padding: 1.2rem; border-radius: 16px; }
+    .sugerencia-aprobada h3 { margin: .5rem 0 .8rem; font-size: 1rem; font-weight: 700; line-height: 1.5; }
+    .sugerencia-aprobada p { margin: .35rem 0 0; font-size: .8rem; }
+    .sugerencia-aprobada .sugerencia-categoria { margin-top: .7rem; }
+    @media (max-width: 850px) { .sugerencias-layout { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<script>
+    document.querySelector('.sugerencias-shell .home-side-toggle').addEventListener('click', function () {
+        const expanded = this.getAttribute('aria-expanded') !== 'true';
+        this.setAttribute('aria-expanded', String(expanded));
+        this.parentElement.classList.toggle('is-expanded', expanded);
+    });
+    document.querySelector('.sugerencias-shell .home-side-menu').addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            this.classList.remove('is-expanded');
+            this.querySelector('button').setAttribute('aria-expanded', 'false');
+            this.querySelector('button').focus();
+        }
+    });
+</script>

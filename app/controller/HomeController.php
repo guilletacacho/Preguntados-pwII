@@ -33,4 +33,12 @@ class HomeController
 
         $this->render->renderiza("home", $data);
     }
+
+    public function sugerencias(){
+        if (!isset($_SESSION['usuario_id'])) {
+            Redirect::toIndex();
+        }
+
+        $this->render->renderiza("sugerencias");
+    }
 }
