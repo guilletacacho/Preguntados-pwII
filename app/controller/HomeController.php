@@ -41,7 +41,11 @@ class HomeController
             Redirect::toIndex();
         }
 
-        $this->render->renderiza("sugerencias");
+        $datos = [
+        'preguntasAprobadas' => $this->sugerenciaModel->obtenerUltimasPreguntasAprobadas(10),
+    ];
+
+        $this->render->renderiza("sugerencias", $datos);
     }
 
     public function enviarSugerencia(){

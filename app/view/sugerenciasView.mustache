@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=1">
+<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=3">
 <main class="home-shell sugerencias-shell" id="sugerencias">
     <nav class="home-sidenav" aria-label="Secciones del sitio">
         <div class="home-side-menu">
@@ -53,27 +53,19 @@
 
             <aside class="sugerencias-aprobadas" aria-labelledby="sugerencias-aprobadas-title">
                 <h2 id="sugerencias-aprobadas-title">Últimas preguntas sugeridas aprobadas</h2>
-
-                <article class="home-card sugerencia-aprobada">
-                    <span class="eyebrow">PREGUNTA</span>
-                    <h3>¿Cuál es el planeta más grande del sistema solar?</h3>
-                    <p class="sugerencia-categoria">Categoría: <strong>Ciencia</strong></p>
-                    <p>Sugerida por el usuario: <strong>usuario</strong></p>
-                </article>
-
-                <article class="home-card sugerencia-aprobada">
-                    <span class="eyebrow">PREGUNTA</span>
-                    <h3>¿En qué año se declaró la independencia argentina?</h3>
-                    <p class="sugerencia-categoria">Categoría: <strong>Historia</strong></p>
-                    <p>Sugerida por el usuario: <strong>usuario</strong></p>
-                </article>
-
-                <article class="home-card sugerencia-aprobada">
-                    <span class="eyebrow">PREGUNTA</span>
-                    <h3>¿Qué océano baña la costa este de Argentina?</h3>
-                    <p class="sugerencia-categoria">Categoría: <strong>Geografía</strong></p>
-                    <p>Sugerida por el usuario: <strong>usuario</strong></p>
-                </article>
+                <div class="sugerencias-aprobadas-scroll" tabindex="0" aria-label="Lista desplazable de preguntas aprobadas">
+                    {{#preguntasAprobadas}}
+                    <article class="home-card sugerencia-aprobada" data-categoria="{{categoria}}">
+                        <span class="eyebrow">PREGUNTA</span>
+                        <h3>{{pregunta}}</h3>
+                        <p class="sugerencia-categoria" data-categoria="{{categoria}}">Categoría: <strong>{{categoria}}</strong></p>
+                        <p>Sugerida por: <strong>{{usuario}}</strong></p>
+                    </article>
+                    {{/preguntasAprobadas}}
+                    {{^preguntasAprobadas}}
+                    <p class="sugerencias-sin-aprobadas">Todavía no hay preguntas sugeridas aprobadas.</p>
+                    {{/preguntasAprobadas}}
+                </div>
             </aside>
         </div>
     </div>

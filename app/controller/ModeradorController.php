@@ -932,7 +932,32 @@ class ModeradorController
         }
         
 
-        $preguntas = $this->sugerenciaModel->mostrarPreguntasSugeridas($estado);
+        $categorias = $this->sugerenciaModel->obtenerCategorias();
+        $categoriaInput = $_GET['categoria_id'] ?? '';
+        $categoriaId = null;
+
+        if (is_string($categoriaInput) && $categoriaInput !== '') {
+            $categoriaValidada = filter_var(
+                $categoriaInput,
+                FILTER_VALIDATE_INT,
+                ['options' => ['min_range' => 1]]
+            );
+
+            foreach ($categorias as $categoria) {
+                if ($categoriaValidada !== false
+                    && (int) $categoria['id'] === $categoriaValidada) {
+                    $categoriaId = $categoriaValidada;
+                    break;
+                }
+            }
+        }
+
+        foreach ($categorias as &$categoria) {
+            $categoria['seleccionada'] = (int) $categoria['id'] === $categoriaId;
+        }
+        unset($categoria);
+
+        $preguntas = $this->sugerenciaModel->mostrarPreguntasSugeridas($estado, $categoriaId);
         foreach ($preguntas as &$pregunta) {
             $pregunta['puedeRevisar'] = $estado === 'PENDIENTE';
         }
@@ -942,6 +967,10 @@ class ModeradorController
             'sugerencias' => count($preguntas),
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'preguntas' => $preguntas,
+            'categorias' => $categorias,
+            'todasCategoriasSeleccionada' => $categoriaId === null,
+            'categoriaId' => $categoriaId,
+            'hayCategoria' => $categoriaId !== null,
             'estadoSeleccionado' => $estado,
             'estadoPendiente' => $estado === 'PENDIENTE',
             'estadoAprobada' => $estado === 'APROBADA',

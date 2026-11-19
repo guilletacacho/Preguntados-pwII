@@ -23,7 +23,7 @@ class SugerenciaModel{
         return (int) $this->database->lastInsertId();
    }
 
-   public function mostrarPreguntasSugeridas($estado){
+   public function mostrarPreguntasSugeridas($estado, $categoriaId = null){
 
         $sql = "SELECT
                 qs.id,
@@ -37,10 +37,19 @@ class SugerenciaModel{
             LEFT JOIN questions q ON q.id = qs.published_question_id
             INNER JOIN category c
                 ON c.id = COALESCE(q.category_id, qs.category_id)
-            WHERE qs.status = ?
-            ORDER BY qs.created_at DESC";
+            WHERE qs.status = ?";
 
-        return $this->database->queryAll($sql,[$estado]);
+        $parametros = [$estado];
+
+        if ($categoriaId !== null && $categoriaId !== '') {
+            $sql .= " AND COALESCE(q.category_id, qs.category_id) = ?";
+            $parametros[] = (int) $categoriaId;
+        }
+
+        $sql .= " ORDER BY qs.created_at DESC";
+
+
+        return $this->database->queryAll($sql,$parametros);
    }
 
    public function obtenerSugerenciaPorId($id){
@@ -121,6 +130,29 @@ class SugerenciaModel{
         return $this->database->execute($sql, [(int) $moderadorId, $nota, (int) $id]) === 1;
 
    }
+
+   public function obtenerUltimasPreguntasAprobadas($limite = 10){
+
+        $limite = max(1, min((int) $limite, 10));
+   
+        $sql = "SELECT
+                q.question AS pregunta,
+                c.name AS categoria,
+                u.Usuario AS usuario
+            FROM question_suggestions qs
+            INNER JOIN questions q
+                ON q.id = qs.published_question_id
+            INNER JOIN category c
+                ON c.id = q.category_id
+            INNER JOIN usuarios u
+                ON u.Id = qs.user_id
+            WHERE qs.status = 'APROBADA'
+              AND qs.published_question_id IS NOT NULL
+            ORDER BY qs.reviewed_at DESC, qs.id DESC
+            LIMIT {$limite}";
+
+        return $this->database->queryAll($sql);
+    }
 
     //METODOS PRIVADOS 
 

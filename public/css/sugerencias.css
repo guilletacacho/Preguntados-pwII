@@ -21,10 +21,24 @@
 .sugerencias-enviar { justify-self: start; padding: .8rem 1.3rem; border: 0; border-radius: 10px; cursor: pointer; }
 .sugerencias-cancelar { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: .8rem 1.3rem; border: 1px solid var(--borde); border-radius: 10px; color: var(--texto); font-weight: 700; text-decoration: none; }
 .sugerencias-cancelar:hover { border-color: var(--texto-sec); color: var(--texto); }
-.sugerencias-aprobadas { display: grid; gap: 1rem; }
+.sugerencias-aprobadas { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 1rem; min-height: 0; }
 .sugerencias-aprobadas > h2 { margin: 0 0 .25rem; }
+.sugerencias-aprobadas-scroll { display: grid; align-content: start; gap: .75rem; height: 27rem; padding: .15rem .5rem .15rem .15rem; overflow-y: scroll; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.sugerencias-sin-aprobadas { margin: 0; color: var(--texto-sec); font-size: .9rem; line-height: 1.6; }
 .sugerencia-aprobada { padding: 1.2rem; border-radius: 16px; }
+.sugerencia-aprobada[data-categoria="Geografía"] { border-color: var(--geografia); }
+.sugerencia-aprobada[data-categoria="Historia"] { border-color: var(--historia); }
+.sugerencia-aprobada[data-categoria="Ciencia"] { border-color: var(--ciencia); }
+.sugerencia-aprobada[data-categoria="Arte"] { border-color: var(--arte); }
+.sugerencia-aprobada[data-categoria="Deporte"], .sugerencia-aprobada[data-categoria="Deportes"] { border-color: var(--deporte); }
+.sugerencia-aprobada[data-categoria="Cine y TV"] { border-color: var(--cine); }
 .sugerencia-aprobada h3 { margin: .5rem 0 .8rem; font-size: 1rem; font-weight: 700; line-height: 1.5; }
 .sugerencia-aprobada p { margin: .35rem 0 0; font-size: .8rem; }
 .sugerencia-aprobada .sugerencia-categoria { margin-top: .7rem; }
+.sugerencia-categoria[data-categoria="Geografía"] strong { color: var(--geografia); }
+.sugerencia-categoria[data-categoria="Historia"] strong { color: var(--historia); }
+.sugerencia-categoria[data-categoria="Ciencia"] strong { color: var(--ciencia); }
+.sugerencia-categoria[data-categoria="Arte"] strong { color: var(--arte); }
+.sugerencia-categoria[data-categoria="Deporte"] strong, .sugerencia-categoria[data-categoria="Deportes"] strong { color: var(--deporte); }
+.sugerencia-categoria[data-categoria="Cine y TV"] strong { color: var(--cine); }
 @media (max-width: 850px) { .sugerencias-layout { grid-template-columns: minmax(0, 1fr); } }

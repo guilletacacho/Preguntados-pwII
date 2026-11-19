@@ -7,6 +7,7 @@
     .moderador-sugerencias-filtros > .moderador-filtro.activo { border-color: var(--texto); background: var(--texto); color: var(--fondo); }
     .moderador-sugerencias-filtros .moderador-badge { margin-left: 4px; }
     .moderador-sugerencias-filtros .moderador-filtro.activo .moderador-badge { background: var(--cine); color: #fff; }
+    .moderador-sugerencias-filtros form { display: flex; margin: 0 0 0 auto; }
     .moderador-sugerencias-categoria { min-width: 160px; height: 34px; margin-left: auto; padding: 0 10px; border: 1px solid var(--borde); border-radius: 8px; background: var(--hundido); color: var(--texto); font: 600 var(--moderador-texto-interfaz) var(--fuente); }
     .moderador-sugerencias-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .moderador-sugerencia { display: flex; min-width: 0; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--borde); border-radius: 11px; background: var(--superficie); }
@@ -85,12 +86,19 @@
             </div>
 
             <div class="moderador-sugerencias-filtros" aria-label="Filtros de sugerencias">
-                <a class="moderador-filtro {{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderador/sugerencias?estado=PENDIENTE" {{#estadoPendiente}}aria-current="page"{{/estadoPendiente}}>Pendientes</a>
-                <a class="moderador-filtro {{#estadoAprobada}}activo{{/estadoAprobada}}" href="{{basePath}}/moderador/sugerencias?estado=APROBADA" {{#estadoAprobada}}aria-current="page"{{/estadoAprobada}}>Aprobadas</a>
-                <a class="moderador-filtro {{#estadoRechazada}}activo{{/estadoRechazada}}" href="{{basePath}}/moderador/sugerencias?estado=RECHAZADA" {{#estadoRechazada}}aria-current="page"{{/estadoRechazada}}>Rechazadas</a>
-                <select class="moderador-sugerencias-categoria" aria-label="Categoría">
-                    <option>Todas las categorías</option><option>Geografía</option><option>Cine y TV</option><option>Ciencia</option><option>Arte</option><option>Historia</option><option>Deporte</option>
-                </select>
+                <a class="moderador-filtro {{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderador/sugerencias?estado=PENDIENTE{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoPendiente}}aria-current="page"{{/estadoPendiente}}>Pendientes</a>
+                <a class="moderador-filtro {{#estadoAprobada}}activo{{/estadoAprobada}}" href="{{basePath}}/moderador/sugerencias?estado=APROBADA{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoAprobada}}aria-current="page"{{/estadoAprobada}}>Aprobadas</a>
+                <a class="moderador-filtro {{#estadoRechazada}}activo{{/estadoRechazada}}" href="{{basePath}}/moderador/sugerencias?estado=RECHAZADA{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoRechazada}}aria-current="page"{{/estadoRechazada}}>Rechazadas</a>
+                <form method="get" action="{{basePath}}/moderador/sugerencias">
+                    <input type="hidden" name="estado" value="{{estadoSeleccionado}}">
+                    <label class="visually-hidden" for="sugerencias-categoria">Filtrar por categoría</label>
+                    <select id="sugerencias-categoria" name="categoria_id" class="moderador-sugerencias-categoria" onchange="this.form.submit()">
+                        <option value="" {{#todasCategoriasSeleccionada}}selected{{/todasCategoriasSeleccionada}}>Todas las categorías</option>
+                        {{#categorias}}
+                        <option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>
+                        {{/categorias}}
+                    </select>
+                </form>
             </div>
 
             <div class="moderador-sugerencias-grid">
