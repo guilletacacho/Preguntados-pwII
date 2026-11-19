@@ -1,0 +1,137 @@
+<style>
+    .moderador-sugerencias-vista { display: grid; gap: 14px; }
+    .moderador-sugerencias-intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--texto-sec); font-size: var(--moderador-texto-base); }
+    .moderador-sugerencias-intro p { margin: 0; }
+    .moderador-sugerencias-filtros { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    .moderador-sugerencias-filtros > .moderador-filtro { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid var(--borde); border-radius: 999px; background: transparent; color: var(--texto-sec); font: 600 var(--moderador-texto-interfaz) var(--fuente); text-decoration: none; }
+    .moderador-sugerencias-filtros > .moderador-filtro.activo { border-color: var(--texto); background: var(--texto); color: var(--fondo); }
+    .moderador-sugerencias-filtros .moderador-badge { margin-left: 4px; }
+    .moderador-sugerencias-filtros .moderador-filtro.activo .moderador-badge { background: var(--cine); color: #fff; }
+    .moderador-sugerencias-categoria { min-width: 160px; height: 34px; margin-left: auto; padding: 0 10px; border: 1px solid var(--borde); border-radius: 8px; background: var(--hundido); color: var(--texto); font: 600 var(--moderador-texto-interfaz) var(--fuente); }
+    .moderador-sugerencias-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .moderador-sugerencia { display: flex; min-width: 0; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--borde); border-radius: 11px; background: var(--superficie); }
+    .moderador-sugerencia-cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .moderador-sugerencia-autor { color: var(--texto-tenue); font-size: var(--moderador-texto-secundario); text-align: right; }
+    .moderador-sugerencia-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+    .moderador-sugerencia-etiquetas { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .moderador-sugerencia-fecha { color: var(--texto-tenue); font-size: var(--moderador-texto-secundario); }
+    .moderador-sugerencia-pregunta { margin: 0; color: var(--texto); font-size: var(--moderador-texto-base); font-weight: 800; line-height: 1.5; overflow-wrap: anywhere; }
+    .moderador-sugerencia-pregunta span { color: var(--texto-sec); font-size: var(--moderador-texto-interfaz); font-weight: 600; }
+    .moderador-sugerencia-estado { display: inline-block; width: max-content; max-width: 100%; padding: 4px 8px; border-radius: 6px; background: rgb(232 72 85 / 15%); color: #ff9aa2; font-size: var(--moderador-texto-pequeno); font-weight: 800; letter-spacing: .04em; }
+    .moderador-sugerencia-estado[data-estado="PENDIENTE"] { background: rgb(242 194 48 / 15%); color: var(--arte); }
+    .moderador-sugerencia-estado[data-estado="APROBADA"] { background: rgb(124 194 67 / 15%); color: var(--deporte); }
+    .moderador-sugerencia-estado[data-estado="RECHAZADA"] { background: rgb(232 72 85 / 15%); color: #ff9aa2; }
+    .moderador-sugerencia-alerta { display: flex; align-items: flex-start; gap: 7px; padding: 9px 10px; border-radius: 8px; background: rgb(242 194 48 / 10%); color: var(--arte); font-size: var(--moderador-texto-secundario); }
+    .moderador-sugerencia-acciones { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 7px; }
+    .moderador-sugerencia-acciones button, .moderador-sugerencia-acciones a { display: inline-flex; min-height: 32px; align-items: center; padding: 0 10px; border: 1px solid var(--borde-fuerte); border-radius: 8px; background: transparent; color: var(--texto); font: 700 var(--moderador-texto-pequeno) var(--fuente); text-decoration: none; }
+    .moderador-sugerencia-acciones .editar-aprobar:hover { border-color: var(--deporte); background: var(--deporte); color: #172011; }
+    .moderador-sugerencia-acciones .rechazar { margin-left: auto; border-color: #fff; color: #fff; }
+    .moderador-sugerencia-acciones .rechazar:hover { border-color: #e84855; background: #e84855; color: #fff; }
+    .moderador-rechazo { flex: 0 0 auto; margin-left: auto; }
+    .moderador-rechazo > summary { display: inline-flex; min-height: 32px; align-items: center; padding: 0 10px; border: 1px solid #fff; border-radius: 8px; color: #fff; cursor: pointer; font: 700 var(--moderador-texto-pequeno) var(--fuente); list-style: none; }
+    .moderador-rechazo > summary::-webkit-details-marker { display: none; }
+    .moderador-rechazo > summary:hover { border-color: #e84855; background: #e84855; }
+    .moderador-rechazo-formulario { display: none; box-sizing: border-box; width: 100%; gap: 8px; margin: 0; padding: 12px; border: 1px solid var(--borde); border-radius: 9px; background: var(--hundido); }
+    .moderador-sugerencia:has(.moderador-rechazo[open]) .moderador-rechazo-formulario { display: grid; }
+    .moderador-rechazo-formulario label { color: var(--texto-sec); font-size: var(--moderador-texto-secundario); font-weight: 700; }
+    .moderador-rechazo-formulario textarea { box-sizing: border-box; width: 100%; min-height: 76px; padding: 9px 10px; border: 1px solid var(--borde-fuerte); border-radius: 8px; background: var(--superficie); color: var(--texto); font: inherit; resize: vertical; }
+    .moderador-rechazo-acciones { display: flex; gap: 7px; }
+    .moderador-rechazo-confirmar, .moderador-rechazo-cancelar { min-height: 32px; padding: 0 10px; border: 1px solid var(--borde-fuerte); border-radius: 8px; background: transparent; color: var(--texto); font: 700 var(--moderador-texto-pequeno) var(--fuente); cursor: pointer; }
+    .moderador-rechazo-confirmar { border-color: #e84855; background: #e84855; color: #fff; }
+    @media (max-width: 800px) { .moderador-sugerencias-grid { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 520px) {
+        .moderador-sugerencias-intro { align-items: flex-start; flex-direction: column; }
+        .moderador-sugerencia-cabecera { align-items: flex-start; flex-direction: row; }
+        .moderador-sugerencia-autor { text-align: right; }
+        .moderador-sugerencias-categoria { width: 100%; margin-left: 0; }
+    }
+</style>
+
+<main class="moderador-shell">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu">
+            <button type="button" class="home-side-toggle" aria-label="Secciones" aria-expanded="false"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links">
+                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
+                <a href="{{basePath}}/moderador" aria-label="Panel moderador" aria-current="page"><span aria-hidden="true">⚑</span><span class="side-label">Panel moderador</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="moderador-content">
+        <header class="moderador-header">
+            <div>
+                <span class="moderador-eyebrow">PANEL MODERADOR</span>
+                <h1>Preguntas sugeridas</h1>
+                <p>Preguntas que mandaron los jugadores desde el lobby. Si las aprobás, entran al juego.</p>
+            </div>
+            <button class="moderador-nueva-pregunta" type="button">+ Nueva pregunta</button>
+        </header>
+
+        <nav class="moderador-tabs" aria-label="Secciones del panel">
+            <button class="moderador-tab" type="button">Resumen</button>
+            <button class="moderador-tab" type="button">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></button>
+            <button class="moderador-tab is-active" type="button" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerencias}}</span></button>
+            <button class="moderador-tab" type="button">Preguntas</button>
+        </nav>
+
+        <section class="moderador-sugerencias-vista" aria-label="Preguntas sugeridas por jugadores">
+            <div class="moderador-sugerencias-intro">
+                <p>Revisá las preguntas enviadas por la comunidad antes de sumarlas al juego.</p>
+                <span class="moderador-sugerencia-estado" data-estado="{{estadoSeleccionado}}">{{sugerencias}} {{estadoSeleccionado}}</span>
+            </div>
+
+            <div class="moderador-sugerencias-filtros" aria-label="Filtros de sugerencias">
+                <a class="moderador-filtro {{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderador/sugerencias?estado=PENDIENTE" {{#estadoPendiente}}aria-current="page"{{/estadoPendiente}}>Pendientes</a>
+                <a class="moderador-filtro {{#estadoAprobada}}activo{{/estadoAprobada}}" href="{{basePath}}/moderador/sugerencias?estado=APROBADA" {{#estadoAprobada}}aria-current="page"{{/estadoAprobada}}>Aprobadas</a>
+                <a class="moderador-filtro {{#estadoRechazada}}activo{{/estadoRechazada}}" href="{{basePath}}/moderador/sugerencias?estado=RECHAZADA" {{#estadoRechazada}}aria-current="page"{{/estadoRechazada}}>Rechazadas</a>
+                <select class="moderador-sugerencias-categoria" aria-label="Categoría">
+                    <option>Todas las categorías</option><option>Geografía</option><option>Cine y TV</option><option>Ciencia</option><option>Arte</option><option>Historia</option><option>Deporte</option>
+                </select>
+            </div>
+
+            <div class="moderador-sugerencias-grid">
+                {{#preguntas}}
+                <article class="moderador-sugerencia">
+                    <header class="moderador-sugerencia-cabecera">
+                        <div class="moderador-sugerencia-meta">
+                            <div class="moderador-sugerencia-etiquetas">
+                                <span class="moderador-sugerencia-estado" data-estado="{{estado}}">{{estado}}</span>
+                            <span class="moderador-categoria" data-categoria="{{categoria}}">{{categoria}}</span>
+                            </div>
+                            <span class="moderador-sugerencia-fecha">En la fecha: {{fecha}}</span>
+                        </div>
+                        <span class="moderador-sugerencia-autor">Sugerida por <strong>{{usuario}}</strong></span>
+                    </header>
+                    <p class="moderador-sugerencia-pregunta"><span>Pregunta sugerida:</span></p>
+                    <p class="moderador-sugerencia-pregunta">{{pregunta}}</p>
+                    {{#puedeRevisar}}
+                    <div class="moderador-sugerencia-acciones">
+                        <a class="editar-aprobar" href="{{basePath}}/moderador/editarSugerencia?id={{id}}">Editar y aprobar</a>
+                        <details class="moderador-rechazo">
+                            <summary>Rechazar</summary>
+                        </details>
+                    </div>
+                    <form class="moderador-rechazo-formulario" method="post" action="{{basePath}}/moderador/rechazarSugerencia">
+                        <input type="hidden" name="suggestion_id" value="{{id}}">
+                        <label for="motivo-rechazo-{{id}}">Motivo del rechazo</label>
+                        <textarea id="motivo-rechazo-{{id}}" name="resolution_notes" maxlength="500" required></textarea>
+                        <div class="moderador-rechazo-acciones">
+                            <button class="moderador-rechazo-confirmar" type="submit">Confirmar rechazo</button>
+                            <button class="moderador-rechazo-cancelar" type="button" onclick="this.closest('article').querySelector('.moderador-rechazo').open = false">Cancelar</button>
+                        </div>
+                    </form>
+                    {{/puedeRevisar}}
+                </article>
+                {{/preguntas}}
+
+                {{^preguntas}}
+                <p class="moderador-sugerencia-pregunta">No hay sugerencias con estado {{estadoSeleccionado}}.</p>
+                {{/preguntas}}
+            </div>
+        </section>
+    </div>
+</main>

@@ -1,0 +1,48 @@
+<main class="moderador-shell">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu">
+            <button type="button" class="home-side-toggle" aria-label="Secciones" aria-expanded="false"><span aria-hidden="true">&#9776;</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links">
+                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">&#8962;</span><span class="side-label">Inicio</span></a>
+                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">&#9655;</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">&#9734;</span><span class="side-label">Rankings</span></a>
+                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
+                <a href="{{basePath}}/moderador" aria-label="Panel moderador" aria-current="page"><span aria-hidden="true">&#9873;</span><span class="side-label">Panel moderador</span></a>
+            </div>
+        </div>
+    </nav>
+    <div class="moderador-content">
+        <style>
+            .sug-edit-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}.sug-edit-head h1{margin:4px 0 0;font-size:clamp(1.7rem,4vw,2.2rem)}.sug-edit-head p{margin:6px 0 0;color:var(--texto-sec)}
+            .sug-edit-tabs{display:flex;margin-bottom:20px;border-bottom:1px solid var(--borde)}.sug-edit-tabs a{padding:12px 16px;color:var(--texto-sec);font-weight:700;text-decoration:none}.sug-edit-tabs a.active{color:var(--texto);border-bottom:2px solid var(--texto)}
+            .sug-edit-form{width:min(100%,970px);padding:18px;border:1px solid var(--borde);border-radius:12px;background:var(--superficie)}.sug-edit-form label,.sug-edit-form legend{display:block;margin:0 0 7px;font-size:var(--moderador-texto-interfaz);font-weight:700}
+            .sug-edit-form select,.sug-edit-form textarea,.sug-edit-answer input[type=text]{box-sizing:border-box;width:100%;min-height:42px;margin-bottom:16px;padding:10px 12px;border:1px solid var(--borde-fuerte);border-radius:9px;background:var(--hundido);color:var(--texto);font:inherit}.sug-edit-form textarea{min-height:64px;resize:vertical}
+            .sug-edit-answers{margin:0 0 16px;padding:0;border:0}.sug-edit-help,.sug-edit-diff-help{display:block;margin:0 0 10px;color:var(--texto-tenue);font-size:var(--moderador-texto-secundario)}
+            .sug-edit-answer{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:10px;margin-bottom:8px;padding:0 10px;border:1px solid var(--borde-fuerte);border-radius:9px;background:var(--hundido)}.sug-edit-answer>label:first-child{margin:0;color:var(--texto-tenue)}.sug-edit-answer input[type=text]{min-width:0;margin:0;border:0;background:transparent}.sug-edit-answer .sug-edit-correct{display:flex;align-items:center;gap:6px;margin:0;color:var(--texto-sec);white-space:nowrap}
+            .sug-edit-diffs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 8px;padding:0;border:0}.sug-edit-diffs legend{width:100%}.sug-edit-diffs label{display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border:1px solid var(--borde-fuerte);border-radius:8px;color:var(--texto-sec)}
+            .sug-edit-actions{display:flex;gap:8px;margin-top:16px}.sug-edit-actions button,.sug-edit-actions a{display:inline-flex;min-height:40px;align-items:center;justify-content:center;padding:0 14px;border:1px solid var(--borde-fuerte);border-radius:9px;background:transparent;color:var(--texto);font:700 var(--moderador-texto-interfaz) var(--fuente);text-decoration:none}.sug-edit-actions button{border-color:var(--deporte);background:var(--deporte);color:#172011}
+            @media(max-width:520px){.sug-edit-head{align-items:flex-start;flex-direction:column}.sug-edit-answer{grid-template-columns:22px minmax(0,1fr)}.sug-edit-answer .sug-edit-correct{grid-column:2}}
+        </style>
+        <header class="sug-edit-head"><div><span class="moderador-eyebrow">PANEL MODERADOR</span><h1>Revisar sugerencia</h1><p>Ajust&aacute; lo que haga falta y aprobala.</p></div><a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a></header>
+        {{#hayMensaje}}<p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="alert">{{mensaje.texto}}</p>{{/hayMensaje}}
+        <nav class="sug-edit-tabs" aria-label="Secciones del panel"><a href="{{basePath}}/moderador">Resumen</a><a href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></a><a class="active" href="{{basePath}}/moderador/sugerencias" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a><a href="{{basePath}}/moderador/preguntas">Preguntas</a></nav>
+        <section class="sug-edit-form" aria-label="Formulario para revisar sugerencia">
+            <form method="post" action="{{basePath}}/moderador/publicarSugerencias">
+                <input type="hidden" name="suggestion_id" value="{{sugerenciaId}}"><input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                <label for="sug-category">Categor&iacute;a</label><select id="sug-category" name="category_id" required>{{#categorias}}<option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>{{/categorias}}</select>
+                <label for="sug-question">Pregunta</label><textarea id="sug-question" name="question" maxlength="500" required>{{pregunta}}</textarea>
+                <fieldset class="sug-edit-answers"><legend>Respuestas</legend><span class="sug-edit-help">Marc&aacute; cu&aacute;l es la correcta. Tienen que ser 4 y no se pueden repetir.</span>
+                    {{#respuestas}}<div class="sug-edit-answer"><label for="sug-answer-{{indice}}">{{letra}}</label><input id="sug-answer-{{indice}}" type="text" name="responses[{{indice}}]" value="{{texto}}" maxlength="255" required><label class="sug-edit-correct" for="sug-correct-{{indice}}"><input id="sug-correct-{{indice}}" type="radio" name="correct_response" value="{{indice}}" required> Correcta</label></div>{{/respuestas}}
+                </fieldset>
+                <fieldset class="sug-edit-diffs"><legend>Dificultad</legend><label><input type="radio" name="difficulty_level" value="1"> F&aacute;cil</label><label><input type="radio" name="difficulty_level" value="2" checked> Media</label><label><input type="radio" name="difficulty_level" value="3"> Dif&iacute;cil</label></fieldset>
+                <span class="sug-edit-diff-help">Es la dificultad inicial; despu&eacute;s se ajusta sola seg&uacute;n cu&aacute;ntos la aciertan.</span>
+                <div class="sug-edit-actions"><button type="submit">Finalizar</button><a href="{{basePath}}/moderador/sugerencias">Cancelar</a></div>
+            </form>
+        </section>
+    </div>
+</main>
+
+<script>
+    document.querySelector('.moderador-shell .home-side-toggle').addEventListener('click', function () { var expanded = this.getAttribute('aria-expanded') !== 'true'; this.setAttribute('aria-expanded', String(expanded)); this.parentElement.classList.toggle('is-expanded', expanded); });
+    document.querySelector('.moderador-shell .home-side-menu').addEventListener('keydown', function (event) { if (event.key === 'Escape') { this.classList.remove('is-expanded'); this.querySelector('button').setAttribute('aria-expanded', 'false'); this.querySelector('button').focus(); } });
+</script>

@@ -2,7 +2,6 @@
 
 namespace app\controller;
 
-use app\model\ModeradorModel;
 use ModeradorAccess;
 use Redirect;
 use Request;
@@ -12,11 +11,13 @@ class ModeradorController
     private const ESTADOS = ['PENDIENTE', 'RESUELTO', 'DESCARTADO'];
 
     private $model;
+    private $sugerenciaModel;
     private $render;
 
-    public function __construct(ModeradorModel $model, $render)
+    public function __construct($model, $sugerenciaModel, $render)
     {
         $this->model = $model;
+        $this->sugerenciaModel = $sugerenciaModel;
         $this->render = $render;
     }
 
@@ -902,5 +903,169 @@ class ModeradorController
         );
 
         Redirect::to('/Preguntados/moderador/preguntas');
+    }
+
+    //SUGERENCIAS VISTAS Y METODOS
+
+    public function sugerencias(){
+        
+        if (!isset($_SESSION['usuario_id'])) {
+            Redirect::toIndex();
+        }
+
+        $estado = strtoupper(Request::get('estado', 'PENDIENTE'));
+        $estadosValidos = ['PENDIENTE', 'APROBADA', 'RECHAZADA'];
+
+        if (!in_array($estado, $estadosValidos, true)) {
+            $estado = 'PENDIENTE';
+        }
+        
+
+        $preguntas = $this->sugerenciaModel->mostrarPreguntasSugeridas($estado);
+        foreach ($preguntas as &$pregunta) {
+            $pregunta['puedeRevisar'] = $estado === 'PENDIENTE';
+        }
+        unset($pregunta);
+
+        $datos = [
+            'sugerencias' => count($preguntas),
+            'preguntas' => $preguntas,
+            'estadoSeleccionado' => $estado,
+            'estadoPendiente' => $estado === 'PENDIENTE',
+            'estadoAprobada' => $estado === 'APROBADA',
+            'estadoRechazada' => $estado === 'RECHAZADA',
+        ];
+
+        $this->render->renderiza('moderadorSugerencias', $datos);
+    }
+
+    public function editarSugerencia(){
+
+        $id = Request::get('id');
+
+        ModeradorAccess::exigir($this->model);
+
+        $filas = $this->sugerenciaModel->obtenerSugerenciaPorId($id);
+        $sugerencia = $filas[0] ?? null;
+
+        if ($sugerencia === null) {
+            Redirect::to('/Preguntados/moderador/sugerencias');
+            return;
+        }
+
+        $categorias = $this->sugerenciaModel->obtenerCategorias();
+        foreach ($categorias as &$categoria) {
+            $categoria['seleccionada'] =
+                (int) $categoria['id'] === (int) $sugerencia['categoria_id'];
+        }
+        unset($categoria);
+
+        $respuestas = [];
+        foreach (['A', 'B', 'C', 'D'] as $indice =>$letra) {
+            $respuestas[] = [
+                'indice' => $indice,
+                'letra' => $letra,
+                'texto' => '',
+            ];
+        }
+
+        $pendientes = $this->sugerenciaModel->mostrarPreguntasSugeridas('PENDIENTE');
+
+        $datos = [
+            'sugerenciaId' => $sugerencia['id'],
+            'pregunta' => $sugerencia['pregunta'],
+            'categorias' => $categorias,
+            'respuestas' => $respuestas,
+            'sugerenciasPendientes' => count($pendientes),
+        ];
+
+        $this->render->renderiza('moderadorSugerenciasEditar', $datos);
+    }
+
+    public function publicarSugerencias(){
+
+         ModeradorAccess::exigir($this->model);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            return;
+        }
+        
+        $id = filter_var($_POST['suggestion_id'] ?? null, FILTER_VALIDATE_INT);
+
+        if ($id === false || $id < 1) {
+            $this->guardarMensaje('La sugerencia seleccionada no es válida.', 'error');
+            Redirect::to('/Preguntados/moderador/sugerencias');
+            return;
+        }
+
+        $datosFinales = [
+        'category_id' => $_POST['category_id'] ?? null,
+        'question' => $_POST['question'] ?? '',
+        'responses' => $_POST['responses'] ?? [],
+        'correct_response' => $_POST['correct_response'] ?? null,
+        'difficulty_level' => $_POST['difficulty_level'] ?? 2,
+        ];
+
+        try {
+        $this->sugerenciaModel->publicarSugerencia(
+            $id,
+            (int) $_SESSION['usuario_id'],
+            $datosFinales
+        );
+
+        $this->guardarMensaje('La sugerencia fue aprobada y publicada.', 'exito');
+        } catch (\DomainException $error) {
+            $this->guardarMensaje($error->getMessage(), 'error');
+        } catch (\Throwable $error) {
+            $this->guardarMensaje('No se pudo publicar la sugerencia.', 'error');
+        }
+
+        Redirect::to('/Preguntados/moderador/sugerencias');
+    
+    }
+
+    public function rechazarSugerencia(){
+
+        ModeradorAccess::exigir($this->model);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            return;
+        }
+
+        $id = filter_var(
+            $_POST['suggestion_id'] ?? null,
+            FILTER_VALIDATE_INT
+        );
+        $nota = $_POST['resolution_notes'] ?? '';
+
+        if ($id === false || $id < 1 || !is_string($nota)) {
+            $this->guardarMensaje('La sugerencia o el motivo no son válidos.', 'error');
+            Redirect::to('/Preguntados/moderador/sugerencias?estado=PENDIENTE');
+            return;
+        }
+
+        try {
+            $rechazada = $this->sugerenciaModel->rechazarSugerencia(
+                $id,
+                (int) $_SESSION['usuario_id'],
+                $nota
+            );
+
+            if (!$rechazada) {
+                $this->guardarMensaje('La sugerencia ya no está pendiente.', 'error');
+                Redirect::to('/Preguntados/moderador/sugerencias?estado=PENDIENTE');
+                return;
+            }
+
+            $this->guardarMensaje('La sugerencia fue rechazada.', 'success');
+        } catch (\DomainException $error) {
+            $this->guardarMensaje($error->getMessage(), 'error');
+            Redirect::to('/Preguntados/moderador/sugerencias?estado=PENDIENTE');
+            return;
+        }
+
+        Redirect::to('/Preguntados/moderador/sugerencias?estado=RECHAZADA');
     }
 }

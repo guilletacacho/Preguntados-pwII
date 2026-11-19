@@ -95,6 +95,7 @@ class Configuration
     {   
         return new ModeradorController(
             $this->getModeradorModel(),
+            $this->getSugerenciaModel(),
             $this->gerRender()
         );
     }
