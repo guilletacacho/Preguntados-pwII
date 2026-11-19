@@ -44,6 +44,7 @@ class ModeradorController
 
         $datos = [
             'pendientes' => $this->model->contarReportesPendientes(),
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'preguntasActivas' => $this->model->contarPreguntas(null,null,'activa'),
             'reportesResueltos' => $this->model->contarReportesResueltos(),
             'ultimosReportes' => $ultimosReportes,
@@ -108,6 +109,7 @@ class ModeradorController
             'mensaje' => $mensaje,
             'hayMensaje' => $mensaje !== null,
             'pendientes' => $this->model->contarReportesPendientes(),
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
         ]);
     }
 
@@ -418,6 +420,7 @@ class ModeradorController
             'mensaje' => $mensaje,
             'hayMensaje' => $mensaje !== null,
             'pendientes' => $this->model->contarReportesPendientes(),
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
         ]);
     }
 
@@ -519,6 +522,11 @@ class ModeradorController
         if (empty($_SESSION['csrf_moderador'])) {
             $_SESSION['csrf_moderador'] = bin2hex(random_bytes(32));
         }
+    }
+
+    private function contarSugerenciasPendientes()
+    {
+        return count($this->sugerenciaModel->mostrarPreguntasSugeridas('PENDIENTE'));
     }
 
     private function formatearFecha($fecha)
@@ -628,6 +636,7 @@ class ModeradorController
 
         $datos = [
             'pendientes' => $this->model->contarReportesPendientes(),
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'preguntas' => $preguntas,
             'categorias' => $categorias,
             'todasCategoriasSeleccionada' => $categoriaId === null,
@@ -660,6 +669,7 @@ class ModeradorController
         $datos = [
             'categorias' => $this->model->obtenerCategorias(),
             'pendientes' => $this->model->contarReportesPendientes(),
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
         ];
 
         $this->render->renderiza("moderadorAltaPregunta", $datos);
@@ -748,6 +758,7 @@ class ModeradorController
             $this->render->renderiza('moderadorAltaPregunta', [
                 'categorias' => $categorias,
                 'pendientes' => $this->model->contarReportesPendientes(),
+                'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
                 'error' => implode(' ', array_unique($errores)),
             ]);
             return;
@@ -929,6 +940,7 @@ class ModeradorController
 
         $datos = [
             'sugerencias' => count($preguntas),
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'preguntas' => $preguntas,
             'estadoSeleccionado' => $estado,
             'estadoPendiente' => $estado === 'PENDIENTE',

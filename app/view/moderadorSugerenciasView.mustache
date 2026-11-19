@@ -72,10 +72,10 @@
         </header>
 
         <nav class="moderador-tabs" aria-label="Secciones del panel">
-            <button class="moderador-tab" type="button">Resumen</button>
-            <button class="moderador-tab" type="button">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></button>
-            <button class="moderador-tab is-active" type="button" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerencias}}</span></button>
-            <button class="moderador-tab" type="button">Preguntas</button>
+            <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
+            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></a>
+            <a class="moderador-tab is-active" href="{{basePath}}/moderador/sugerencias" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
+            <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
         </nav>
 
         <section class="moderador-sugerencias-vista" aria-label="Preguntas sugeridas por jugadores">

@@ -23,12 +23,12 @@
         </header>
 
         <nav class="moderador-tabs" aria-label="Secciones del panel">
-            <button class="moderador-tab is-active" type="button" aria-current="page">Resumen</button>
+            <a class="moderador-tab is-active" href="{{basePath}}/moderador" aria-current="page">Resumen</a>
             <a class="moderador-tab" href="{{basePath}}/moderador/reportes">
             Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span>
             </a>
             <a class="moderador-tab" href="{{basePath}}/moderador/sugerencias">
-                Sugerencias <span class="moderador-badge">3</span>
+                Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span>
             </a>
             <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
         </nav>
