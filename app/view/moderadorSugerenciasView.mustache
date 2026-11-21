@@ -1,4 +1,4 @@
-﻿<style>
+<style>
     .moderador-sugerencias-vista { display: grid; gap: 14px; }
     .moderador-sugerencias-intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--texto-sec); font-size: var(--moderador-texto-base); }
     .moderador-sugerencias-intro p { margin: 0; }
@@ -74,9 +74,9 @@
 
         <nav class="moderador-tabs" aria-label="Secciones del panel">
             <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></a>
-            <a class="moderador-tab is-active" href="{{basePath}}/moderador/sugerencias" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
+            <a class="moderador-tab" href="{{basePath}}/moderadorReportes/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></a>
+            <a class="moderador-tab is-active" href="{{basePath}}/moderadorSugerencias/sugerencias" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
+            <a class="moderador-tab" href="{{basePath}}/moderadorPreguntas/preguntas">Preguntas</a>
         </nav>
 
         <section class="moderador-sugerencias-vista" aria-label="Preguntas sugeridas por jugadores">
@@ -86,10 +86,10 @@
             </div>
 
             <div class="moderador-sugerencias-filtros" aria-label="Filtros de sugerencias">
-                <a class="moderador-filtro {{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderador/sugerencias?estado=PENDIENTE{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoPendiente}}aria-current="page"{{/estadoPendiente}}>Pendientes</a>
-                <a class="moderador-filtro {{#estadoAprobada}}activo{{/estadoAprobada}}" href="{{basePath}}/moderador/sugerencias?estado=APROBADA{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoAprobada}}aria-current="page"{{/estadoAprobada}}>Aprobadas</a>
-                <a class="moderador-filtro {{#estadoRechazada}}activo{{/estadoRechazada}}" href="{{basePath}}/moderador/sugerencias?estado=RECHAZADA{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoRechazada}}aria-current="page"{{/estadoRechazada}}>Rechazadas</a>
-                <form method="get" action="{{basePath}}/moderador/sugerencias">
+                <a class="moderador-filtro {{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderadorSugerencias/sugerencias?estado=PENDIENTE{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoPendiente}}aria-current="page"{{/estadoPendiente}}>Pendientes</a>
+                <a class="moderador-filtro {{#estadoAprobada}}activo{{/estadoAprobada}}" href="{{basePath}}/moderadorSugerencias/sugerencias?estado=APROBADA{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoAprobada}}aria-current="page"{{/estadoAprobada}}>Aprobadas</a>
+                <a class="moderador-filtro {{#estadoRechazada}}activo{{/estadoRechazada}}" href="{{basePath}}/moderadorSugerencias/sugerencias?estado=RECHAZADA{{#hayCategoria}}&amp;categoria_id={{categoriaId}}{{/hayCategoria}}" {{#estadoRechazada}}aria-current="page"{{/estadoRechazada}}>Rechazadas</a>
+                <form method="get" action="{{basePath}}/moderadorSugerencias/sugerencias">
                     <input type="hidden" name="estado" value="{{estadoSeleccionado}}">
                     <label class="visually-hidden" for="sugerencias-categoria">Filtrar por categoría</label>
                     <select id="sugerencias-categoria" name="categoria_id" class="moderador-sugerencias-categoria" onchange="this.form.submit()">
@@ -118,12 +118,12 @@
                     <p class="moderador-sugerencia-pregunta">{{pregunta}}</p>
                     {{#puedeRevisar}}
                     <div class="moderador-sugerencia-acciones">
-                        <a class="editar-aprobar" href="{{basePath}}/moderador/editarSugerencia?id={{id}}">Editar y aprobar</a>
+                        <a class="editar-aprobar" href="{{basePath}}/moderadorSugerencias/editarSugerencia?id={{id}}">Editar y aprobar</a>
                         <details class="moderador-rechazo">
                             <summary>Rechazar</summary>
                         </details>
                     </div>
-                    <form class="moderador-rechazo-formulario" method="post" action="{{basePath}}/moderador/rechazarSugerencia">
+                    <form class="moderador-rechazo-formulario" method="post" action="{{basePath}}/moderadorSugerencias/rechazarSugerencia">
                         <input type="hidden" name="suggestion_id" value="{{id}}">
                         <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                         <label for="motivo-rechazo-{{id}}">Motivo del rechazo</label>

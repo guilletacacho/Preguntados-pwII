@@ -20,18 +20,18 @@
                 <h1>Preguntas</h1>
                 <p>Alta, baja y modificación de todas las preguntas del juego.</p>
             </div>
-            <a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a>
+            <a class="moderador-nueva-pregunta" href="{{basePath}}/moderadorPreguntas/altaPregunta">+ Nueva pregunta</a>
         </header>
 
         <nav class="moderador-tabs" aria-label="Secciones del panel">
             <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/sugerencias">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
-            <a class="moderador-tab is-active" href="{{basePath}}/moderador/preguntas" aria-current="page">Preguntas</a>
+            <a class="moderador-tab" href="{{basePath}}/moderadorReportes/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
+            <a class="moderador-tab" href="{{basePath}}/moderadorSugerencias/sugerencias">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
+            <a class="moderador-tab is-active" href="{{basePath}}/moderadorPreguntas/preguntas" aria-current="page">Preguntas</a>
         </nav>
 
         <section class="moderador-preguntas" aria-label="Administrar preguntas">
-            <form class="moderador-filtros" method="get" action="{{basePath}}/moderador/preguntas" role="search">
+            <form class="moderador-filtros" method="get" action="{{basePath}}/moderadorPreguntas/preguntas" role="search">
                 <label class="visually-hidden" for="moderador-busqueda">Buscar pregunta por texto</label>
                 <input id="moderador-busqueda" type="search" placeholder="Buscar por texto" name="texto" value="{{textoBusqueda}}">
                 <label class="visually-hidden" for="moderador-categoria">Filtrar por categoría</label>
@@ -83,16 +83,16 @@
                             <td class="moderador-acciones">
                                 <div class="moderador-acciones-contenido">
                                     {{#activa}}
-                                    <a class="moderador-accion-editar" href="{{basePath}}/moderador/editarPregunta?id={{id}}">Editar</a>
+                                    <a class="moderador-accion-editar" href="{{basePath}}/moderadorPreguntas/editarPregunta?id={{id}}">Editar</a>
                                     {{! ESTE FORMULARIO ENVIA EL ID DE LA PREGUNTA AL CONTROLLER PARA DARLA DE BAJA. }}
-                                    <form method="post" action="{{basePath}}/moderador/desactivarPregunta">
+                                    <form method="post" action="{{basePath}}/moderadorPreguntas/desactivarPregunta">
                                         <input type="hidden" name="question_id" value="{{id}}">
                                         <button type="submit" class="moderador-accion-baja">Baja</button>
                                     </form>
                                     {{/activa}}
                                     {{^activa}}
                                     <span class="moderador-estado-baja">DADA DE BAJA</span>
-                                    <form method="post" action="{{basePath}}/moderador/reactivarPregunta">
+                                    <form method="post" action="{{basePath}}/moderadorPreguntas/reactivarPregunta">
                                         <input type="hidden" name="question_id" value="{{id}}">
                                         <button type="submit" class="moderador-accion-reactivar">Reactivar</button>
                                     </form>
@@ -114,13 +114,13 @@
                 <span>Mostrando {{desde}}–{{hasta}} de {{totalPreguntas}}</span>
                 <nav aria-label="Paginación de preguntas">
                     {{#hayPaginaAnterior}}
-                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaAnterior}}{{#queryFiltros}}&amp;{{queryFiltros}}{{/queryFiltros}}">← Anterior</a>
+                    <a href="{{basePath}}/moderadorPreguntas/preguntas?pagina={{paginaAnterior}}{{#queryFiltros}}&amp;{{queryFiltros}}{{/queryFiltros}}">← Anterior</a>
                     {{/hayPaginaAnterior}}
                     {{^hayPaginaAnterior}}
                     <span class="paginacion-deshabilitada" aria-disabled="true">← Anterior</span>
                     {{/hayPaginaAnterior}}
                     {{#hayPaginaSiguiente}}
-                    <a href="{{basePath}}/moderador/preguntas?pagina={{paginaSiguiente}}{{#queryFiltros}}&amp;{{queryFiltros}}{{/queryFiltros}}">Siguiente →</a>
+                    <a href="{{basePath}}/moderadorPreguntas/preguntas?pagina={{paginaSiguiente}}{{#queryFiltros}}&amp;{{queryFiltros}}{{/queryFiltros}}">Siguiente →</a>
                     {{/hayPaginaSiguiente}}
                     {{^hayPaginaSiguiente}}
                     <span class="paginacion-deshabilitada" aria-disabled="true">Siguiente →</span>

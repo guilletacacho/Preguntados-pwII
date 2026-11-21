@@ -25,12 +25,12 @@
 
         <nav class="moderador-tabs" aria-label="Secciones del panel">
             <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/sugerencias">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
-            <a class="moderador-tab is-active" href="{{basePath}}/moderador/preguntas" aria-current="page">Preguntas</a>
+            <a class="moderador-tab" href="{{basePath}}/moderadorReportes/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
+            <a class="moderador-tab" href="{{basePath}}/moderadorSugerencias/sugerencias">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
+            <a class="moderador-tab is-active" href="{{basePath}}/moderadorPreguntas/preguntas" aria-current="page">Preguntas</a>
         </nav>
 
-        <form class="moderador-alta-formulario" method="post" action="{{basePath}}/moderador/crearPregunta">
+        <form class="moderador-alta-formulario" method="post" action="{{basePath}}/moderadorPreguntas/crearPregunta">
             {{#error}}<p class="moderador-ayuda" role="alert">{{error}}</p>{{/error}}
             <div class="moderador-alta-campo">
                 <label for="nueva-categoria">Categoría</label>
@@ -76,7 +76,7 @@
 
             <div class="moderador-alta-acciones">
                 <button class="moderador-alta-guardar" type="submit">Crear pregunta</button>
-                <a href="{{basePath}}/moderador/preguntas">Cancelar</a>
+                <a href="{{basePath}}/moderadorPreguntas/preguntas">Cancelar</a>
             </div>
         </form>
     </div>

@@ -8,7 +8,9 @@ use app\controller\RegistroController;
 use app\controller\EmailController;
 use app\controller\RankingController;
 use app\controller\PartidaController;
-use app\controller\ModeradorController;
+use app\controller\ModeradorPreguntasController;
+use app\controller\ModeradorReportesController;
+use app\controller\ModeradorSugerenciasController;
 use app\model\PartidaModel;
 use app\model\ModeradorModel;
 use app\model\PerfilModel;
@@ -93,7 +95,30 @@ class Configuration
 
     public function getModeradorController()
     {   
-        return new ModeradorController(
+        return $this->getModeradorReportesController();
+    }
+
+    public function getModeradorReportesController()
+    {
+        return new ModeradorReportesController(
+            $this->getModeradorModel(),
+            $this->getSugerenciaModel(),
+            $this->gerRender()
+        );
+    }
+
+    public function getModeradorPreguntasController()
+    {
+        return new ModeradorPreguntasController(
+            $this->getModeradorModel(),
+            $this->getSugerenciaModel(),
+            $this->gerRender()
+        );
+    }
+
+    public function getModeradorSugerenciasController()
+    {
+        return new ModeradorSugerenciasController(
             $this->getModeradorModel(),
             $this->getSugerenciaModel(),
             $this->gerRender()
