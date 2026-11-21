@@ -1,0 +1,23 @@
+<header class="admin-hero">
+    <div>
+        <span class="admin-eyebrow">Panel administrable</span>
+        {{#esResumen}}
+            <h1>Resumen del sitio</h1>
+            <p>Actividad y estadísticas.</p>
+        {{/esResumen}}
+        {{^esResumen}}
+            <h1>Usuarios</h1>
+            <p>Gestión de cuentas.</p>
+        {{/esResumen}}
+    </div>
+    <a class="admin-btn admin-btn-primary" href="{{basePath}}/admin/altaUsuario">+ Nuevo usuario</a>
+</header>
+
+<nav class="admin-tabs" aria-label="Secciones del panel">
+    <a class="admin-tab{{#esResumen}} is-active{{/esResumen}}" href="{{basePath}}/admin"{{#esResumen}} aria-current="page"{{/esResumen}}>Resumen</a>
+    <a class="admin-tab{{^esResumen}} is-active{{/esResumen}}" href="{{basePath}}/admin/usuarios"{{^esResumen}} aria-current="page"{{/esResumen}}>Usuarios <span class="admin-badge">{{totalUsuarios}}</span></a>
+</nav>
+
+{{#mensaje}}
+    <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="status">{{texto}}</p>
+{{/mensaje}}

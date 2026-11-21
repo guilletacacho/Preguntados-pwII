@@ -1,14 +1,9 @@
 /* Estilos exclusivos del panel administrable.
    Solo se cargan cuando el usuario logueado es ADMIN. */
 
-.admin-panel .admin-shell {
-    width: 100%;
-    margin-inline: 0;
-    padding-block: clamp(28px, 5vw, 64px);
-}
-
 .admin-panel .admin-wrap {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 30px;
     width: min(100%, 1180px);
     margin-inline: auto;
@@ -417,57 +412,55 @@
     margin-inline: auto;
 }
 
-.admin-panel .moderador-header,
 .admin-panel .moderador-editor-encabezado {
     align-items: flex-end;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--borde);
 }
 
-.admin-panel .moderador-header p,
 .admin-panel .moderador-editor-encabezado > p:last-child {
     max-width: 70ch;
     line-height: 1.55;
 }
 
-.admin-panel .moderador-tabs {
-    gap: 6px;
-    width: fit-content;
-    max-width: 100%;
+.admin-panel .admin-filtros-usuarios {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 12px;
     margin-bottom: 0;
-    padding: 6px;
-    border: 1px solid var(--borde);
-    border-radius: 13px;
-    background: var(--hundido);
-}
-
-.admin-panel .moderador-tab {
-    min-height: 36px;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    padding-inline: 14px;
-}
-
-.admin-panel .moderador-tab.is-active {
-    border-color: var(--borde-fuerte);
-    background: var(--superficie);
-    box-shadow: 0 4px 12px rgba(6, 12, 20, .25);
-}
-
-.admin-panel .moderador-filtros {
-    grid-template-columns: minmax(200px, 1fr) minmax(150px, 190px) auto auto;
-    align-items: center;
-    gap: 10px;
     padding: 14px;
     border: 1px solid var(--borde);
     border-radius: 14px;
     background: var(--superficie);
 }
 
-.admin-panel .moderador-filtros input,
-.admin-panel .moderador-filtros select {
+.admin-panel .admin-filtros-usuarios label {
+    display: grid;
+    gap: 5px;
+    color: var(--texto-sec);
+    font-size: var(--moderador-texto-interfaz);
+}
+
+.admin-panel .admin-filtro-busqueda {
+    grid-column: span 2;
+}
+
+.admin-panel .admin-filtros-usuarios input,
+.admin-panel .admin-filtros-usuarios select {
     height: 42px;
     border-radius: 9px;
+}
+
+.admin-panel .admin-filtros-usuarios input[type="date"] {
+    color-scheme: dark;
+}
+
+.admin-panel .admin-filtros-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+    grid-column: 1 / -1;
 }
 
 .admin-panel .moderador-tabla-contenedor {
@@ -476,29 +469,52 @@
     box-shadow: 0 16px 34px rgba(6, 12, 20, .22);
 }
 
-.admin-panel .moderador-tabla-preguntas th:nth-child(n),
-.admin-panel .moderador-tabla-preguntas td:nth-child(n) {
-    width: auto;
+.admin-panel .admin-tabla-usuarios {
+    min-width: 1000px;
 }
 
-.admin-panel .moderador-tabla-preguntas th:nth-child(1),
-.admin-panel .moderador-tabla-preguntas td:nth-child(1) { width: 18%; }
-.admin-panel .moderador-tabla-preguntas th:nth-child(2),
-.admin-panel .moderador-tabla-preguntas td:nth-child(2) { width: 32%; }
-.admin-panel .moderador-tabla-preguntas th:nth-child(3),
-.admin-panel .moderador-tabla-preguntas td:nth-child(3) { width: 16%; }
-.admin-panel .moderador-tabla-preguntas th:nth-child(4),
-.admin-panel .moderador-tabla-preguntas td:nth-child(4) { width: 14%; }
-.admin-panel .moderador-tabla-preguntas th:nth-child(5),
-.admin-panel .moderador-tabla-preguntas td:nth-child(5) { width: 20%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(1),
+.admin-panel .admin-tabla-usuarios td:nth-child(1) { width: 12%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(2) { width: 21%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(3) { width: 10%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(4) { width: 11%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(5) { width: 8%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(6) { width: 12%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(7) { width: 26%; }
 
-.admin-panel .moderador-tabla-preguntas th,
-.admin-panel .moderador-tabla-preguntas td {
+.admin-panel .admin-tabla-usuarios th,
+.admin-panel .admin-tabla-usuarios td {
     padding-inline: 16px;
 }
 
-.admin-panel .moderador-tabla-preguntas td:nth-child(5) {
-    white-space: nowrap;
+.admin-panel .admin-tabla-usuarios th:nth-child(5),
+.admin-panel .admin-tabla-usuarios th:nth-child(6) {
+    text-align: center;
+}
+
+.admin-panel .admin-tabla-usuarios td:first-child {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.admin-panel .admin-usuario-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.admin-panel .admin-usuario-acciones .moderador-boton {
+    min-height: 36px;
+    padding-inline: 9px;
+}
+
+.admin-panel .admin-estado-bloqueado,
+.admin-panel .admin-boton-bloqueo {
+    color: var(--arte);
+}
+
+.admin-panel .admin-boton-bloqueo {
+    border-color: var(--arte);
 }
 
 .admin-panel .moderador-paginacion {
@@ -644,20 +660,23 @@
     .admin-panel .admin-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .admin-panel .admin-split,
     .admin-panel .admin-profile-grid { grid-template-columns: 1fr; }
-    .admin-panel .moderador-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .admin-panel .moderador-filtros input { grid-column: 1 / -1; }
+    .admin-panel .admin-filtros-usuarios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 560px) {
     .admin-panel .admin-hero,
-    .admin-panel .admin-footer,
-    .admin-panel .moderador-header {
+    .admin-panel .admin-footer {
         align-items: flex-start;
         flex-direction: column;
     }
     .admin-panel .admin-metrics { grid-template-columns: 1fr; }
-    .admin-panel .admin-tabs,
-    .admin-panel .moderador-tabs { width: 100%; overflow-x: auto; }
+    .admin-panel .admin-tabs { width: 100%; overflow-x: auto; }
     .admin-panel .admin-section-head { align-items: flex-start; flex-direction: column; }
-    .admin-panel .moderador-tabla-preguntas { min-width: 620px; }
+    .admin-panel .admin-filtros-usuarios { grid-template-columns: minmax(0, 1fr); }
+    .admin-panel .admin-filtro-busqueda { grid-column: auto; }
+}
+
+@media (max-width: 380px) {
+    .admin-panel .admin-hero h1 { font-size: 1.35rem; }
+    .admin-panel .admin-tab { padding-inline: 10px; }
 }

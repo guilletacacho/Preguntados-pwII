@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `Token` VARCHAR(64) DEFAULT NULL,
   `Foto_url` VARCHAR(255) DEFAULT NULL,
   `rol` ENUM('JUGADOR', 'MODERADOR', 'ADMIN') NOT NULL DEFAULT 'JUGADOR',
+  `bloqueado` TINYINT(1) NOT NULL DEFAULT 0,
+  `version_sesion` INT UNSIGNED NOT NULL DEFAULT 0,
+  `creado_en` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `uk_usuarios_usuario` (`Usuario`),
   UNIQUE KEY `uk_usuarios_email` (`Email`)

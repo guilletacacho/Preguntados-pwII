@@ -1,4 +1,4 @@
-<main class="moderador-shell admin-shell">
+<main class="moderador-shell">
     <nav class="home-sidenav" aria-label="Secciones del sitio">
         <div class="home-side-menu is-expanded">
             <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="true" aria-controls="admin-resumen-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
@@ -13,23 +13,7 @@
     </nav>
     <div class="admin-wrap">
 
-        <header class="admin-hero">
-            <div>
-                <span class="admin-eyebrow">Panel administrable</span>
-                <h1>Resumen del sitio</h1>
-                <p>Datos reales de la base de datos. Tu cuenta del panel queda afuera de los cálculos de jugadores.</p>
-            </div>
-            <a class="admin-btn admin-btn-primary" href="{{basePath}}/admin/altaUsuario">+ Nuevo usuario</a>
-        </header>
-
-        {{#mensaje}}
-            <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="status">{{texto}}</p>
-        {{/mensaje}}
-
-        <nav class="admin-tabs" aria-label="Secciones del panel">
-            <button class="admin-tab is-active" type="button" aria-current="page">Resumen</button>
-            <a class="admin-tab" href="{{basePath}}/admin/usuarios">Usuarios <span class="admin-badge">{{totalUsuarios}}</span></a>
-        </nav>
+        {{> adminEncabezado}}
 
         <section class="admin-section" aria-labelledby="admin-indicadores">
             <div class="admin-section-head">

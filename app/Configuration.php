@@ -43,6 +43,25 @@ class Configuration
         );
     }
 
+    public function validarSesionActiva()
+    {
+        if (!isset($_SESSION['usuario_id'])) {
+            return;
+        }
+
+        $login = $this->getLoginModel();
+        $estado = $login->estadoSesion($_SESSION['usuario_id']);
+        if ($estado && !$estado['bloqueado'] && (int) $estado['version_sesion'] === (int) ($_SESSION['version_sesion'] ?? 0)) {
+            return;
+        }
+
+        $login->liberarSesionUnica($_SESSION['usuario_id'], $_SESSION['sesion_unica'] ?? '');
+        $this->getPresenceModel()->remove(session_id());
+        $_SESSION = [];
+        session_destroy();
+        \Redirect::to(!empty($estado['bloqueado']) ? '/Preguntados/?login_error=3' : '/Preguntados/');
+    }
+
     public function getHomeController()
     {
         return new HomeController(

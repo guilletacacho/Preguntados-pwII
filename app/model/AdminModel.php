@@ -258,7 +258,7 @@ class AdminModel
         ];
     }
 
-    public function listarUsuarios($rol, $busqueda, $pagina, $porPagina = 10)
+    public function listarUsuarios($rol, $busqueda, $pagina, $porPagina = 10, array $filtros = [])
     {
         if (!in_array($rol, self::ROLES, true)) {
             $rol = '';
@@ -268,22 +268,56 @@ class AdminModel
         $params = [];
 
         if ($rol !== '') {
-            $where[] = 'rol = ?';
+            $where[] = 'u.rol = ?';
             $params[] = $rol;
         }
 
         if ($busqueda !== '') {
             $like = '%' . $busqueda . '%';
-            $where[] = '(Usuario LIKE ? OR Email LIKE ? OR Nombre LIKE ?)';
+            $where[] = '(u.Usuario LIKE ? OR u.Email LIKE ? OR u.Nombre LIKE ?)';
             $params[] = $like;
             $params[] = $like;
             $params[] = $like;
         }
 
+        $estado = $filtros['estado'] ?? '';
+        if ($estado === 'activas' || $estado === 'bloqueadas') {
+            $where[] = 'u.bloqueado = ?';
+            $params[] = (int) ($estado === 'bloqueadas');
+        }
+
+        if ($filtros['desde'] ?? '') {
+            $where[] = 'u.creado_en >= ?';
+            $params[] = $filtros['desde'] . ' 00:00:00';
+        }
+        if ($filtros['hasta'] ?? '') {
+            $where[] = 'u.creado_en <= ?';
+            $params[] = $filtros['hasta'] . ' 23:59:59';
+        }
+
+        $puntajes = "LEFT JOIN (
+                        SELECT user_id, SUM(total_points) AS total
+                        FROM game WHERE status = 'FINALIZADA' GROUP BY user_id
+                    ) p ON p.user_id = u.Id";
+        $minimo = $filtros['puntosMinimos'] ?? '';
+        $filtraPuntos = $minimo !== '';
+        if ($filtraPuntos) {
+            $where[] = 'COALESCE(p.total, 0) >= ?';
+            $params[] = $minimo;
+        }
+
+        switch ($filtros['orden'] ?? '') {
+            case 'alta_asc': $orden = 'u.creado_en ASC, u.Id ASC'; break;
+            case 'puntos_desc': $orden = 'puntos DESC, u.Id DESC'; break;
+            case 'puntos_asc': $orden = 'puntos ASC, u.Id DESC'; break;
+            default: $orden = 'u.creado_en DESC, u.Id DESC';
+        }
+
         $condicion = implode(' AND ', $where);
+        $unionConteo = $filtraPuntos ? $puntajes : '';
 
         $conteo = $this->database->queryOne(
-            "SELECT COUNT(*) AS total FROM usuarios WHERE $condicion",
+            "SELECT COUNT(*) AS total FROM usuarios u $unionConteo WHERE $condicion",
             $params
         );
         $total = (int) ($conteo['total'] ?? 0);
@@ -292,19 +326,22 @@ class AdminModel
         $offset = ($pagina - 1) * $porPagina;
 
         $usuarios = $this->database->queryAll(
-            "SELECT Id AS id,
-                    Nombre AS nombre,
-                    Anio_nacimiento AS anioNacimiento,
-                    Sexo AS sexo,
-                    Provincia AS provincia,
-                    Pais AS pais,
-                    Usuario AS usuario,
-                    Email AS email,
-                    CAST(Verificado AS UNSIGNED) AS verificado,
-                    rol
-             FROM usuarios
+            "SELECT u.Id AS id,
+                    u.Nombre AS nombre,
+                    u.Anio_nacimiento AS anioNacimiento,
+                    u.Sexo AS sexo,
+                    u.Provincia AS provincia,
+                    u.Pais AS pais,
+                    u.Usuario AS usuario,
+                    u.Email AS email,
+                    CAST(u.Verificado AS UNSIGNED) AS verificado,
+                    u.rol, u.bloqueado,
+                    DATE_FORMAT(u.creado_en, '%d/%m/%Y') AS fechaAlta,
+                    COALESCE(p.total, 0) AS puntos
+             FROM usuarios u
+             $puntajes
              WHERE $condicion
-             ORDER BY Id DESC
+             ORDER BY $orden
              LIMIT $porPagina OFFSET $offset",
             $params
         );
@@ -312,6 +349,7 @@ class AdminModel
         foreach ($usuarios as &$usuario) {
             $usuario['id'] = (int) $usuario['id'];
             $usuario['verificado'] = (int) $usuario['verificado'];
+            $usuario['bloqueado'] = (bool) $usuario['bloqueado'];
             $usuario['anioNacimiento'] = (int) $usuario['anioNacimiento'];
             $usuario['esAdmin'] = $usuario['rol'] === 'ADMIN';
             $usuario['esModerador'] = $usuario['rol'] === 'MODERADOR';
@@ -442,8 +480,36 @@ class AdminModel
     public function eliminar($id)
     {
         return $this->database->execute(
-            "DELETE FROM usuarios WHERE Id = ?",
+            "DELETE FROM usuarios WHERE Id = ? AND rol <> 'ADMIN'",
             [(int) $id]
         );
+    }
+
+    public function cambiarBloqueo($id, bool $bloquear)
+    {
+        $this->database->beginTransaction();
+        try {
+            $usuario = $this->database->queryOne(
+                "SELECT bloqueado FROM usuarios WHERE Id = ? AND rol <> 'ADMIN' FOR UPDATE",
+                [$id]
+            );
+            if ($usuario !== null && (bool) $usuario['bloqueado'] !== $bloquear) {
+                $this->database->execute(
+                    'UPDATE usuarios SET bloqueado = ?, version_sesion = version_sesion + ? WHERE Id = ?',
+                    [(int) $bloquear, (int) $bloquear, $id]
+                );
+                if ($bloquear) {
+                    $this->database->execute('DELETE FROM user_presence WHERE user_id = ?', [$id]);
+                    $this->database->execute('DELETE FROM user_session_lock WHERE user_id = ?', [$id]);
+                }
+            }
+            $this->database->commit();
+            return $usuario !== null;
+        } catch (\Throwable $e) {
+            if ($this->database->inTransaction()) {
+                $this->database->rollBack();
+            }
+            throw $e;
+        }
     }
 }

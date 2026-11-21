@@ -13,6 +13,7 @@ require_once("vendor/autoload.php");
 require_once("app/Configuration.php");
 
 $configuration = new Configuration();
+$configuration->validarSesionActiva();
 $router = $configuration->getRouter();
 
 $router->dispatch(

@@ -22,6 +22,18 @@ class AdminController
         'MODERADOR' => 'Moderador',
     ];
 
+    private const ESTADOS = [
+        '' => 'Todas las cuentas',
+        'activas' => 'Sin bloqueo',
+        'bloqueadas' => 'Bloqueadas',
+    ];
+    private const ORDENES = [
+        'alta_desc' => 'Altas más recientes',
+        'alta_asc' => 'Altas más antiguas',
+        'puntos_desc' => 'Mayor puntaje',
+        'puntos_asc' => 'Menor puntaje',
+    ];
+
     private $model;
     private $render;
 
@@ -38,6 +50,7 @@ class AdminController
         $this->asegurarCsrfToken();
 
         $datos = $this->model->obtenerEstadisticas((int) $_SESSION['usuario_id']);
+        $datos['esResumen'] = true;
         $datos['mensaje'] = $this->consumirMensaje();
 
         $this->render->renderiza('admin', $datos);
@@ -48,24 +61,10 @@ class AdminController
         AdminAccess::exigir($this->model);
         header('Cache-Control: no-store');
 
-        $rol = (string) Request::get('rol', '');
-        if (!array_key_exists($rol, self::ROLES_SELECCIONABLES)) {
-            $rol = '';
-        }
-
-        $busqueda = trim((string) Request::get('busqueda', ''));
-        if (preg_match_all('/./us', $busqueda) > 100) {
-            $busqueda = mb_substr($busqueda, 0, 100);
-        }
-
-        $pagina = filter_var(
-            Request::get('pagina', 1),
-            FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 1]]
-        );
-        $pagina = $pagina === false ? 1 : (int) $pagina;
-
-        $resultado = $this->model->listarUsuarios($rol, $busqueda, $pagina);
+        $filtros = $this->filtrosUsuarios();
+        $pagina = max(1, $this->leerId(Request::get('pagina')));
+        $resultado = $this->model->listarUsuarios($filtros['rol'], $filtros['busqueda'], $pagina, 10, $filtros);
+        $this->asegurarCsrfToken();
 
         $datos = [
             'usuarios' => $resultado['usuarios'],
@@ -76,16 +75,15 @@ class AdminController
             'paginaSiguiente' => $resultado['pagina'] + 1,
             'hayPaginaAnterior' => $resultado['pagina'] > 1,
             'hayPaginaSiguiente' => $resultado['pagina'] < $resultado['paginas'],
-            'queryFiltros' => http_build_query(['rol' => $rol, 'busqueda' => $busqueda]),
-            'roles' => $this->rolesConSeleccion($rol),
-            'rolTodasSeleccionada' => $rol === '',
-            'busqueda' => $busqueda,
-            'csrfToken' => $_SESSION['csrf_admin'] ?? '',
+            'queryFiltros' => http_build_query($filtros),
+            'roles' => $this->opcionesConSeleccion(['' => 'Todos los roles'] + self::ROLES, $filtros['rol']),
+            'estados' => $this->opcionesConSeleccion(self::ESTADOS, $filtros['estado']),
+            'ordenes' => $this->opcionesConSeleccion(self::ORDENES, $filtros['orden']),
+            'filtros' => $filtros,
+            'errorFechas' => $filtros['desde'] !== '' && $filtros['hasta'] !== '' && $filtros['desde'] > $filtros['hasta'],
+            'csrfToken' => $_SESSION['csrf_admin'],
             'mensaje' => $this->consumirMensaje(),
         ];
-
-        $this->asegurarCsrfToken();
-        $datos['csrfToken'] = $_SESSION['csrf_admin'];
 
         $this->render->renderiza('adminUsuarios', $datos);
     }
@@ -231,39 +229,96 @@ class AdminController
     public function bajaUsuario()
     {
         AdminAccess::exigir($this->model);
-        $this->asegurarCsrfToken();
+        $volver = $this->urlListadoUsuarios();
+        $id = $this->validarAccionListado($volver);
 
-        if (!$this->tokenValido()) {
+        try {
+            if ($this->model->eliminar($id)) {
+                $this->guardarMensaje('El usuario se eliminó.', 'success');
+            } else {
+                $this->guardarMensaje('No se encontró una cuenta que se pueda eliminar.', 'error');
+            }
+        } catch (\PDOException $e) {
+            $this->guardarMensaje('No se pudo eliminar el usuario. Puede tener reportes o datos relacionados.', 'error');
+        }
+
+        Redirect::to($volver);
+    }
+
+    public function cambiarBloqueoUsuario()
+    {
+        AdminAccess::exigir($this->model);
+        $volver = $this->urlListadoUsuarios();
+        $id = $this->validarAccionListado($volver);
+        $accion = Request::post('bloquear');
+        if (!in_array($accion, ['0', '1'], true)) {
+            $this->guardarMensaje('La acción de bloqueo no es válida.', 'error');
+            Redirect::to($volver);
+        }
+
+        $bloquear = $accion === '1';
+        try {
+            if ($this->model->cambiarBloqueo($id, $bloquear)) {
+                $this->guardarMensaje($bloquear ? 'La cuenta quedó bloqueada.' : 'La cuenta se desbloqueó.', 'success');
+            } else {
+                $this->guardarMensaje('No se encontró una cuenta cuyo bloqueo se pueda cambiar.', 'error');
+            }
+        } catch (\PDOException $e) {
+            $this->guardarMensaje('No se pudo cambiar el bloqueo. Volvé a intentarlo.', 'error');
+        }
+
+        Redirect::to($volver);
+    }
+
+    private function validarAccionListado($volver)
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !$this->tokenValido()) {
             $this->guardarMensaje('El formulario venció. Volvé a intentarlo.', 'error');
-            Redirect::to('/Preguntados/admin/usuarios');
+            Redirect::to($volver);
         }
 
         $id = $this->leerId(Request::post('id'));
-        $usuario = $id > 0 ? $this->model->obtenerUsuario($id) : null;
-
-        if ($usuario === null) {
-            $this->guardarMensaje('No se encontró ese usuario.', 'error');
-            Redirect::to('/Preguntados/admin/usuarios');
+        if (!$id || $id === (int) $_SESSION['usuario_id']) {
+            $this->guardarMensaje('No se puede aplicar esa acción a la cuenta indicada.', 'error');
+            Redirect::to($volver);
         }
 
-        if ($id === (int) $_SESSION['usuario_id']) {
-            $this->guardarMensaje('No podés darte de baja a vos mismo.', 'error');
-            Redirect::to('/Preguntados/admin/usuarios');
+        return $id;
+    }
+
+    private function urlListadoUsuarios()
+    {
+        return '/Preguntados/admin/usuarios?' . http_build_query(
+            $this->filtrosUsuarios() + ['pagina' => max(1, $this->leerId(Request::get('pagina')))]
+        );
+    }
+
+    private function filtrosUsuarios()
+    {
+        $filtros = [];
+        foreach (['rol', 'estado', 'orden', 'busqueda', 'desde', 'hasta', 'puntosMinimos'] as $clave) {
+            $valor = Request::get($clave);
+            $filtros[$clave] = is_string($valor) ? $valor : '';
         }
 
-        if ($usuario['rol'] === 'ADMIN' && $this->model->contarAdmins() <= 1) {
-            $this->guardarMensaje('Tiene que quedar al menos un administrador.', 'error');
-            Redirect::to('/Preguntados/admin/usuarios');
-        }
+        $filtros['rol'] = isset(self::ROLES[$filtros['rol']]) ? $filtros['rol'] : '';
+        $filtros['estado'] = isset(self::ESTADOS[$filtros['estado']]) ? $filtros['estado'] : '';
+        $filtros['orden'] = isset(self::ORDENES[$filtros['orden']]) ? $filtros['orden'] : 'alta_desc';
+        $filtros['busqueda'] = mb_substr(trim($filtros['busqueda']), 0, 100);
+        $filtros['desde'] = $this->fechaFiltro($filtros['desde']);
+        $filtros['hasta'] = $this->fechaFiltro($filtros['hasta']);
+        $minimo = filter_var($filtros['puntosMinimos'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $filtros['puntosMinimos'] = $minimo === false ? '' : (string) $minimo;
 
-        try {
-            $this->model->eliminar($id);
-            $this->guardarMensaje('El usuario se dio de baja.', 'success');
-        } catch (\PDOException $e) {
-            $this->guardarMensaje('No se pudo borrar el usuario. Puede tener reportes o datos relacionados.', 'error');
-        }
+        return $filtros;
+    }
 
-        Redirect::to('/Preguntados/admin/usuarios');
+    private function fechaFiltro($valor)
+    {
+        if (!preg_match('/\A(\d{4})-(\d{2})-(\d{2})\z/', $valor, $partes)) {
+            return '';
+        }
+        return (int) $partes[1] >= 1000 && checkdate((int) $partes[2], (int) $partes[3], (int) $partes[1]) ? $valor : '';
     }
 
     private function mostrarAltaConError(array $formulario)
@@ -384,16 +439,21 @@ class AdminController
 
     private function rolesConSeleccion($seleccionado)
     {
-        $roles = [];
-        foreach (self::ROLES_SELECCIONABLES as $valor => $etiqueta) {
-            $roles[] = [
+        return $this->opcionesConSeleccion(self::ROLES_SELECCIONABLES, $seleccionado);
+    }
+
+    private function opcionesConSeleccion(array $opciones, $seleccionado)
+    {
+        $resultado = [];
+        foreach ($opciones as $valor => $etiqueta) {
+            $resultado[] = [
                 'value' => $valor,
                 'label' => $etiqueta,
                 'seleccionado' => $valor === $seleccionado,
             ];
         }
 
-        return $roles;
+        return $resultado;
     }
 
     private function asegurarCsrfToken()

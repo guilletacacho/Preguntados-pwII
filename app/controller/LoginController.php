@@ -31,6 +31,8 @@ class LoginController
             $error = "Usuario o contraseña incorrectos.";
         } elseif (Request::get("login_error") === "2") {
             $error = "Cuenta no validada.";
+        } elseif (Request::get("login_error") === "3") {
+            $error = "Tu cuenta está bloqueada.";
         }
 
         $data = [
@@ -51,6 +53,10 @@ class LoginController
             return;
         }
 
+        if ($usuario['bloqueado']) {
+            Redirect::to('/Preguntados/?login_error=3');
+        }
+
         if (!$usuario['verificado']) {
             Redirect::to('/Preguntados/?login_error=2');
             return;
@@ -62,6 +68,7 @@ class LoginController
         $_SESSION['usuario'] = $usuario['usuario'];
         $_SESSION['foto_url'] = $usuario['foto_url'] ?? null;
         $_SESSION['rol'] = $usuario['rol'];
+        $_SESSION['version_sesion'] = (int) $usuario['version_sesion'];
         $this->presence->touch($usuario['id'], session_id());
         Redirect::to($usuario['rol'] === 'ADMIN' ? '/Preguntados/admin' : '/Preguntados/home');
     }

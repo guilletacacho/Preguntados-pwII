@@ -15,6 +15,8 @@ db_port = 3306
 
 `config/config.ini` está excluido de Git para mantener las credenciales locales.
 
+Si ya tenés una base instalada, importá `app/sql/migracion_gestion_usuarios.sql` sobre esa base para habilitar el bloqueo y las fechas de alta. Las cuentas anteriores a la migración conservan una fecha de alta desconocida.
+
 # Instalación
 
 Necesitas PHP, Composer y MySQL (por ejemplo, con XAMPP). Desde la carpeta del proyecto ejecuta:

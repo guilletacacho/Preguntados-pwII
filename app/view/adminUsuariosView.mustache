@@ -11,45 +11,69 @@
             </div>
         </div>
     </nav>
-    <div class="moderador-content">
-        <header class="moderador-header">
-            <div>
-                <span class="moderador-eyebrow">PANEL ADMINISTRABLE</span>
-                <h1>Usuarios</h1>
-                <p>Alta, baja y modificación de cuentas.</p>
+    <div class="admin-wrap">
+        {{> adminEncabezado}}
+
+        <form class="moderador-filtros admin-filtros-usuarios" method="get" action="{{basePath}}/admin/usuarios" role="search" aria-label="Filtros de usuarios">
+            <label class="admin-filtro-busqueda">
+                Buscar usuarios
+                <input type="search" name="busqueda" value="{{filtros.busqueda}}" placeholder="Usuario, nombre o correo" maxlength="100">
+            </label>
+            <label>
+                Rol
+                <select name="rol">
+                    {{#roles}}
+                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                    {{/roles}}
+                </select>
+            </label>
+            <label>
+                Estado de la cuenta
+                <select name="estado">
+                    {{#estados}}
+                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                    {{/estados}}
+                </select>
+            </label>
+            <label>
+                Alta desde
+                <input type="date" name="desde" value="{{filtros.desde}}">
+            </label>
+            <label>
+                Alta hasta
+                <input type="date" name="hasta" value="{{filtros.hasta}}">
+            </label>
+            <label>
+                Puntos mínimos
+                <input type="number" name="puntosMinimos" value="{{filtros.puntosMinimos}}" min="0" step="1" placeholder="Sin mínimo">
+            </label>
+            <label>
+                Ordenar por
+                <select name="orden">
+                    {{#ordenes}}
+                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                    {{/ordenes}}
+                </select>
+            </label>
+            <div class="admin-filtros-acciones">
+                <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Limpiar</a>
+                <button class="moderador-boton" type="submit">Filtrar</button>
             </div>
-            <a class="moderador-nueva-pregunta" href="{{basePath}}/admin/altaUsuario">+ Nuevo usuario</a>
-        </header>
-
-        {{#mensaje}}
-            <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="status">{{texto}}</p>
-        {{/mensaje}}
-
-        <nav class="moderador-tabs" aria-label="Secciones del panel">
-            <a class="moderador-tab" href="{{basePath}}/admin">Resumen</a>
-            <button class="moderador-tab is-active" type="button" aria-current="page">Usuarios <span class="moderador-badge">{{totalUsuarios}}</span></button>
-        </nav>
-
-        <form class="moderador-filtros" method="get" action="{{basePath}}/admin/usuarios" role="search">
-            <input type="search" name="busqueda" value="{{busqueda}}" placeholder="Buscar por usuario, nombre o correo" aria-label="Buscar usuarios">
-            <select name="rol" aria-label="Filtrar por rol">
-                <option value="" {{#rolTodasSeleccionada}}selected{{/rolTodasSeleccionada}}>Todos los roles</option>
-                {{#roles}}
-                    <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
-                {{/roles}}
-            </select>
-            <button class="moderador-boton" type="submit">Filtrar</button>
-            <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Limpiar</a>
         </form>
+        {{#errorFechas}}
+            <p class="moderador-mensaje moderador-mensaje-error" role="alert">La fecha desde debe ser anterior o igual a la fecha hasta.</p>
+        {{/errorFechas}}
 
         <div class="moderador-tabla-contenedor">
-            <table class="moderador-tabla-preguntas">
+            <table class="moderador-tabla-preguntas admin-tabla-usuarios">
                 <thead>
                     <tr>
                         <th>Usuario</th>
                         <th>Nombre y correo</th>
                         <th>Rol</th>
-                        <th>Verificado</th>
+                        <th>Estado</th>
+                        <th>Puntos</th>
+                        <th>Fecha de alta</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -61,19 +85,38 @@
                             <td>
                                 <span class="moderador-badge {{#esAdmin}}moderador-badge-alerta{{/esAdmin}} {{#esModerador}}moderador-badge-verde{{/esModerador}}">{{rol}}</span>
                             </td>
-                            <td>{{#verificado}}Sí{{/verificado}}{{^verificado}}No{{/verificado}}</td>
                             <td>
-                                <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/admin/editarUsuario?id={{id}}">Editar</a>
-                                <form method="post" action="{{basePath}}/admin/bajaUsuario" style="display:inline" onsubmit="return confirm('¿Dar de baja este usuario?');">
-                                    <input type="hidden" name="id" value="{{id}}">
-                                    <input type="hidden" name="csrf_token" value="{{csrfToken}}">
-                                    <button class="moderador-boton moderador-boton-descartar" type="submit">Baja</button>
-                                </form>
+                                {{#verificado}}Verificado{{/verificado}}{{^verificado}}Sin verificar{{/verificado}}
+                                {{#bloqueado}}<br><span class="admin-estado-bloqueado">Bloqueado</span>{{/bloqueado}}
+                            </td>
+                            <td>{{puntos}}</td>
+                            <td>{{#fechaAlta}}{{fechaAlta}}{{/fechaAlta}}{{^fechaAlta}}<span class="moderador-item-meta">Sin registro</span>{{/fechaAlta}}</td>
+                            <td>
+                                <div class="admin-usuario-acciones">
+                                    <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/admin/editarUsuario?id={{id}}" aria-label="Editar a {{usuario}}">Editar</a>
+                                    {{^esAdmin}}
+                                        <form method="post" action="{{basePath}}/admin/cambiarBloqueoUsuario?{{queryFiltros}}&amp;pagina={{pagina}}" {{^bloqueado}}onsubmit="return confirm('¿Bloquear esta cuenta y cerrar sus sesiones?');"{{/bloqueado}}>
+                                            <input type="hidden" name="id" value="{{id}}">
+                                            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                                            {{^bloqueado}}
+                                                <button class="moderador-boton admin-boton-bloqueo" type="submit" name="bloquear" value="1" aria-label="Bloquear a {{usuario}}">Bloquear</button>
+                                            {{/bloqueado}}
+                                            {{#bloqueado}}
+                                                <button class="moderador-boton admin-boton-bloqueo" type="submit" name="bloquear" value="0" aria-label="Desbloquear a {{usuario}}">Desbloquear</button>
+                                            {{/bloqueado}}
+                                        </form>
+                                        <form method="post" action="{{basePath}}/admin/bajaUsuario?{{queryFiltros}}&amp;pagina={{pagina}}" onsubmit="return confirm('¿Eliminar esta cuenta de forma permanente?');">
+                                            <input type="hidden" name="id" value="{{id}}">
+                                            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                                            <button class="moderador-boton moderador-boton-descartar" type="submit" aria-label="Eliminar a {{usuario}}">Eliminar</button>
+                                        </form>
+                                    {{/esAdmin}}
+                                </div>
                             </td>
                         </tr>
                     {{/usuarios}}
                     {{^usuarios}}
-                        <tr><td colspan="5" class="moderador-vacio">No hay usuarios con esos filtros.</td></tr>
+                        <tr><td colspan="7" class="moderador-vacio">No hay usuarios con esos filtros.</td></tr>
                     {{/usuarios}}
                 </tbody>
             </table>
@@ -83,13 +126,13 @@
             <span>Página {{pagina}} de {{paginas}} · {{totalUsuarios}} usuarios</span>
             <nav aria-label="Páginas de usuarios">
                 {{#hayPaginaAnterior}}
-                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&pagina={{paginaAnterior}}">Anterior</a>
+                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&amp;pagina={{paginaAnterior}}">Anterior</a>
                 {{/hayPaginaAnterior}}
                 {{^hayPaginaAnterior}}
                     <span class="paginacion-deshabilitada">Anterior</span>
                 {{/hayPaginaAnterior}}
                 {{#hayPaginaSiguiente}}
-                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&pagina={{paginaSiguiente}}">Siguiente</a>
+                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&amp;pagina={{paginaSiguiente}}">Siguiente</a>
                 {{/hayPaginaSiguiente}}
                 {{^hayPaginaSiguiente}}
                     <span class="paginacion-deshabilitada">Siguiente</span>
