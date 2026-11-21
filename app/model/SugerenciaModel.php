@@ -10,14 +10,49 @@ class SugerenciaModel{
         $this->database = $database;
     }
 
+    public function categoriaExiste($categoryId){
+
+        $sql = "SELECT id FROM category WHERE id = ?";
+
+        return $this->database->queryOne($sql,[$categoryId]) !== null;
+    }
+
     public function crearSugerencia($userId,$categoryId,$questionText){
 
+        $userId = filter_var($userId, FILTER_VALIDATE_INT);
+        $categoryId = filter_var($categoryId, FILTER_VALIDATE_INT);
+
+        if ($userId === false || $userId < 1) {
+            throw new \DomainException('La sesión de usuario no es válida.');
+        }
+
+        if ($categoryId === false || $categoryId < 1) {
+            throw new \DomainException('Seleccioná una categoría válida.');
+        }
+
+        if (!$this->categoriaExiste($categoryId)) {
+            throw new \DomainException('La categoría seleccionada no existe.');
+        }
+
+        if (!is_string($questionText)) {
+            throw new \DomainException('La pregunta no es válida.');
+        }
+
+        $questionText = trim($questionText);
+
+        if ($questionText === '' || mb_strlen($questionText, 'UTF-8') > 500) {
+            throw new \DomainException(
+                'La pregunta es obligatoria y admite hasta 500 caracteres.'
+            );
+        }
+
+        
         $sql = "INSERT INTO question_suggestions (user_id, category_id, question_text,status) VALUES (?, ?, ?,'PENDIENTE')";
 
         $this->database->execute($sql,[
-            (int) $userId,
-            (int) $categoryId,
-            trim($questionText)
+            $userId,
+            $categoryId,
+            $questionText,
         ]);
 
         return (int) $this->database->lastInsertId();
@@ -237,6 +272,9 @@ class SugerenciaModel{
 
         if ($categoryId === false || $categoryId < 1) {
             throw new \DomainException('Seleccioná una categoría válida.');
+        }
+        if (!$this->categoriaExiste($categoryId)) {
+            throw new \DomainException('La categoría seleccionada no existe.');
         }
 
         if (!in_array($difficulty, [1, 2, 3], true)) {

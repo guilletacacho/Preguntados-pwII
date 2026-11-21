@@ -920,9 +920,7 @@ class ModeradorController
 
     public function sugerencias(){
         
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         $estado = strtoupper(Request::get('estado', 'PENDIENTE'));
         $estadosValidos = ['PENDIENTE', 'APROBADA', 'RECHAZADA'];
@@ -963,6 +961,8 @@ class ModeradorController
         }
         unset($pregunta);
 
+        $this->asegurarCsrfToken();
+
         $datos = [
             'sugerencias' => count($preguntas),
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
@@ -975,6 +975,7 @@ class ModeradorController
             'estadoPendiente' => $estado === 'PENDIENTE',
             'estadoAprobada' => $estado === 'APROBADA',
             'estadoRechazada' => $estado === 'RECHAZADA',
+            'csrfToken' => $_SESSION['csrf_moderador'],
         ];
 
         $this->render->renderiza('moderadorSugerencias', $datos);
@@ -1012,12 +1013,15 @@ class ModeradorController
 
         $pendientes = $this->sugerenciaModel->mostrarPreguntasSugeridas('PENDIENTE');
 
+        $this->asegurarCsrfToken();
+
         $datos = [
             'sugerenciaId' => $sugerencia['id'],
             'pregunta' => $sugerencia['pregunta'],
             'categorias' => $categorias,
             'respuestas' => $respuestas,
             'sugerenciasPendientes' => count($pendientes),
+            'csrfToken' => $_SESSION['csrf_moderador'],
         ];
 
         $this->render->renderiza('moderadorSugerenciasEditar', $datos);
@@ -1029,6 +1033,11 @@ class ModeradorController
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
+            return;
+        }
+
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
             return;
         }
         
@@ -1075,6 +1084,11 @@ class ModeradorController
             return;
         }
 
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
+            return;
+        }
+
         $id = filter_var(
             $_POST['suggestion_id'] ?? null,
             FILTER_VALIDATE_INT
@@ -1109,4 +1123,16 @@ class ModeradorController
 
         Redirect::to('/Preguntados/moderador/sugerencias?estado=RECHAZADA');
     }
+
+    //METODOS PRIVADOS
+    private function csrfSugerenciasValido($tokenEnviado)
+    {
+        $tokenSesion = $_SESSION['csrf_moderador'] ?? '';
+
+        return is_string($tokenSesion)
+            && is_string($tokenEnviado)
+            && $tokenSesion !== ''
+            && hash_equals($tokenSesion, $tokenEnviado);
+    }
+
 }

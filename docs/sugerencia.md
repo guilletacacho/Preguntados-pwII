@@ -1,111 +1,76 @@
 # Sugerencias de preguntas
 
-## Planteo
+## Arquitectura MVC
 
-El usuario puede proponer una pregunta desde el home. Envía únicamente la categoría y el enunciado; el moderador investiga el tema y redacta las respuestas al revisarla. Las sugerencias no se incorporan a las partidas hasta que un moderador las aprueba y publica.
+El jugador propone una categoría y un enunciado. La propuesta se guarda como `PENDIENTE`; el moderador corrige el enunciado, redacta las respuestas y decide si la publica o la rechaza.
 
-## Flujo
+El recorrido general es:
 
-1. En el home, debajo de las preguntas frecuentes, aparece **¿Puedo enviar una pregunta como sugerencia?**. Al pulsar el enlace, el usuario entra a una página de sugerencias.
-2. La página muestra un botón para desplegar el formulario y, a su derecha, las últimas 10 preguntas sugeridas que fueron aprobadas. Así el usuario puede ver ejemplos de propuestas aceptadas.
-3. El formulario solicita categoría y enunciado. No solicita respuestas.
-4. Al enviar, el servidor valida los datos, guarda la sugerencia como `PENDIENTE` asociada al usuario autenticado y redirige al home con un mensaje de confirmación.
-5. El moderador ve las sugerencias pendientes en su panel. Al abrir una, puede corregir el enunciado, investigar y redactar cuatro respuestas distintas, marcando una como correcta, o descartar la sugerencia.
-6. Al aprobar, el sistema publica la pregunta y sus respuestas en las tablas existentes `questions` y `response`, y guarda el resultado de la revisión y el vínculo a la pregunta publicada. Al descartar, registra el estado `RECHAZADA` y una nota opcional.
+`Vista → Controller → Model → Base de datos`
+
+El controlador recibe la petición y prepara los datos para la vista. El modelo contiene las consultas y reglas de persistencia. Las vistas muestran formularios y resultados, sin consultar directamente la base.
 
 ## Implementación paso a paso
 
-Los nombres de métodos y vistas son sugeridos; se pueden adaptar a las convenciones existentes del proyecto.
+### 1. Model: persistencia y reglas
 
-### 1. Completar el acceso desde el home
+Archivo: `app/model/SugerenciaModel.php`.
 
-**Archivo:** `app/view/homeView.mustache`
+- `crearSugerencia($userId, $categoryId, $questionText)`: inserta una propuesta en `question_suggestions` con estado `PENDIENTE`.
+- `mostrarPreguntasSugeridas($estado, $categoriaId = null)`: arma la bandeja filtrada por estado y, opcionalmente, categoría. Usa consultas parametrizadas.
+- `obtenerSugerenciaPorId($id)`: carga una sugerencia pendiente para el editor.
+- `obtenerCategorias()`: obtiene las categorías disponibles.
+- `obtenerUltimasPreguntasAprobadas($limite = 10)`: devuelve las aprobadas más recientes para la página del jugador.
+- `rechazarSugerencia($id, $moderadorId, $nota)`: cambia a `RECHAZADA` únicamente si todavía está pendiente y registra quién la revisó, cuándo y la nota.
+- `publicarSugerencia($id, $moderadorId, $datos)`: valida los datos finales, crea la pregunta y respuestas, y actualiza la sugerencia como aprobada.
 
-- Convertir el enlace visual de sugerencias en un enlace a la nueva página, por ejemplo `{{basePath}}/sugerencias`.
-- Mantener la pregunta dentro de las preguntas frecuentes, debajo de la consulta de rankings.
+#### Cómo funciona la transacción de publicación
 
-### 2. Crear la página de sugerencias
+`publicarSugerencia()` agrupa los cambios que deben ocurrir juntos:
 
-**Archivo nuevo sugerido:** `app/view/sugerenciasView.mustache`
+1. Valida pregunta, categoría, dificultad y las cuatro respuestas; comprueba que sean distintas y que haya una correcta.
+2. Inicia la transacción con `beginTransaction()`.
+3. `verificarPendiente()` bloquea y comprueba la sugerencia con `SELECT ... FOR UPDATE`, evitando que se publique si ya fue revisada.
+4. `insertarPregunta()` crea la fila en `questions`.
+5. `insertarRespuestas()` crea las cuatro filas en `response` asociadas a la pregunta.
+6. `marcarAprobada()` guarda el estado `APROBADA`, el moderador, la fecha y el ID de la pregunta publicada.
+7. Si todo sale bien, `commit()` confirma los cambios. Si ocurre un error, `rollBack()` los deshace.
 
-- Mostrar un botón **Sugerir una pregunta** que despliegue el formulario.
-- Incluir campos de categoría y enunciado, con token CSRF.
-- En un diseño de dos columnas, mostrar a la derecha las últimas 10 sugerencias aprobadas, con el enunciado y, si corresponde, la categoría.
-- Mostrar mensajes de validación o confirmación.
+La transacción evita dejar una pregunta sin sus cuatro respuestas o una sugerencia aprobada sin pregunta publicada.
 
-### 3. Agregar las rutas y acciones del usuario
+### 2. Controller del jugador
 
-**Archivos:** archivo de rutas del proyecto y `app/controller/HomeController.php`.
+Archivo: `app/controller/HomeController.php`.
 
-- Registrar una ruta GET, por ejemplo `/sugerencias`, que invoque `mostrarSugerencias()`.
-- En `mostrarSugerencias()`, obtener las categorías y las últimas 10 sugerencias aprobadas, y cargar `sugerenciasView.mustache`.
-- Registrar una ruta POST, por ejemplo `/sugerencias/enviar`, que invoque `enviarSugerencia()`.
-- En `enviarSugerencia()`, verificar sesión y CSRF, validar categoría y enunciado, guardar la sugerencia como pendiente y redirigir al home con un mensaje.
-- Agregar o reutilizar `validarSugerencia($datos)` para comprobar categoría válida y enunciado no vacío dentro del límite establecido.
+- `mostrarSugerencias()` requiere una sesión y llama a `obtenerUltimasPreguntasAprobadas(10)`. Pasa el resultado a la vista como `preguntasAprobadas`.
+- `enviarSugerencia()` requiere una sesión, recibe `category` y `question` del formulario y llama a `crearSugerencia()` con el ID del usuario autenticado.
 
-### 4. Crear la persistencia de sugerencias
+### 3. Controller del moderador
 
-**Archivo nuevo sugerido:** `app/model/SugerenciaModel.php`.
+Archivo: `app/controller/ModeradorController.php`.
 
-- `crearSugerencia($userId, $datos)`: insertar usuario, categoría y enunciado con estado `PENDIENTE`.
-- `obtenerUltimasAprobadas($limite = 10)`: obtener las sugerencias aprobadas más recientes para la columna pública.
-- `obtenerSugerencias($estado, $limite, $offset)` y `contarSugerencias($estado)`: recuperar la bandeja de moderación.
-- `obtenerSugerenciaPorId($id)`: cargar detalle, categoría, autor y estado.
-- Usar consultas parametrizadas.
+- `sugerencias()` obtiene el estado y la categoría seleccionados, consulta las categorías y pide al modelo las sugerencias correspondientes.
+- `editarSugerencia()` exige acceso de moderador, carga una propuesta pendiente y prepara las categorías y cuatro campos de respuesta.
+- `publicarSugerencias()` exige acceso de moderador, recibe las respuestas finales y llama a `publicarSugerencia()`.
+- `rechazarSugerencia()` exige acceso de moderador y llama a `rechazarSugerencia()` con la nota indicada.
 
-### 5. Incorporar la tabla al esquema
+### 4. Vistas
 
-**Archivo:** `app/sql/preguntados.sql`; si corresponde, también `app/sql/estructura.sql`. Para bases ya instaladas, crear una migración en `app/sql/`.
+- `app/view/sugerenciasView.mustache`: formulario para enviar una propuesta y lista dinámica de aprobadas. La lista muestra pregunta, categoría y autor; `public/css/sugerencias.css` define el scroll y los colores por categoría.
+- `app/view/moderadorSugerenciasView.mustache`: bandeja, filtros de estado y categoría, y acciones para editar o rechazar.
+- `app/view/moderadorSugerenciasEditarView.mustache`: formulario para corregir el enunciado, elegir categoría y dificultad, completar cuatro respuestas y marcar la correcta.
+- `app/view/homeView.mustache`: enlace desde preguntas frecuentes a la página de sugerencias.
 
-Agregar una sola tabla nueva, `question_suggestions`, con estos datos:
+### 5. Base de datos e integración
 
-- `id`: identificador de la sugerencia.
-- `user_id`: usuario que la envió; referencia a `usuarios.Id`.
-- `category_id`: categoría propuesta; referencia a `category.id`.
-- `question_text`: enunciado enviado por el usuario.
-- `status`: `PENDIENTE`, `APROBADA` o `RECHAZADA`; por defecto `PENDIENTE`.
-- `reviewed_by`, `reviewed_at`: moderador y fecha de revisión.
-- `resolution_notes`: nota opcional sobre la resolución.
-- `published_question_id`: referencia a `questions.id` una vez publicada.
-- `created_at`, `updated_at`: fechas de creación y última modificación.
+- `app/sql/preguntados.sql` crea `question_suggestions`, con referencias al usuario, categoría, moderador y pregunta publicada.
+- Las preguntas aprobadas se guardan en `questions`; sus respuestas se guardan en `response`.
+- `app/Configuration.php` inyecta `SugerenciaModel` en `HomeController` y `ModeradorController`.
+- El router del proyecto resuelve las acciones MVC usadas por los enlaces y formularios.
 
-No se guardan respuestas en `question_suggestions`: las redacta el moderador y se almacenan en la tabla existente `response`, vinculadas a `questions` mediante `response.question_id`. Conviene que `published_question_id` sea único para evitar vincular una pregunta publicada con más de una sugerencia.
+## Pendiente para terminar
 
-### 6. Crear la bandeja y el editor del moderador
-
-**Archivos:** `app/controller/ModeradorController.php`, una vista como `app/view/moderadorSugerenciasView.mustache`, el archivo de rutas y `app/model/SugerenciaModel.php`.
-
-- Agregar una acción para listar sugerencias, priorizando las pendientes, y otra para mostrar el detalle.
-- En la vista, ofrecer las acciones **Revisar** y **Descartar**.
-- El editor debe cargar el enunciado y permitir corregirlo y redactar cuatro respuestas distintas, con exactamente una correcta.
-- Comprobar el rol `MODERADOR` en el servidor para todas las rutas de revisión.
-
-Métodos sugeridos:
-
-- `listarSugerencias($estado, $pagina)`: listar y paginar la bandeja.
-- `obtenerSugerencia($id)`: devolver el detalle para revisión.
-- `aprobarSugerencia($id, $datosFinales)`: validar y publicar la versión final.
-- `rechazarSugerencia($id, $nota)`: registrar el rechazo y su nota opcional.
-- `validarRevisionSugerencia($datos)`: validar enunciado y respuestas redactadas por el moderador.
-
-### 7. Publicar la pregunta de forma atómica
-
-**Archivos:** `app/model/SugerenciaModel.php` y el mecanismo existente que crea preguntas y respuestas.
-
-- En `publicarSugerencia($id, $moderadorId, $datosFinales)`, verificar que la sugerencia siga pendiente.
-- Dentro de una transacción, crear la fila de `questions`, insertar las cuatro filas de `response`, actualizar la sugerencia a `APROBADA` y guardar `reviewed_by`, `reviewed_at` y `published_question_id`.
-- Si alguna operación falla, revertir toda la transacción.
-- Al rechazar, actualizar el estado, moderador, fecha y nota sin crear una pregunta.
-
-## Reglas a considerar
-
-- Validar CSRF en los envíos y consultas parametrizadas en la persistencia.
-- El autor puede consultar el estado de sus propias sugerencias, pero no modificarlas después del envío.
-- Comprobar que la sugerencia continúe `PENDIENTE` antes de aprobarla o rechazarla.
-- Limitar longitudes y definir cómo tratar sugerencias duplicadas.
-- Validar que las respuestas finales sean cuatro, distintas y que exactamente una sea correcta.
-- La consulta de las últimas 10 aprobadas debe mostrar solo contenido publicado, no sugerencias pendientes o rechazadas.
-
-## Resumen
-
-**Jugador:** entra desde el home → abre la página de sugerencias → despliega el formulario → envía categoría y enunciado → vuelve al home. **Moderador:** revisa la bandeja → corrige o descarta → si aprueba, redacta respuestas y publica la pregunta. La tabla `question_suggestions` conserva la propuesta original y los datos de revisión; el catálogo existente almacena la versión final y sus respuestas.
+- Validar en servidor el envío del jugador y agregar CSRF a las acciones de sugerencias. El editor incluye un campo CSRF, pero falta generar y comprobar el token en estas acciones.
+- Exigir rol de moderador también en `sugerencias()`, y cargar las categorías del formulario del jugador desde la base.
+- Agregar confirmación después del envío y una migración para bases ya instaladas (`estructura.sql` o migración específica).
+- La consulta del estado de las propuestas por su autor todavía no está implementada.

@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=3">
+﻿<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=3">
 <main class="home-shell sugerencias-shell" id="sugerencias">
     <nav class="home-sidenav" aria-label="Secciones del sitio">
         <div class="home-side-menu">
@@ -29,8 +29,9 @@
 
                 <div class="sugerencias-form-wrap" id="sugerencias-form-wrap" aria-hidden="true" inert>
                     <form class="sugerencias-form" action="{{basePath}}/home/enviarSugerencia" method="post">
+                    <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                     <label for="categoria-sugerida">Categoría</label>
-                    <select id="categoria-sugerida" name="category">
+                    <select id="categoria-sugerida" name="category" required>
                         <option value="" selected disabled>Seleccioná una categoría</option>
                         <option value="1" data-color="geografia">Geografía</option>
                         <option value="2" data-color="historia">Historia</option>
@@ -41,7 +42,7 @@
                     </select>
 
                     <label for="pregunta-sugerida">Pregunta sugerida</label>
-                    <textarea id="pregunta-sugerida" name="question" rows="5" placeholder="Escribí acá el enunciado de tu pregunta"></textarea>
+                    <textarea id="pregunta-sugerida" name="question" rows="5" maxlength="500" required placeholder="Escribí acá el enunciado de tu pregunta"></textarea>
 
                     <div class="sugerencias-form-actions">
                         <button type="submit" class="submit-btn sugerencias-enviar">Enviar pregunta</button>
@@ -72,3 +73,5 @@
 </main>
 
 <script src="{{basePath}}/public/js/sugerencias.js?v=1" defer></script>
+
+

@@ -1,4 +1,4 @@
-<style>
+﻿<style>
     .moderador-sugerencias-vista { display: grid; gap: 14px; }
     .moderador-sugerencias-intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--texto-sec); font-size: var(--moderador-texto-base); }
     .moderador-sugerencias-intro p { margin: 0; }
@@ -125,6 +125,7 @@
                     </div>
                     <form class="moderador-rechazo-formulario" method="post" action="{{basePath}}/moderador/rechazarSugerencia">
                         <input type="hidden" name="suggestion_id" value="{{id}}">
+                        <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                         <label for="motivo-rechazo-{{id}}">Motivo del rechazo</label>
                         <textarea id="motivo-rechazo-{{id}}" name="resolution_notes" maxlength="500" required></textarea>
                         <div class="moderador-rechazo-acciones">
@@ -143,3 +144,4 @@
         </section>
     </div>
 </main>
+
