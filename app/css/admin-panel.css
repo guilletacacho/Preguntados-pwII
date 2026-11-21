@@ -469,6 +469,11 @@
     box-shadow: 0 16px 34px rgba(6, 12, 20, .22);
 }
 
+.admin-panel .admin-tabla-usuarios-contenedor {
+    max-height: none;
+    overscroll-behavior-y: auto;
+}
+
 .admin-panel .admin-tabla-usuarios {
     min-width: 1000px;
 }
