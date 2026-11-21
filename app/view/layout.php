@@ -16,8 +16,11 @@ $assetBase = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCR
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="<?= $assetBase ?>/public/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= $assetBase ?>/app/css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>" rel="stylesheet">
+    <?php if (!empty($layoutData['esAdmin'])): ?>
+        <link href="<?= $assetBase ?>/app/css/admin-panel.css?v=<?= filemtime(__DIR__ . '/../css/admin-panel.css') ?>" rel="stylesheet">
+    <?php endif; ?>
 </head>
-<body>
+<body<?= !empty($layoutData['esAdmin']) ? ' class="admin-panel"' : '' ?>>
 <?php if (isset($_SESSION['usuario_id'])): ?>
 <?php
 if (!isset($_SESSION['presence_token'])) {
@@ -31,6 +34,40 @@ if (!isset($_SESSION['presence_token'])) {
 <?php require __DIR__ . '/header.php'; ?>
 <?= $content ?>
 <?php require __DIR__ . '/footer.php'; ?>
+<?php if (!empty($layoutData['esAdmin'])): ?>
+<script>
+    (function () {
+        var toggle = document.querySelector('.moderador-shell .home-side-toggle');
+        var menu = document.querySelector('.moderador-shell .home-side-menu');
+        if (!toggle || !menu) return;
+
+        var clave = 'adminSidenavAbierta';
+
+        function aplicar(abierta, guardar) {
+            toggle.setAttribute('aria-expanded', String(abierta));
+            menu.classList.toggle('is-expanded', abierta);
+            if (guardar) {
+                try { sessionStorage.setItem(clave, abierta ? '1' : '0'); } catch (error) {}
+            }
+        }
+
+        var guardada = null;
+        try { guardada = sessionStorage.getItem(clave); } catch (error) {}
+        aplicar(guardada !== '0', false);
+
+        toggle.addEventListener('click', function () {
+            aplicar(this.getAttribute('aria-expanded') !== 'true', true);
+        });
+
+        menu.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                aplicar(false, true);
+                toggle.focus();
+            }
+        });
+    })();
+</script>
+<?php endif; ?>
 </body>
 </html>
 

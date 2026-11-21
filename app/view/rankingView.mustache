@@ -1,4 +1,23 @@
-<main class="ranking-shell ranking-shell-with-characters">
+<main class="ranking-shell ranking-shell-with-characters con-barra-ranking">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu is-expanded">
+            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="true" aria-controls="ranking-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links" id="ranking-side-links">
+                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+                <a href="{{basePath}}/partida/iniciar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings" aria-current="page"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
+                <a href="{{basePath}}/home/show#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
+                {{#esAdmin}}
+                    <a href="{{basePath}}/admin" aria-label="Panel administrable"><span aria-hidden="true">⚙</span><span class="side-label">Panel administrable</span></a>
+                    <a href="{{basePath}}/admin/usuarios" aria-label="Usuarios"><span aria-hidden="true">☺</span><span class="side-label">Usuarios</span></a>
+                {{/esAdmin}}
+                {{#esModerador}}
+                    <a href="{{basePath}}/moderador" aria-label="Panel moderador"><span aria-hidden="true">⚑</span><span class="side-label">Panel moderador</span></a>
+                {{/esModerador}}
+            </div>
+        </div>
+    </nav>
     <div class="ranking-characters ranking-characters-left" aria-hidden="true">
         <ul class="personajes personajes-ranking personajes-ranking-left">
             <li><img src="{{basePath}}/public/img/personajes/geografia.svg" alt="" width="204" height="206"></li>
@@ -192,3 +211,37 @@
         </ul>
     </div>
 </main>
+<script>
+    (function () {
+        var shell = document.querySelector('.ranking-shell.con-barra-ranking');
+        if (!shell) return;
+        var toggle = shell.querySelector('.home-side-toggle');
+        var menu = shell.querySelector('.home-side-menu');
+        if (!toggle || !menu) return;
+
+        var clave = 'adminSidenavAbierta';
+
+        function aplicar(abierta, guardar) {
+            toggle.setAttribute('aria-expanded', String(abierta));
+            menu.classList.toggle('is-expanded', abierta);
+            if (guardar) {
+                try { sessionStorage.setItem(clave, abierta ? '1' : '0'); } catch (error) {}
+            }
+        }
+
+        var guardada = null;
+        try { guardada = sessionStorage.getItem(clave); } catch (error) {}
+        aplicar(guardada !== '0', false);
+
+        toggle.addEventListener('click', function () {
+            aplicar(this.getAttribute('aria-expanded') !== 'true', true);
+        });
+
+        menu.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                aplicar(false, true);
+                toggle.focus();
+            }
+        });
+    })();
+</script>

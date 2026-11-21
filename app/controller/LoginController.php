@@ -23,7 +23,7 @@ class LoginController
         // Con la cuenta ya abierta este formulario es un callejón sin salida:
         // la pestaña nueva tiene que parar en su inicio, no en "Iniciar sesión".
         if (isset($_SESSION['usuario_id'])) {
-            Redirect::to('/Preguntados/home/show');
+            Redirect::to($this->destinoInicio());
         }
 
         $error = "";
@@ -63,7 +63,14 @@ class LoginController
         $_SESSION['foto_url'] = $usuario['foto_url'] ?? null;
         $_SESSION['rol'] = $usuario['rol'];
         $this->presence->touch($usuario['id'], session_id());
-        Redirect::to('/Preguntados/home');
+        Redirect::to($usuario['rol'] === 'ADMIN' ? '/Preguntados/admin' : '/Preguntados/home');
+    }
+
+    private function destinoInicio()
+    {
+        return ($_SESSION['rol'] ?? '') === 'ADMIN'
+            ? '/Preguntados/admin'
+            : '/Preguntados/home';
     }
 
     public function logout()

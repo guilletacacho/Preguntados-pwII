@@ -1,0 +1,201 @@
+<main class="moderador-shell admin-shell">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu is-expanded">
+            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="true" aria-controls="admin-resumen-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links" id="admin-resumen-side-links">
+                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+                <a href="{{basePath}}/partida/iniciar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+                <a href="{{basePath}}/admin" aria-label="Panel administrable" aria-current="page"><span aria-hidden="true">⚙</span><span class="side-label">Panel administrable</span></a>
+                <a href="{{basePath}}/admin/usuarios" aria-label="Usuarios"><span aria-hidden="true">☺</span><span class="side-label">Usuarios</span></a>
+            </div>
+        </div>
+    </nav>
+    <div class="admin-wrap">
+
+        <header class="admin-hero">
+            <div>
+                <span class="admin-eyebrow">Panel administrable</span>
+                <h1>Resumen del sitio</h1>
+                <p>Datos reales de la base de datos. Tu cuenta del panel queda afuera de los cálculos de jugadores.</p>
+            </div>
+            <a class="admin-btn admin-btn-primary" href="{{basePath}}/admin/altaUsuario">+ Nuevo usuario</a>
+        </header>
+
+        {{#mensaje}}
+            <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="status">{{texto}}</p>
+        {{/mensaje}}
+
+        <nav class="admin-tabs" aria-label="Secciones del panel">
+            <button class="admin-tab is-active" type="button" aria-current="page">Resumen</button>
+            <a class="admin-tab" href="{{basePath}}/admin/usuarios">Usuarios <span class="admin-badge">{{totalUsuarios}}</span></a>
+        </nav>
+
+        <section class="admin-section" aria-labelledby="admin-indicadores">
+            <div class="admin-section-head">
+                <div>
+                    <h2 id="admin-indicadores">Indicadores</h2>
+                    <p>Lo que pasó en el sitio hasta ahora, sin números estimados.</p>
+                </div>
+                <span class="admin-section-tag">En vivo</span>
+            </div>
+
+            <div class="admin-metrics">
+                <article class="admin-metric admin-metric--usuarios">
+                    <span class="admin-metric-label">Usuarios registrados</span>
+                    <strong class="admin-metric-value">{{totalUsuarios}}</strong>
+                    <small>{{usuariosVerificados}} verificados · {{jugadoresReales}} respondieron una pregunta</small>
+                </article>
+
+                <article class="admin-metric admin-metric--online">
+                    <span class="admin-metric-label">Jugando ahora (sin vos)</span>
+                    <strong class="admin-metric-value">{{usuariosOnline}}</strong>
+                    <small>Conectados en los últimos 90 segundos</small>
+                </article>
+
+                <article class="admin-metric admin-metric--partidas">
+                    <span class="admin-metric-label">Partidas finalizadas</span>
+                    <strong class="admin-metric-value">{{partidasFinalizadas}}</strong>
+                    <small>{{partidasHoy}} finalizadas hoy</small>
+                </article>
+
+                <article class="admin-metric admin-metric--reportes">
+                    <span class="admin-metric-label">Reportes abiertos</span>
+                    <strong class="admin-metric-value">{{reportesPendientes}}</strong>
+                    <small>Preguntas pendientes de revisión</small>
+                </article>
+            </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="admin-accesos">
+            <div class="admin-section-head">
+                <div>
+                    <h2 id="admin-accesos">Cuentas y accesos</h2>
+                    <p>Quiénes tienen cuenta y qué rol cumplen en el sitio.</p>
+                </div>
+            </div>
+
+            <div class="admin-split">
+                <article class="admin-card">
+                    <div class="admin-card-head">
+                        <h3>Usuarios por rol</h3>
+                        <span>{{totalUsuarios}} en total</span>
+                    </div>
+                    <div class="admin-role-row">
+                        <span class="admin-role-name"><span class="admin-role-icon">J</span> Jugadores</span>
+                        <strong class="admin-role-value">{{jugadores}}</strong>
+                    </div>
+                    <div class="admin-role-row">
+                        <span class="admin-role-name"><span class="admin-role-icon">M</span> Moderadores</span>
+                        <strong class="admin-role-value">{{moderadores}}</strong>
+                    </div>
+                    <div class="admin-role-row">
+                        <span class="admin-role-name"><span class="admin-role-icon">A</span> Administradores</span>
+                        <strong class="admin-role-value">{{administradores}}</strong>
+                    </div>
+                    <p class="admin-role-note">Se cuenta el valor exacto de la columna <strong>rol</strong>: JUGADOR, MODERADOR o ADMIN.</p>
+                </article>
+
+                <article class="admin-card admin-card-graficos" data-admin-graficos>
+                    <div class="admin-card-head">
+                        <h3>Datos para gráficos</h3>
+                        <span>listos para tu compañero</span>
+                    </div>
+                    <p class="admin-card-copy">Todo sale de la base. Se cuentan solo usuarios con al menos una respuesta registrada.</p>
+                    <p class="admin-card-copy">Los arrays <strong>niveles</strong>, <strong>paises</strong>, <strong>edades</strong> y <strong>sexos</strong> ya vienen con cantidad y porcentaje.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="admin-perfil">
+            <div class="admin-section-head">
+                <div>
+                    <h2 id="admin-perfil">Perfil de quienes juegan</h2>
+                    <p>{{jugadoresReales}} jugadores reales con al menos una respuesta registrada.</p>
+                </div>
+                <span class="admin-section-tag">Datos reales</span>
+            </div>
+
+            <div class="admin-profile-grid">
+                <article class="admin-card admin-card-niveles">
+                    <div class="admin-card-head">
+                        <h3>Nivel de los jugadores</h3>
+                        <span>regla del juego</span>
+                    </div>
+                    {{#niveles}}
+                        <div class="admin-stat-row">
+                            <div class="admin-stat-label">
+                                <strong>{{etiqueta}}</strong>
+                                <span>{{cantidad}} · {{porcentaje}}%</span>
+                            </div>
+                            <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                        </div>
+                    {{/niveles}}
+                    {{^niveles}}
+                        <p class="admin-empty">Todavía no hay respuestas registradas.</p>
+                    {{/niveles}}
+                </article>
+
+                <article class="admin-card admin-card-paises">
+                    <div class="admin-card-head">
+                        <h3>Países</h3>
+                        <span>según el perfil</span>
+                    </div>
+                    {{#paises}}
+                        <div class="admin-stat-row">
+                            <div class="admin-stat-label">
+                                <strong>{{etiqueta}}</strong>
+                                <span>{{cantidad}} · {{porcentaje}}%</span>
+                            </div>
+                            <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                        </div>
+                    {{/paises}}
+                    {{^paises}}
+                        <p class="admin-empty">No hay datos de países.</p>
+                    {{/paises}}
+                </article>
+
+                <article class="admin-card admin-card-edades">
+                    <div class="admin-card-head">
+                        <h3>Edades</h3>
+                        <span>promedio {{edadPromedio}} años</span>
+                    </div>
+                    {{#edades}}
+                        <div class="admin-stat-row">
+                            <div class="admin-stat-label">
+                                <strong>{{etiqueta}}</strong>
+                                <span>{{cantidad}} · {{porcentaje}}%</span>
+                            </div>
+                            <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                        </div>
+                    {{/edades}}
+                </article>
+
+                <article class="admin-card admin-card-sexos">
+                    <div class="admin-card-head">
+                        <h3>Sexo</h3>
+                        <span>según el perfil</span>
+                    </div>
+                    {{#sexos}}
+                        <div class="admin-stat-row">
+                            <div class="admin-stat-label">
+                                <strong>{{etiqueta}}</strong>
+                                <span>{{cantidad}} · {{porcentaje}}%</span>
+                            </div>
+                            <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                        </div>
+                    {{/sexos}}
+                    {{^sexos}}
+                        <p class="admin-empty">No hay datos.</p>
+                    {{/sexos}}
+                </article>
+            </div>
+        </section>
+
+        <footer class="admin-footer">
+            <p class="admin-footnote">Edad estimada con el año de nacimiento (no se guarda día ni mes). Los porcentajes se calculan sobre {{jugadoresReales}} jugadores reales y tu cuenta del panel no entra en ninguno de estos cálculos.</p>
+            <a class="admin-btn" href="{{basePath}}/admin/usuarios">Ir al ABM de usuarios →</a>
+        </footer>
+
+    </div>
+</main>

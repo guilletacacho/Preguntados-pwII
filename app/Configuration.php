@@ -9,8 +9,10 @@ use app\controller\EmailController;
 use app\controller\RankingController;
 use app\controller\PartidaController;
 use app\controller\ModeradorController;
+use app\controller\AdminController;
 use app\model\PartidaModel;
 use app\model\ModeradorModel;
+use app\model\AdminModel;
 use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
@@ -26,6 +28,7 @@ require_once("helper/Autoloader.php");
 
 class Configuration
 {
+    private $database = null;
 
     public function __construct()
     {
@@ -97,6 +100,14 @@ class Configuration
         );
     }
 
+    public function getAdminController()
+    {
+        return new AdminController(
+            $this->getAdminModel(),
+            $this->gerRender()
+        );
+    }
+
     public function getPerfilController()
     {
         return new \app\controller\PerfilController(
@@ -108,6 +119,10 @@ class Configuration
     //fin de carga de controladores y model para redireccionamientos
     private function getDatabase()
     {
+        if ($this->database !== null) {
+            return $this->database;
+        }
+
         $configFile = "config/config.ini";
 
         if (!file_exists($configFile)) {
@@ -116,17 +131,19 @@ class Configuration
 
         $config = parse_ini_file($configFile);
 
-        return new MyDatabase($config["db_host"],
+        $this->database = new MyDatabase($config["db_host"],
             $config["db_user"],
             $config["db_pass"],
             $config["db_name"],
             $config["db_port"]
         );
+
+        return $this->database;
     }
 
     private function gerRender()
     {
-        return new MustacheRender($this->getModeradorModel());
+        return new MustacheRender($this->getModeradorModel(), $this->getAdminModel());
     }
 
     private function getMailHelper()
@@ -167,6 +184,12 @@ class Configuration
 
     private function getModeradorModel(){
         return new ModeradorModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getAdminModel(){
+        return new AdminModel(
             $this->getDatabase()
         );
     }

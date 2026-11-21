@@ -195,3 +195,17 @@ INSERT INTO usuarios
     (Nombre, Anio_nacimiento, Sexo, Provincia, Pais, Usuario, Email, Contrasena, Verificado, Token, Foto_url, rol)
 VALUES
     ('Nahuel Moderador', 2000, 'Otro', '', 'Argentina', 'moderador', 'moderador@gmail.com', MD5('Moderador123'), 1, NULL, NULL, 'MODERADOR');
+
+-- Usuario inicial del panel administrable (solo si no existe ya).
+-- Usuario: admin_panel · Contraseña: Admin1234! · Cambiarla tras el primer ingreso.
+INSERT INTO usuarios
+    (Nombre, Anio_nacimiento, Sexo, Provincia, Pais, Usuario, Email,
+     Contrasena, Verificado, Token, Foto_url, rol)
+SELECT
+    'Administrador', 1990, 'No especificado', '', 'Argentina',
+    'admin_panel', 'admin_panel@preguntados.local',
+    '552b2ebe774bb5aaa0ad2021da259d22', 1, NULL, NULL, 'ADMIN'
+WHERE NOT EXISTS (
+    SELECT 1 FROM usuarios
+    WHERE Usuario = 'admin_panel' OR Email = 'admin_panel@preguntados.local'
+);

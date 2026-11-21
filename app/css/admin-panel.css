@@ -1,0 +1,663 @@
+/* Estilos exclusivos del panel administrable.
+   Solo se cargan cuando el usuario logueado es ADMIN. */
+
+.admin-panel .admin-shell {
+    width: 100%;
+    margin-inline: 0;
+    padding-block: clamp(28px, 5vw, 64px);
+}
+
+.admin-panel .admin-wrap {
+    display: grid;
+    gap: 30px;
+    width: min(100%, 1180px);
+    margin-inline: auto;
+}
+
+.admin-panel .admin-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--borde);
+}
+
+.admin-panel .admin-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--geografia);
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.admin-panel .admin-hero h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.1;
+}
+
+.admin-panel .admin-hero p {
+    max-width: 62ch;
+    margin: 10px 0 0;
+    color: var(--texto-sec);
+    font-size: .9rem;
+    line-height: 1.55;
+}
+
+.admin-panel .admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 11px;
+    background: var(--hundido);
+    color: var(--texto);
+    font: 700 .85rem var(--fuente);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .15s, border-color .15s, transform .15s;
+}
+
+.admin-panel .admin-btn:hover {
+    border-color: var(--borde-fuerte);
+    background: var(--superficie);
+    transform: translateY(-1px);
+}
+
+.admin-panel .admin-btn-primary {
+    border-color: var(--deporte);
+    background: var(--deporte);
+    color: #172011;
+}
+
+.admin-panel .admin-btn-primary:hover {
+    border-color: #8ED255;
+    background: #8ED255;
+    color: #172011;
+}
+
+.admin-panel .admin-tabs {
+    display: flex;
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 6px;
+    border: 1px solid var(--borde);
+    border-radius: 13px;
+    background: var(--hundido);
+}
+
+.admin-panel .admin-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--texto-sec);
+    font: 700 .82rem var(--fuente);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.admin-panel .admin-tab:hover {
+    color: var(--texto);
+}
+
+.admin-panel .admin-tab.is-active {
+    border-color: var(--borde-fuerte);
+    background: var(--superficie);
+    color: var(--texto);
+    box-shadow: 0 4px 12px rgba(6, 12, 20, .25);
+}
+
+.admin-panel .admin-tab .admin-badge {
+    display: inline-grid;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--borde);
+    color: var(--texto);
+    font-size: .68rem;
+}
+
+.admin-panel .admin-section {
+    display: grid;
+    gap: 16px;
+}
+
+.admin-panel .admin-section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-panel .admin-section-head h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+}
+
+.admin-panel .admin-section-head p {
+    margin: 5px 0 0;
+    color: var(--texto-sec);
+    font-size: .82rem;
+    line-height: 1.45;
+}
+
+.admin-panel .admin-section-tag {
+    flex: 0 0 auto;
+    padding: 5px 11px;
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    background: var(--hundido);
+    color: var(--texto-tenue);
+    font-size: .67rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.admin-panel .admin-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.admin-panel .admin-metric {
+    --admin-accent: var(--deporte);
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    padding: 20px;
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    background: var(--superficie);
+}
+
+.admin-panel .admin-metric::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--admin-accent);
+}
+
+.admin-panel .admin-metric--usuarios { --admin-accent: var(--geografia); }
+.admin-panel .admin-metric--online { --admin-accent: var(--deporte); }
+.admin-panel .admin-metric--partidas { --admin-accent: var(--arte); }
+.admin-panel .admin-metric--reportes { --admin-accent: var(--cine); }
+
+.admin-panel .admin-metric-label {
+    color: var(--texto-sec);
+    font-size: .69rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.admin-panel .admin-metric-value {
+    display: block;
+    margin: 12px 0 6px;
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: -.05em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-panel .admin-metric small {
+    display: block;
+    color: var(--texto-tenue);
+    font-size: .73rem;
+    line-height: 1.45;
+}
+
+.admin-panel .admin-split,
+.admin-panel .admin-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.admin-panel .admin-card {
+    --admin-bar: var(--deporte);
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    background: var(--superficie);
+}
+
+.admin-panel .admin-card-graficos {
+    border-style: dashed;
+    background: linear-gradient(180deg, var(--superficie), var(--hundido));
+}
+
+.admin-panel .admin-card-niveles { --admin-bar: var(--deporte); }
+.admin-panel .admin-card-paises { --admin-bar: var(--geografia); }
+.admin-panel .admin-card-edades { --admin-bar: var(--arte); }
+.admin-panel .admin-card-sexos { --admin-bar: var(--ciencia); }
+
+.admin-panel .admin-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 13px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--borde);
+}
+
+.admin-panel .admin-card-head h3 {
+    margin: 0;
+    font-size: .95rem;
+    font-weight: 800;
+}
+
+.admin-panel .admin-card-head span {
+    color: var(--texto-tenue);
+    font-size: .72rem;
+    text-align: right;
+}
+
+.admin-panel .admin-card-copy {
+    margin: 0;
+    color: var(--texto-sec);
+    font-size: .85rem;
+    line-height: 1.6;
+}
+
+.admin-panel .admin-card-copy + .admin-card-copy {
+    margin-top: 10px;
+}
+
+.admin-panel .admin-card-copy strong {
+    color: var(--texto);
+}
+
+.admin-panel .admin-role-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--borde);
+}
+
+.admin-panel .admin-role-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.admin-panel .admin-role-name {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: var(--texto);
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.admin-panel .admin-role-icon {
+    display: grid;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--hundido);
+    color: var(--texto-sec);
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+.admin-panel .admin-role-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-panel .admin-role-note {
+    margin: 14px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--borde);
+    color: var(--texto-tenue);
+    font-size: .73rem;
+    line-height: 1.5;
+}
+
+.admin-panel .admin-stat-row + .admin-stat-row {
+    margin-top: 14px;
+}
+
+.admin-panel .admin-stat-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: .85rem;
+}
+
+.admin-panel .admin-stat-label strong {
+    font-weight: 700;
+}
+
+.admin-panel .admin-stat-label span {
+    color: var(--texto-sec);
+    font-size: .76rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.admin-panel .admin-bar {
+    height: 7px;
+    margin-top: 7px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--hundido);
+}
+
+.admin-panel .admin-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--admin-bar);
+}
+
+.admin-panel .admin-empty {
+    margin: 0;
+    color: var(--texto-tenue);
+    font-size: .85rem;
+}
+
+.admin-panel .admin-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 22px;
+    border-top: 1px solid var(--borde);
+}
+
+.admin-panel .admin-footnote {
+    max-width: 78ch;
+    margin: 0;
+    color: var(--texto-tenue);
+    font-size: .76rem;
+    line-height: 1.55;
+}
+
+/* El ABM reutiliza las clases del moderador. Estos ajustes lo alinean
+   con el resumen sin modificar las vistas del moderador. */
+.admin-panel .moderador-shell {
+    width: 100%;
+    margin-inline: 0;
+    padding-block: clamp(28px, 5vw, 64px);
+}
+
+.admin-panel .moderador-content {
+    display: grid;
+    gap: 22px;
+    width: min(100%, 1180px);
+    margin-inline: auto;
+}
+
+.admin-panel .moderador-header,
+.admin-panel .moderador-editor-encabezado {
+    align-items: flex-end;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--borde);
+}
+
+.admin-panel .moderador-header p,
+.admin-panel .moderador-editor-encabezado > p:last-child {
+    max-width: 70ch;
+    line-height: 1.55;
+}
+
+.admin-panel .moderador-tabs {
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    margin-bottom: 0;
+    padding: 6px;
+    border: 1px solid var(--borde);
+    border-radius: 13px;
+    background: var(--hundido);
+}
+
+.admin-panel .moderador-tab {
+    min-height: 36px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    padding-inline: 14px;
+}
+
+.admin-panel .moderador-tab.is-active {
+    border-color: var(--borde-fuerte);
+    background: var(--superficie);
+    box-shadow: 0 4px 12px rgba(6, 12, 20, .25);
+}
+
+.admin-panel .moderador-filtros {
+    grid-template-columns: minmax(200px, 1fr) minmax(150px, 190px) auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    background: var(--superficie);
+}
+
+.admin-panel .moderador-filtros input,
+.admin-panel .moderador-filtros select {
+    height: 42px;
+    border-radius: 9px;
+}
+
+.admin-panel .moderador-tabla-contenedor {
+    max-height: min(58vh, 520px);
+    border-radius: 14px;
+    box-shadow: 0 16px 34px rgba(6, 12, 20, .22);
+}
+
+.admin-panel .moderador-tabla-preguntas th:nth-child(n),
+.admin-panel .moderador-tabla-preguntas td:nth-child(n) {
+    width: auto;
+}
+
+.admin-panel .moderador-tabla-preguntas th:nth-child(1),
+.admin-panel .moderador-tabla-preguntas td:nth-child(1) { width: 18%; }
+.admin-panel .moderador-tabla-preguntas th:nth-child(2),
+.admin-panel .moderador-tabla-preguntas td:nth-child(2) { width: 32%; }
+.admin-panel .moderador-tabla-preguntas th:nth-child(3),
+.admin-panel .moderador-tabla-preguntas td:nth-child(3) { width: 16%; }
+.admin-panel .moderador-tabla-preguntas th:nth-child(4),
+.admin-panel .moderador-tabla-preguntas td:nth-child(4) { width: 14%; }
+.admin-panel .moderador-tabla-preguntas th:nth-child(5),
+.admin-panel .moderador-tabla-preguntas td:nth-child(5) { width: 20%; }
+
+.admin-panel .moderador-tabla-preguntas th,
+.admin-panel .moderador-tabla-preguntas td {
+    padding-inline: 16px;
+}
+
+.admin-panel .moderador-tabla-preguntas td:nth-child(5) {
+    white-space: nowrap;
+}
+
+.admin-panel .moderador-paginacion {
+    padding: 14px 16px;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--superficie);
+}
+
+.admin-panel .moderador-correccion-formulario {
+    max-width: 760px;
+    padding: clamp(20px, 3vw, 30px);
+    border-radius: 16px;
+    box-shadow: 0 16px 34px rgba(6, 12, 20, .22);
+}
+
+.admin-panel .moderador-correccion-formulario form {
+    gap: 14px;
+}
+
+.admin-panel .moderador-correccion-formulario input,
+.admin-panel .moderador-correccion-formulario select {
+    width: 100%;
+    min-height: 42px;
+    padding: .7rem .85rem;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 9px;
+    background: var(--hundido);
+    color: var(--texto);
+    font: inherit;
+}
+
+.admin-panel .moderador-correccion-radio {
+    padding: 12px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--hundido);
+}
+
+.admin-panel .moderador-acciones {
+    gap: 10px;
+    margin-top: 6px;
+    padding-top: 18px;
+    border-top: 1px solid var(--borde);
+}
+
+.admin-panel .moderador-mensaje {
+    padding: 13px 16px;
+    border-radius: 11px;
+    line-height: 1.5;
+}
+
+/* La barra lateral del panel admin usa el mismo lenguaje visual que el resumen. */
+.admin-panel .home-sidenav {
+    background: var(--hundido);
+    border-right: 1px solid var(--borde);
+}
+
+.admin-panel .home-side-links a[aria-current] {
+    background: var(--superficie);
+    color: var(--texto);
+    box-shadow: inset 3px 0 0 var(--geografia);
+}
+
+.admin-panel .moderador-badge-verde {
+    background: #2f9e44;
+    color: #fff;
+}
+
+.admin-panel .admin-rol-fijo {
+    display: block;
+    padding: 10px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--hundido);
+    color: var(--texto);
+}
+
+.admin-panel .home-side-toggle[aria-expanded="true"],
+.admin-panel .home-side-menu.is-expanded .home-side-toggle {
+    background: var(--superficie);
+    color: var(--texto);
+}
+
+.admin-panel .home-sidenav:has(:focus-visible) .side-label,
+.admin-panel .home-side-menu.is-expanded .side-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* El checkbox "Correo verificado" deja de ser una linea suelta y pasa a ser una tarjeta. */
+.admin-panel .admin-check-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 4px 0 2px;
+    padding: 14px 16px;
+    border: 1px solid var(--borde);
+    border-radius: 11px;
+    background: var(--hundido);
+    color: var(--texto);
+    font-size: .85rem;
+    font-weight: 700;
+    white-space: normal;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+
+.admin-panel .admin-check-card:hover {
+    border-color: var(--borde-fuerte);
+    background: var(--superficie);
+}
+
+.admin-panel .admin-check-card input[type="checkbox"] {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--deporte);
+    cursor: pointer;
+}
+
+.admin-panel .admin-check-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.admin-panel .admin-check-copy strong {
+    color: var(--texto);
+    font-weight: 700;
+}
+
+.admin-panel .admin-check-copy small {
+    color: var(--texto-tenue);
+    font-size: .72rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+    .admin-panel .admin-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-panel .admin-split,
+    .admin-panel .admin-profile-grid { grid-template-columns: 1fr; }
+    .admin-panel .moderador-filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-panel .moderador-filtros input { grid-column: 1 / -1; }
+}
+
+@media (max-width: 560px) {
+    .admin-panel .admin-hero,
+    .admin-panel .admin-footer,
+    .admin-panel .moderador-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .admin-panel .admin-metrics { grid-template-columns: 1fr; }
+    .admin-panel .admin-tabs,
+    .admin-panel .moderador-tabs { width: 100%; overflow-x: auto; }
+    .admin-panel .admin-section-head { align-items: flex-start; flex-direction: column; }
+    .admin-panel .moderador-tabla-preguntas { min-width: 620px; }
+}

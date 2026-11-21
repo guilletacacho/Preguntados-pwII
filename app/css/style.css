@@ -846,6 +846,19 @@ a:hover { color: var(--texto); }
     overflow-x: clip;
 }
 
+/* La barra lateral de Rankings vale para todos los roles: ADMIN, moderador y jugador. */
+.ranking-shell.con-barra-ranking {
+    --side-width: 76px;
+    padding-left: calc(var(--side-width) + 24px);
+}
+
+@media (max-width: 640px) {
+    .ranking-shell.con-barra-ranking {
+        --side-width: 58px;
+        padding-left: calc(var(--side-width) + 14px);
+    }
+}
+
 .ranking-characters {
     position: relative;
     display: flex;

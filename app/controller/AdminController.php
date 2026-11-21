@@ -1,0 +1,425 @@
+<?php
+
+namespace app\controller;
+
+use app\model\AdminModel;
+use AdminAccess;
+use Redirect;
+use Request;
+
+class AdminController
+{
+    private const ROLES = [
+        'JUGADOR' => 'Jugador',
+        'MODERADOR' => 'Moderador',
+        'ADMIN' => 'Administrador',
+    ];
+
+    // En los formularios solo se pueden elegir estos. El unico ADMIN se crea
+    // en la migracion y no se puede agregar ni quitar desde el ABM.
+    private const ROLES_SELECCIONABLES = [
+        'JUGADOR' => 'Jugador',
+        'MODERADOR' => 'Moderador',
+    ];
+
+    private $model;
+    private $render;
+
+    public function __construct(AdminModel $model, $render)
+    {
+        $this->model = $model;
+        $this->render = $render;
+    }
+
+    public function show()
+    {
+        AdminAccess::exigir($this->model);
+        header('Cache-Control: no-store');
+        $this->asegurarCsrfToken();
+
+        $datos = $this->model->obtenerEstadisticas((int) $_SESSION['usuario_id']);
+        $datos['mensaje'] = $this->consumirMensaje();
+
+        $this->render->renderiza('admin', $datos);
+    }
+
+    public function usuarios()
+    {
+        AdminAccess::exigir($this->model);
+        header('Cache-Control: no-store');
+
+        $rol = (string) Request::get('rol', '');
+        if (!array_key_exists($rol, self::ROLES_SELECCIONABLES)) {
+            $rol = '';
+        }
+
+        $busqueda = trim((string) Request::get('busqueda', ''));
+        if (preg_match_all('/./us', $busqueda) > 100) {
+            $busqueda = mb_substr($busqueda, 0, 100);
+        }
+
+        $pagina = filter_var(
+            Request::get('pagina', 1),
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1]]
+        );
+        $pagina = $pagina === false ? 1 : (int) $pagina;
+
+        $resultado = $this->model->listarUsuarios($rol, $busqueda, $pagina);
+
+        $datos = [
+            'usuarios' => $resultado['usuarios'],
+            'totalUsuarios' => $resultado['total'],
+            'pagina' => $resultado['pagina'],
+            'paginas' => $resultado['paginas'],
+            'paginaAnterior' => $resultado['pagina'] - 1,
+            'paginaSiguiente' => $resultado['pagina'] + 1,
+            'hayPaginaAnterior' => $resultado['pagina'] > 1,
+            'hayPaginaSiguiente' => $resultado['pagina'] < $resultado['paginas'],
+            'queryFiltros' => http_build_query(['rol' => $rol, 'busqueda' => $busqueda]),
+            'roles' => $this->rolesConSeleccion($rol),
+            'rolTodasSeleccionada' => $rol === '',
+            'busqueda' => $busqueda,
+            'csrfToken' => $_SESSION['csrf_admin'] ?? '',
+            'mensaje' => $this->consumirMensaje(),
+        ];
+
+        $this->asegurarCsrfToken();
+        $datos['csrfToken'] = $_SESSION['csrf_admin'];
+
+        $this->render->renderiza('adminUsuarios', $datos);
+    }
+
+    public function altaUsuario()
+    {
+        AdminAccess::exigir($this->model);
+        $this->asegurarCsrfToken();
+
+        $this->render->renderiza('adminAltaUsuario', [
+            'roles' => $this->rolesConSeleccion('JUGADOR'),
+            'anioActual' => (int) date('Y'),
+            'csrfToken' => $_SESSION['csrf_admin'],
+            'mensaje' => $this->consumirMensaje(),
+        ]);
+    }
+
+    public function crearUsuario()
+    {
+        AdminAccess::exigir($this->model);
+        $this->asegurarCsrfToken();
+
+        $formulario = $this->leerFormulario();
+
+        if (!$this->tokenValido()) {
+            $formulario['errores'] = ['El formulario venció. Volvé a intentarlo.'];
+            $this->mostrarAltaConError($formulario);
+            return;
+        }
+
+        $errores = $this->validar($formulario, true);
+
+        if (!$errores && $formulario['rol'] === 'ADMIN') {
+            $errores[] = 'Solo puede existir un administrador.';
+        }
+        if (!$errores && $this->model->existeUsuario($formulario['usuario'])) {
+            $errores[] = 'Ese nombre de usuario ya está en uso.';
+        }
+        if (!$errores && $this->model->existeEmail($formulario['email'])) {
+            $errores[] = 'Ese correo ya está en uso.';
+        }
+
+        if ($errores) {
+            $formulario['errores'] = $errores;
+            $this->mostrarAltaConError($formulario);
+            return;
+        }
+
+        try {
+            $this->model->crear($formulario);
+        } catch (\PDOException $e) {
+            $formulario['errores'] = ['No se pudo crear el usuario. Revisá los datos e intentá de nuevo.'];
+            $this->mostrarAltaConError($formulario);
+            return;
+        }
+
+        $this->guardarMensaje('El usuario se creó correctamente.', 'success');
+        Redirect::to('/Preguntados/admin/usuarios');
+    }
+
+    public function editarUsuario()
+    {
+        AdminAccess::exigir($this->model);
+        $this->asegurarCsrfToken();
+
+        $id = $this->leerId(Request::get('id'));
+        $usuario = $id > 0 ? $this->model->obtenerUsuario($id) : null;
+
+        if ($usuario === null) {
+            $this->guardarMensaje('No se encontró ese usuario.', 'error');
+            Redirect::to('/Preguntados/admin/usuarios');
+        }
+
+        $usuario['contrasena'] = '';
+        $usuario['roles'] = $this->rolesConSeleccion($usuario['rol']);
+        $usuario['rolFijoAdmin'] = $usuario['rol'] === 'ADMIN';
+        $usuario['anioActual'] = (int) date('Y');
+        $usuario['csrfToken'] = $_SESSION['csrf_admin'];
+        $usuario['mensaje'] = $this->consumirMensaje();
+
+        $this->render->renderiza('adminEditarUsuario', $usuario);
+    }
+
+    public function actualizarUsuario()
+    {
+        AdminAccess::exigir($this->model);
+        $this->asegurarCsrfToken();
+
+        $formulario = $this->leerFormulario();
+        $formulario['id'] = $this->leerId(Request::post('id'));
+
+        $actual = $formulario['id'] > 0 ? $this->model->obtenerUsuario($formulario['id']) : null;
+
+        if ($actual === null) {
+            $this->guardarMensaje('No se encontró ese usuario.', 'error');
+            Redirect::to('/Preguntados/admin/usuarios');
+        }
+
+        $formulario['rolFijoAdmin'] = $actual['rol'] === 'ADMIN';
+        $this->prepararEdicion($formulario, $actual);
+
+        if (!$this->tokenValido()) {
+            $this->mostrarEdicionConError($formulario, 'El formulario venció. Volvé a intentarlo.');
+            return;
+        }
+
+        $errores = $this->validar($formulario, false);
+
+        if ($actual['rol'] !== 'ADMIN' && $formulario['rol'] === 'ADMIN') {
+            $errores[] = 'No se puede crear otro administrador.';
+        }
+        if (($formulario['id'] === (int) $_SESSION['usuario_id']) && $formulario['rol'] !== 'ADMIN') {
+            $errores[] = 'No podés quitarte el rol de administrador a vos mismo.';
+        }
+        if ($actual['rol'] === 'ADMIN'
+            && $formulario['rol'] !== 'ADMIN'
+            && $this->model->contarAdmins() <= 1) {
+            $errores[] = 'Tiene que quedar al menos un administrador.';
+        }
+        if (!$errores && $this->model->existeUsuario($formulario['usuario'], $formulario['id'])) {
+            $errores[] = 'Ese nombre de usuario ya está en uso.';
+        }
+        if (!$errores && $this->model->existeEmail($formulario['email'], $formulario['id'])) {
+            $errores[] = 'Ese correo ya está en uso.';
+        }
+
+        if ($errores) {
+            $this->mostrarEdicionConError($formulario, implode(' ', $errores));
+            return;
+        }
+
+        try {
+            $this->model->actualizar($formulario);
+        } catch (\PDOException $e) {
+            $this->mostrarEdicionConError($formulario, 'No se pudo guardar el usuario. Revisá los datos e intentá de nuevo.');
+            return;
+        }
+
+        $this->guardarMensaje('Los datos del usuario se actualizaron.', 'success');
+        Redirect::to('/Preguntados/admin/usuarios');
+    }
+
+    public function bajaUsuario()
+    {
+        AdminAccess::exigir($this->model);
+        $this->asegurarCsrfToken();
+
+        if (!$this->tokenValido()) {
+            $this->guardarMensaje('El formulario venció. Volvé a intentarlo.', 'error');
+            Redirect::to('/Preguntados/admin/usuarios');
+        }
+
+        $id = $this->leerId(Request::post('id'));
+        $usuario = $id > 0 ? $this->model->obtenerUsuario($id) : null;
+
+        if ($usuario === null) {
+            $this->guardarMensaje('No se encontró ese usuario.', 'error');
+            Redirect::to('/Preguntados/admin/usuarios');
+        }
+
+        if ($id === (int) $_SESSION['usuario_id']) {
+            $this->guardarMensaje('No podés darte de baja a vos mismo.', 'error');
+            Redirect::to('/Preguntados/admin/usuarios');
+        }
+
+        if ($usuario['rol'] === 'ADMIN' && $this->model->contarAdmins() <= 1) {
+            $this->guardarMensaje('Tiene que quedar al menos un administrador.', 'error');
+            Redirect::to('/Preguntados/admin/usuarios');
+        }
+
+        try {
+            $this->model->eliminar($id);
+            $this->guardarMensaje('El usuario se dio de baja.', 'success');
+        } catch (\PDOException $e) {
+            $this->guardarMensaje('No se pudo borrar el usuario. Puede tener reportes o datos relacionados.', 'error');
+        }
+
+        Redirect::to('/Preguntados/admin/usuarios');
+    }
+
+    private function mostrarAltaConError(array $formulario)
+    {
+        $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
+        $formulario['anioActual'] = (int) date('Y');
+        $formulario['csrfToken'] = $_SESSION['csrf_admin'];
+        $formulario['mensaje'] = ['texto' => implode(' ', $formulario['errores']), 'tipo' => 'error'];
+
+        $this->render->renderiza('adminAltaUsuario', $formulario);
+    }
+
+    private function mostrarEdicionConError(array $formulario, $texto)
+    {
+        $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
+        $formulario['anioActual'] = (int) date('Y');
+        $formulario['csrfToken'] = $_SESSION['csrf_admin'];
+        $formulario['mensaje'] = ['texto' => $texto, 'tipo' => 'error'];
+
+        $this->render->renderiza('adminEditarUsuario', $formulario);
+    }
+
+    private function prepararEdicion(array &$formulario, array $actual)
+    {
+        if ($formulario['anioNacimiento'] === '') {
+            $formulario['anioNacimiento'] = $actual['anioNacimiento'];
+        }
+        $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
+        $formulario['rolFijoAdmin'] = $actual['rol'] === 'ADMIN';
+    }
+
+    private function leerFormulario()
+    {
+        $anio = filter_var(
+            Request::post('anioNacimiento', ''),
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1900, 'max_range' => (int) date('Y') + 5]]
+        );
+
+        $rol = (string) Request::post('rol', 'JUGADOR');
+        if (!array_key_exists($rol, self::ROLES)) {
+            $rol = 'JUGADOR';
+        }
+
+        return [
+            'nombre' => trim((string) Request::post('nombre', '')),
+            'anioNacimiento' => $anio === false ? '' : (string) $anio,
+            'sexo' => trim((string) Request::post('sexo', 'No especificado')),
+            'provincia' => trim((string) Request::post('provincia', '')),
+            'pais' => trim((string) Request::post('pais', '')),
+            'usuario' => trim((string) Request::post('usuario', '')),
+            'email' => trim((string) Request::post('email', '')),
+            'contrasena' => (string) Request::post('contrasena', ''),
+            'verificado' => Request::post('verificado') === '1' ? 1 : 0,
+            'rol' => $rol,
+        ];
+    }
+
+    private function validar(array &$formulario, $exigirContrasena)
+    {
+        $errores = [];
+
+        if ($this->longitud($formulario['nombre']) < 1 || $this->longitud($formulario['nombre']) > 50) {
+            $errores[] = 'El nombre es obligatorio y no puede superar los 50 caracteres.';
+        }
+
+        if ($formulario['anioNacimiento'] === '') {
+            $errores[] = 'Ingresá un año de nacimiento válido.';
+        }
+
+        if ($this->longitud($formulario['sexo']) > 30) {
+            $errores[] = 'El sexo no puede superar los 30 caracteres.';
+        }
+        if ($formulario['sexo'] === '') {
+            $formulario['sexo'] = 'No especificado';
+        }
+
+        if ($this->longitud($formulario['provincia']) > 150 || $this->longitud($formulario['pais']) > 150) {
+            $errores[] = 'La provincia y el país no pueden superar los 150 caracteres.';
+        }
+
+        if (!preg_match('/\A[^\r\n]{3,255}\z/u', $formulario['usuario'])) {
+            $errores[] = 'El usuario debe tener entre 3 y 255 caracteres y no puede tener saltos de línea.';
+        }
+
+        if (filter_var($formulario['email'], FILTER_VALIDATE_EMAIL) === false
+            || $this->longitud($formulario['email']) > 255) {
+            $errores[] = 'Ingresá un correo válido.';
+        }
+
+        if (!array_key_exists($formulario['rol'], self::ROLES)) {
+            $errores[] = 'Elegí un rol válido.';
+        }
+
+        if ($exigirContrasena && $this->longitud($formulario['contrasena']) < 8) {
+            $errores[] = 'La contraseña debe tener al menos 8 caracteres.';
+        }
+        if (!$exigirContrasena
+            && $formulario['contrasena'] !== ''
+            && $this->longitud($formulario['contrasena']) < 8) {
+            $errores[] = 'La nueva contraseña debe tener al menos 8 caracteres.';
+        }
+
+        return $errores;
+    }
+
+    private function longitud($texto)
+    {
+        return preg_match_all('/./us', (string) $texto);
+    }
+
+    private function leerId($valor)
+    {
+        $id = filter_var($valor, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        return $id === false ? 0 : (int) $id;
+    }
+
+    private function rolesConSeleccion($seleccionado)
+    {
+        $roles = [];
+        foreach (self::ROLES_SELECCIONABLES as $valor => $etiqueta) {
+            $roles[] = [
+                'value' => $valor,
+                'label' => $etiqueta,
+                'seleccionado' => $valor === $seleccionado,
+            ];
+        }
+
+        return $roles;
+    }
+
+    private function asegurarCsrfToken()
+    {
+        if (empty($_SESSION['csrf_admin'])) {
+            $_SESSION['csrf_admin'] = bin2hex(random_bytes(32));
+        }
+    }
+
+    private function tokenValido()
+    {
+        $token = (string) Request::post('csrf_token', '');
+
+        return $token !== '' && hash_equals((string) ($_SESSION['csrf_admin'] ?? ''), $token);
+    }
+
+    private function guardarMensaje($texto, $tipo)
+    {
+        $_SESSION['mensaje_admin'] = ['texto' => $texto, 'tipo' => $tipo];
+    }
+
+    private function consumirMensaje()
+    {
+        $mensaje = $_SESSION['mensaje_admin'] ?? null;
+        unset($_SESSION['mensaje_admin']);
+
+        return $mensaje;
+    }
+}

@@ -27,6 +27,12 @@ $currentPage = $_GET['controller'] ?? 'login';
                                 <span class="moderador-menu-badge"><?= (int) ($layoutData['reportesPendientes'] ?? 0) ?></span>
                             </a>
                         <?php endif; ?>
+                        <?php if (!empty($layoutData['esAdmin'])): ?>
+                            <a class="moderador-menu-link" href="<?= $siteUrl ?>/admin">
+                                <span>Panel administrable</span>
+                                <span class="moderador-menu-badge">AD</span>
+                            </a>
+                        <?php endif; ?>
                         <a href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/perfil') ?>">
                         Mi perfil
                         </a>

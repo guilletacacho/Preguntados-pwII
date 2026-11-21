@@ -1,0 +1,100 @@
+<main class="moderador-shell">
+    <nav class="home-sidenav" aria-label="Secciones del sitio">
+        <div class="home-side-menu is-expanded">
+            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="true" aria-controls="admin-usuarios-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+            <div class="home-side-links" id="admin-usuarios-side-links">
+                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+                <a href="{{basePath}}/partida/iniciar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+                <a href="{{basePath}}/admin" aria-label="Panel administrable"><span aria-hidden="true">⚙</span><span class="side-label">Panel administrable</span></a>
+                <a href="{{basePath}}/admin/usuarios" aria-label="Usuarios" aria-current="page"><span aria-hidden="true">☺</span><span class="side-label">Usuarios</span></a>
+            </div>
+        </div>
+    </nav>
+    <div class="moderador-content">
+        <header class="moderador-header">
+            <div>
+                <span class="moderador-eyebrow">PANEL ADMINISTRABLE</span>
+                <h1>Usuarios</h1>
+                <p>Alta, baja y modificación de cuentas.</p>
+            </div>
+            <a class="moderador-nueva-pregunta" href="{{basePath}}/admin/altaUsuario">+ Nuevo usuario</a>
+        </header>
+
+        {{#mensaje}}
+            <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="status">{{texto}}</p>
+        {{/mensaje}}
+
+        <nav class="moderador-tabs" aria-label="Secciones del panel">
+            <a class="moderador-tab" href="{{basePath}}/admin">Resumen</a>
+            <button class="moderador-tab is-active" type="button" aria-current="page">Usuarios <span class="moderador-badge">{{totalUsuarios}}</span></button>
+        </nav>
+
+        <form class="moderador-filtros" method="get" action="{{basePath}}/admin/usuarios" role="search">
+            <input type="search" name="busqueda" value="{{busqueda}}" placeholder="Buscar por usuario, nombre o correo" aria-label="Buscar usuarios">
+            <select name="rol" aria-label="Filtrar por rol">
+                <option value="" {{#rolTodasSeleccionada}}selected{{/rolTodasSeleccionada}}>Todos los roles</option>
+                {{#roles}}
+                    <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                {{/roles}}
+            </select>
+            <button class="moderador-boton" type="submit">Filtrar</button>
+            <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Limpiar</a>
+        </form>
+
+        <div class="moderador-tabla-contenedor">
+            <table class="moderador-tabla-preguntas">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre y correo</th>
+                        <th>Rol</th>
+                        <th>Verificado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#usuarios}}
+                        <tr>
+                            <td><strong>{{usuario}}</strong></td>
+                            <td>{{nombre}}<br><span class="moderador-item-meta">{{email}}</span></td>
+                            <td>
+                                <span class="moderador-badge {{#esAdmin}}moderador-badge-alerta{{/esAdmin}} {{#esModerador}}moderador-badge-verde{{/esModerador}}">{{rol}}</span>
+                            </td>
+                            <td>{{#verificado}}Sí{{/verificado}}{{^verificado}}No{{/verificado}}</td>
+                            <td>
+                                <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/admin/editarUsuario?id={{id}}">Editar</a>
+                                <form method="post" action="{{basePath}}/admin/bajaUsuario" style="display:inline" onsubmit="return confirm('¿Dar de baja este usuario?');">
+                                    <input type="hidden" name="id" value="{{id}}">
+                                    <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                                    <button class="moderador-boton moderador-boton-descartar" type="submit">Baja</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {{/usuarios}}
+                    {{^usuarios}}
+                        <tr><td colspan="5" class="moderador-vacio">No hay usuarios con esos filtros.</td></tr>
+                    {{/usuarios}}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="moderador-paginacion">
+            <span>Página {{pagina}} de {{paginas}} · {{totalUsuarios}} usuarios</span>
+            <nav aria-label="Páginas de usuarios">
+                {{#hayPaginaAnterior}}
+                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&pagina={{paginaAnterior}}">Anterior</a>
+                {{/hayPaginaAnterior}}
+                {{^hayPaginaAnterior}}
+                    <span class="paginacion-deshabilitada">Anterior</span>
+                {{/hayPaginaAnterior}}
+                {{#hayPaginaSiguiente}}
+                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&pagina={{paginaSiguiente}}">Siguiente</a>
+                {{/hayPaginaSiguiente}}
+                {{^hayPaginaSiguiente}}
+                    <span class="paginacion-deshabilitada">Siguiente</span>
+                {{/hayPaginaSiguiente}}
+            </nav>
+        </div>
+    </div>
+</main>
