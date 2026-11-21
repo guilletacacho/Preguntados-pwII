@@ -423,14 +423,54 @@ class AdminModel
         return (int) ($fila['total'] ?? 0);
     }
 
-    public function crear($formulario)
+    public function contarUsuarios()
+    {
+        $fila = $this->database->queryOne('SELECT COUNT(*) AS total FROM usuarios');
+        return (int) $fila['total'];
+    }
+
+    public function listarHistorial($accion, $busqueda, $pagina)
+    {
+        $where = ['1 = 1'];
+        $params = [];
+        if ($accion !== '') {
+            $where[] = 'accion = ?';
+            $params[] = $accion;
+        }
+        if ($busqueda !== '') {
+            $where[] = '(actor_usuario LIKE ? OR cuenta_usuario LIKE ?)';
+            $params[] = '%' . $busqueda . '%';
+            $params[] = '%' . $busqueda . '%';
+        }
+
+        $condicion = implode(' AND ', $where);
+        $conteo = $this->database->queryOne("SELECT COUNT(*) AS total FROM admin_historial WHERE $condicion", $params);
+        $total = (int) $conteo['total'];
+        $porPagina = 20;
+        $paginas = max(1, (int) ceil($total / $porPagina));
+        $pagina = min(max(1, (int) $pagina), $paginas);
+        $offset = ($pagina - 1) * $porPagina;
+        $eventos = $this->database->queryAll(
+            "SELECT actor_usuario AS administrador,
+                    cuenta_id AS cuentaId, cuenta_usuario AS cuenta,
+                    accion, rol_anterior AS rolAnterior, rol_nuevo AS rolNuevo, motivo,
+                    DATE_FORMAT(creado_en, '%d/%m/%Y %H:%i:%s') AS fecha
+             FROM admin_historial WHERE $condicion
+             ORDER BY id DESC LIMIT $porPagina OFFSET $offset",
+            $params
+        );
+
+        return ['eventos' => $eventos, 'total' => $total, 'pagina' => $pagina, 'paginas' => $paginas];
+    }
+
+    public function crear($formulario, int $actorId)
     {
         $sql = "INSERT INTO usuarios
                 (Nombre, Anio_nacimiento, Sexo, Provincia, Pais, Usuario, Email,
                  Contrasena, Verificado, Token, Foto_url, rol)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)";
 
-        $this->database->execute($sql, [
+        $params = [
             $formulario['nombre'],
             (int) $formulario['anioNacimiento'],
             $formulario['sexo'],
@@ -441,12 +481,17 @@ class AdminModel
             md5($formulario['contrasena']),
             (int) $formulario['verificado'],
             $formulario['rol'],
-        ]);
+        ];
 
-        return $this->database->lastInsertId();
+        return $this->operacionAdministrativa($actorId, function ($actor) use ($sql, $params, $formulario) {
+            $this->database->execute($sql, $params);
+            $id = $this->database->lastInsertId();
+            $this->registrarAccion($actor, $id, $formulario['usuario'], 'CREACION', null, null, $formulario['rol']);
+            return $id;
+        });
     }
 
-    public function actualizar($formulario)
+    public function actualizar($formulario, int $actorId)
     {
         $cambiaContrasena = isset($formulario['contrasena']) && $formulario['contrasena'] !== '';
 
@@ -472,25 +517,52 @@ class AdminModel
         }
 
         $sql .= " WHERE Id = ?";
-        $params[] = (int) $formulario['id'];
+        $id = (int) $formulario['id'];
+        $params[] = $id;
 
-        return $this->database->execute($sql, $params);
+        return $this->operacionAdministrativa($actorId, function ($actor) use ($id, $sql, $params, $formulario) {
+            $actual = $this->database->queryOne('SELECT rol FROM usuarios WHERE Id = ? FOR UPDATE', [$id]);
+            if ($actual === null || (($actual['rol'] === 'ADMIN') !== ($formulario['rol'] === 'ADMIN'))) {
+                throw new \RuntimeException('La cuenta cambió antes de guardar la edición.');
+            }
+
+            $filas = $this->database->execute($sql, $params);
+            if ($filas > 0) {
+                if ($actual['rol'] !== $formulario['rol']) {
+                    $this->registrarAccion($actor, $id, $formulario['usuario'], 'CAMBIO_ROL', null, $actual['rol'], $formulario['rol']);
+                } else {
+                    $this->registrarAccion($actor, $id, $formulario['usuario'], 'EDICION');
+                }
+            }
+
+            return $filas;
+        });
     }
 
-    public function eliminar($id)
+    public function eliminar($id, int $actorId)
     {
-        return $this->database->execute(
-            "DELETE FROM usuarios WHERE Id = ? AND rol <> 'ADMIN'",
-            [(int) $id]
-        );
+        return $this->operacionAdministrativa($actorId, function ($actor) use ($id) {
+            $cuenta = $this->database->queryOne(
+                "SELECT Usuario FROM usuarios WHERE Id = ? AND rol <> 'ADMIN' FOR UPDATE",
+                [$id]
+            );
+            if ($cuenta === null) {
+                return 0;
+            }
+
+            $filas = $this->database->execute("DELETE FROM usuarios WHERE Id = ? AND rol <> 'ADMIN'", [$id]);
+            if ($filas > 0) {
+                $this->registrarAccion($actor, $id, $cuenta['Usuario'], 'ELIMINACION');
+            }
+            return $filas;
+        });
     }
 
-    public function cambiarBloqueo($id, bool $bloquear)
+    public function cambiarBloqueo($id, bool $bloquear, int $actorId, ?string $motivo)
     {
-        $this->database->beginTransaction();
-        try {
+        return $this->operacionAdministrativa($actorId, function ($actor) use ($id, $bloquear, $motivo) {
             $usuario = $this->database->queryOne(
-                "SELECT bloqueado FROM usuarios WHERE Id = ? AND rol <> 'ADMIN' FOR UPDATE",
+                "SELECT Usuario, bloqueado FROM usuarios WHERE Id = ? AND rol <> 'ADMIN' FOR UPDATE",
                 [$id]
             );
             if ($usuario !== null && (bool) $usuario['bloqueado'] !== $bloquear) {
@@ -502,14 +574,38 @@ class AdminModel
                     $this->database->execute('DELETE FROM user_presence WHERE user_id = ?', [$id]);
                     $this->database->execute('DELETE FROM user_session_lock WHERE user_id = ?', [$id]);
                 }
+                $this->registrarAccion($actor, $id, $usuario['Usuario'], $bloquear ? 'BLOQUEO' : 'DESBLOQUEO', $motivo);
             }
-            $this->database->commit();
             return $usuario !== null;
+        });
+    }
+
+    private function operacionAdministrativa(int $actorId, callable $cambio)
+    {
+        $this->database->beginTransaction();
+        try {
+            $actor = $this->database->queryOne("SELECT Id, Usuario FROM usuarios WHERE Id = ? AND rol = 'ADMIN' FOR UPDATE", [$actorId]);
+            if ($actor === null) {
+                throw new \RuntimeException('No se encontró la cuenta administradora.');
+            }
+
+            $resultado = $cambio($actor);
+            $this->database->commit();
+            return $resultado;
         } catch (\Throwable $e) {
             if ($this->database->inTransaction()) {
                 $this->database->rollBack();
             }
             throw $e;
         }
+    }
+
+    private function registrarAccion(array $actor, $id, $usuario, string $accion, ?string $motivo = null, ?string $rolAnterior = null, ?string $rolNuevo = null)
+    {
+        $this->database->execute(
+            'INSERT INTO admin_historial (actor_id, actor_usuario, cuenta_id, cuenta_usuario, accion, motivo, rol_anterior, rol_nuevo)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [$actor['Id'], $actor['Usuario'], $id, $usuario, $accion, $motivo, $rolAnterior, $rolNuevo]
+        );
     }
 }

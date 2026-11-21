@@ -1,16 +1,5 @@
 <main class="moderador-shell">
-    <nav class="home-sidenav" aria-label="Secciones del sitio">
-        <div class="home-side-menu is-expanded">
-            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="true" aria-controls="admin-usuarios-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
-            <div class="home-side-links" id="admin-usuarios-side-links">
-                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
-                <a href="{{basePath}}/partida/iniciar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
-                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
-                <a href="{{basePath}}/admin" aria-label="Panel administrable"><span aria-hidden="true">⚙</span><span class="side-label">Panel administrable</span></a>
-                <a href="{{basePath}}/admin/usuarios" aria-label="Usuarios" aria-current="page"><span aria-hidden="true">☺</span><span class="side-label">Usuarios</span></a>
-            </div>
-        </div>
-    </nav>
+    {{> adminNavegacion}}
     <div class="admin-wrap">
         {{> adminEncabezado}}
 
@@ -95,16 +84,16 @@
                                 <div class="admin-usuario-acciones">
                                     <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/admin/editarUsuario?id={{id}}" aria-label="Editar a {{usuario}}">Editar</a>
                                     {{^esAdmin}}
-                                        <form method="post" action="{{basePath}}/admin/cambiarBloqueoUsuario?{{queryFiltros}}&amp;pagina={{pagina}}" {{^bloqueado}}onsubmit="return confirm('¿Bloquear esta cuenta y cerrar sus sesiones?');"{{/bloqueado}}>
-                                            <input type="hidden" name="id" value="{{id}}">
-                                            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
-                                            {{^bloqueado}}
-                                                <button class="moderador-boton admin-boton-bloqueo" type="submit" name="bloquear" value="1" aria-label="Bloquear a {{usuario}}">Bloquear</button>
-                                            {{/bloqueado}}
-                                            {{#bloqueado}}
+                                        {{^bloqueado}}
+                                            <button class="moderador-boton admin-boton-bloqueo" type="button" aria-haspopup="dialog" aria-label="Bloquear a {{usuario}}" data-admin-bloqueo data-id="{{id}}" data-usuario="{{usuario}}">Bloquear</button>
+                                        {{/bloqueado}}
+                                        {{#bloqueado}}
+                                            <form method="post" action="{{basePath}}/admin/cambiarBloqueoUsuario?{{queryFiltros}}&amp;pagina={{pagina}}">
+                                                <input type="hidden" name="id" value="{{id}}">
+                                                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                                                 <button class="moderador-boton admin-boton-bloqueo" type="submit" name="bloquear" value="0" aria-label="Desbloquear a {{usuario}}">Desbloquear</button>
-                                            {{/bloqueado}}
-                                        </form>
+                                            </form>
+                                        {{/bloqueado}}
                                         <form method="post" action="{{basePath}}/admin/bajaUsuario?{{queryFiltros}}&amp;pagina={{pagina}}" onsubmit="return confirm('¿Eliminar esta cuenta de forma permanente?');">
                                             <input type="hidden" name="id" value="{{id}}">
                                             <input type="hidden" name="csrf_token" value="{{csrfToken}}">
@@ -140,4 +129,25 @@
             </nav>
         </div>
     </div>
+
+    <dialog class="moderador-correccion-formulario admin-dialogo" id="admin-dialogo-bloqueo" aria-labelledby="admin-titulo-bloqueo">
+        <form method="post" action="{{basePath}}/admin/cambiarBloqueoUsuario?{{queryFiltros}}&amp;pagina={{pagina}}">
+            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+            <input type="hidden" name="id">
+            <input type="hidden" name="bloquear" value="1">
+            <div>
+                <h2 id="admin-titulo-bloqueo">Bloquear cuenta</h2>
+                <p>Se cerrarán las sesiones activas de <strong data-admin-cuenta></strong>.</p>
+            </div>
+            <div class="admin-form-campo">
+                <label for="admin-motivo">Motivo del bloqueo</label>
+                <textarea id="admin-motivo" name="motivo" rows="3" maxlength="250" required autofocus></textarea>
+            </div>
+            <div class="admin-form-acciones">
+                <button class="admin-btn" type="button" data-admin-cancelar>Cancelar</button>
+                <button class="admin-btn admin-boton-bloqueo" type="submit">Bloquear cuenta</button>
+            </div>
+        </form>
+    </dialog>
+    <script src="{{basePath}}/public/js/admin-bloqueo.js" defer></script>
 </main>

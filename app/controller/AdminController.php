@@ -33,6 +33,14 @@ class AdminController
         'puntos_desc' => 'Mayor puntaje',
         'puntos_asc' => 'Menor puntaje',
     ];
+    private const ACCIONES_HISTORIAL = [
+        'CREACION' => 'Alta de usuario',
+        'EDICION' => 'Edición',
+        'CAMBIO_ROL' => 'Cambio de rol',
+        'BLOQUEO' => 'Bloqueo',
+        'DESBLOQUEO' => 'Desbloqueo',
+        'ELIMINACION' => 'Eliminación',
+    ];
 
     private $model;
     private $render;
@@ -67,6 +75,7 @@ class AdminController
         $this->asegurarCsrfToken();
 
         $datos = [
+            'esUsuarios' => true,
             'usuarios' => $resultado['usuarios'],
             'totalUsuarios' => $resultado['total'],
             'pagina' => $resultado['pagina'],
@@ -88,12 +97,44 @@ class AdminController
         $this->render->renderiza('adminUsuarios', $datos);
     }
 
+    public function historial()
+    {
+        AdminAccess::exigir($this->model);
+
+        $accion = Request::get('accion');
+        $accion = is_string($accion) && isset(self::ACCIONES_HISTORIAL[$accion]) ? $accion : '';
+        $busqueda = Request::get('busqueda');
+        $busqueda = is_string($busqueda) ? mb_substr(trim($busqueda), 0, 100) : '';
+        $resultado = $this->model->listarHistorial($accion, $busqueda, max(1, $this->leerId(Request::get('pagina'))));
+
+        foreach ($resultado['eventos'] as &$evento) {
+            $evento['accion'] = self::ACCIONES_HISTORIAL[$evento['accion']];
+            $evento['rolAnterior'] = self::ROLES[$evento['rolAnterior']] ?? '';
+            $evento['rolNuevo'] = self::ROLES[$evento['rolNuevo']] ?? '';
+        }
+        unset($evento);
+
+        $this->render->renderiza('adminHistorial', $resultado + [
+            'esHistorial' => true,
+            'totalUsuarios' => $this->model->contarUsuarios(),
+            'acciones' => $this->opcionesConSeleccion(['' => 'Todas las acciones'] + self::ACCIONES_HISTORIAL, $accion),
+            'busqueda' => $busqueda,
+            'hayFiltros' => $accion !== '' || $busqueda !== '',
+            'queryFiltros' => http_build_query(['accion' => $accion, 'busqueda' => $busqueda]),
+            'hayPaginaAnterior' => $resultado['pagina'] > 1,
+            'hayPaginaSiguiente' => $resultado['pagina'] < $resultado['paginas'],
+            'paginaAnterior' => $resultado['pagina'] - 1,
+            'paginaSiguiente' => $resultado['pagina'] + 1,
+        ]);
+    }
+
     public function altaUsuario()
     {
         AdminAccess::exigir($this->model);
         $this->asegurarCsrfToken();
 
         $this->render->renderiza('adminAltaUsuario', [
+            'esAlta' => true,
             'roles' => $this->rolesConSeleccion('JUGADOR'),
             'anioActual' => (int) date('Y'),
             'csrfToken' => $_SESSION['csrf_admin'],
@@ -133,8 +174,8 @@ class AdminController
         }
 
         try {
-            $this->model->crear($formulario);
-        } catch (\PDOException $e) {
+            $this->model->crear($formulario, (int) $_SESSION['usuario_id']);
+        } catch (\RuntimeException $e) {
             $formulario['errores'] = ['No se pudo crear el usuario. Revisá los datos e intentá de nuevo.'];
             $this->mostrarAltaConError($formulario);
             return;
@@ -158,6 +199,7 @@ class AdminController
         }
 
         $usuario['contrasena'] = '';
+        $usuario['esEdicion'] = true;
         $usuario['roles'] = $this->rolesConSeleccion($usuario['rol']);
         $usuario['rolFijoAdmin'] = $usuario['rol'] === 'ADMIN';
         $usuario['anioActual'] = (int) date('Y');
@@ -216,8 +258,8 @@ class AdminController
         }
 
         try {
-            $this->model->actualizar($formulario);
-        } catch (\PDOException $e) {
+            $this->model->actualizar($formulario, (int) $_SESSION['usuario_id']);
+        } catch (\RuntimeException $e) {
             $this->mostrarEdicionConError($formulario, 'No se pudo guardar el usuario. Revisá los datos e intentá de nuevo.');
             return;
         }
@@ -233,12 +275,12 @@ class AdminController
         $id = $this->validarAccionListado($volver);
 
         try {
-            if ($this->model->eliminar($id)) {
+            if ($this->model->eliminar($id, (int) $_SESSION['usuario_id'])) {
                 $this->guardarMensaje('El usuario se eliminó.', 'success');
             } else {
                 $this->guardarMensaje('No se encontró una cuenta que se pueda eliminar.', 'error');
             }
-        } catch (\PDOException $e) {
+        } catch (\RuntimeException $e) {
             $this->guardarMensaje('No se pudo eliminar el usuario. Puede tener reportes o datos relacionados.', 'error');
         }
 
@@ -257,13 +299,20 @@ class AdminController
         }
 
         $bloquear = $accion === '1';
+        $motivo = Request::post('motivo');
+        $motivo = is_string($motivo) ? trim($motivo) : '';
+        if ($bloquear && ($motivo === '' || mb_strlen($motivo) > 250)) {
+            $this->guardarMensaje('Ingresá un motivo de bloqueo de hasta 250 caracteres.', 'error');
+            Redirect::to($volver);
+        }
+
         try {
-            if ($this->model->cambiarBloqueo($id, $bloquear)) {
+            if ($this->model->cambiarBloqueo($id, $bloquear, (int) $_SESSION['usuario_id'], $bloquear ? $motivo : null)) {
                 $this->guardarMensaje($bloquear ? 'La cuenta quedó bloqueada.' : 'La cuenta se desbloqueó.', 'success');
             } else {
                 $this->guardarMensaje('No se encontró una cuenta cuyo bloqueo se pueda cambiar.', 'error');
             }
-        } catch (\PDOException $e) {
+        } catch (\RuntimeException $e) {
             $this->guardarMensaje('No se pudo cambiar el bloqueo. Volvé a intentarlo.', 'error');
         }
 
@@ -323,16 +372,18 @@ class AdminController
 
     private function mostrarAltaConError(array $formulario)
     {
+        $formulario['esAlta'] = true;
+        $formulario['tieneErrores'] = true;
         $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
         $formulario['anioActual'] = (int) date('Y');
         $formulario['csrfToken'] = $_SESSION['csrf_admin'];
-        $formulario['mensaje'] = ['texto' => implode(' ', $formulario['errores']), 'tipo' => 'error'];
 
         $this->render->renderiza('adminAltaUsuario', $formulario);
     }
 
     private function mostrarEdicionConError(array $formulario, $texto)
     {
+        $formulario['esEdicion'] = true;
         $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
         $formulario['anioActual'] = (int) date('Y');
         $formulario['csrfToken'] = $_SESSION['csrf_admin'];

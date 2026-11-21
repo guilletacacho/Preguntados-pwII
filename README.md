@@ -17,6 +17,8 @@ db_port = 3306
 
 Si ya tenés una base instalada, importá `app/sql/migracion_gestion_usuarios.sql` sobre esa base para habilitar el bloqueo y las fechas de alta. Las cuentas anteriores a la migración conservan una fecha de alta desconocida.
 
+Importá también `app/sql/migracion_historial_admin.sql` para registrar las nuevas acciones administrativas. El historial comienza al habilitar esta función.
+
 # Instalación
 
 Necesitas PHP, Composer y MySQL (por ejemplo, con XAMPP). Desde la carpeta del proyecto ejecuta:

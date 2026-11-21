@@ -53,7 +53,7 @@ if (!isset($_SESSION['presence_token'])) {
 
         var guardada = null;
         try { guardada = sessionStorage.getItem(clave); } catch (error) {}
-        aplicar(guardada !== '0', false);
+        aplicar(guardada === '1', false);
 
         toggle.addEventListener('click', function () {
             aplicar(this.getAttribute('aria-expanded') !== 'true', true);

@@ -5,17 +5,22 @@
             <h1>Resumen del sitio</h1>
             <p>Actividad y estadísticas.</p>
         {{/esResumen}}
-        {{^esResumen}}
+        {{#esUsuarios}}
             <h1>Usuarios</h1>
             <p>Gestión de cuentas.</p>
-        {{/esResumen}}
+        {{/esUsuarios}}
+        {{#esHistorial}}
+            <h1>Historial</h1>
+            <p>Acciones sobre cuentas.</p>
+        {{/esHistorial}}
     </div>
     <a class="admin-btn admin-btn-primary" href="{{basePath}}/admin/altaUsuario">+ Nuevo usuario</a>
 </header>
 
 <nav class="admin-tabs" aria-label="Secciones del panel">
     <a class="admin-tab{{#esResumen}} is-active{{/esResumen}}" href="{{basePath}}/admin"{{#esResumen}} aria-current="page"{{/esResumen}}>Resumen</a>
-    <a class="admin-tab{{^esResumen}} is-active{{/esResumen}}" href="{{basePath}}/admin/usuarios"{{^esResumen}} aria-current="page"{{/esResumen}}>Usuarios <span class="admin-badge">{{totalUsuarios}}</span></a>
+    <a class="admin-tab{{#esUsuarios}} is-active{{/esUsuarios}}" href="{{basePath}}/admin/usuarios"{{#esUsuarios}} aria-current="page"{{/esUsuarios}}>Usuarios <span class="admin-badge">{{totalUsuarios}}</span></a>
+    <a class="admin-tab{{#esHistorial}} is-active{{/esHistorial}}" href="{{basePath}}/admin/historial"{{#esHistorial}} aria-current="page"{{/esHistorial}}>Historial</a>
 </nav>
 
 {{#mensaje}}

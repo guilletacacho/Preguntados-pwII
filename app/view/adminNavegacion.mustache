@@ -1,0 +1,19 @@
+<nav class="home-sidenav" aria-label="Secciones del sitio">
+    <div class="home-side-menu">
+        <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="false" aria-controls="admin-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+        <div class="home-side-links" id="admin-side-links">
+            <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
+            <a href="{{basePath}}/partida/iniciar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
+            <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
+            <a href="{{basePath}}/admin" aria-label="Panel administrable"{{#esResumen}} aria-current="page"{{/esResumen}}><span aria-hidden="true">⚙</span><span class="side-label">Panel administrable</span></a>
+            <a href="{{basePath}}/admin/usuarios" aria-label="Usuarios"{{#esUsuarios}} aria-current="page"{{/esUsuarios}}><span aria-hidden="true">☺</span><span class="side-label">Usuarios</span></a>
+            <a href="{{basePath}}/admin/historial" aria-label="Historial administrativo"{{#esHistorial}} aria-current="page"{{/esHistorial}}><span aria-hidden="true">◷</span><span class="side-label">Historial</span></a>
+            {{#esAlta}}
+                <a href="{{basePath}}/admin/altaUsuario" aria-label="Nuevo usuario" aria-current="page"><span aria-hidden="true">+</span><span class="side-label">Nuevo usuario</span></a>
+            {{/esAlta}}
+            {{#esEdicion}}
+                <a href="{{basePath}}/admin/editarUsuario?id={{id}}" aria-label="Editar usuario" aria-current="page"><span aria-hidden="true">✎</span><span class="side-label">Editar usuario</span></a>
+            {{/esEdicion}}
+        </div>
+    </div>
+</nav>

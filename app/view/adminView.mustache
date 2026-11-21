@@ -1,16 +1,5 @@
 <main class="moderador-shell">
-    <nav class="home-sidenav" aria-label="Secciones del sitio">
-        <div class="home-side-menu is-expanded">
-            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="true" aria-controls="admin-resumen-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
-            <div class="home-side-links" id="admin-resumen-side-links">
-                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
-                <a href="{{basePath}}/partida/iniciar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
-                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
-                <a href="{{basePath}}/admin" aria-label="Panel administrable" aria-current="page"><span aria-hidden="true">⚙</span><span class="side-label">Panel administrable</span></a>
-                <a href="{{basePath}}/admin/usuarios" aria-label="Usuarios"><span aria-hidden="true">☺</span><span class="side-label">Usuarios</span></a>
-            </div>
-        </div>
-    </nav>
+    {{> adminNavegacion}}
     <div class="admin-wrap">
 
         {{> adminEncabezado}}
