@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `category_id` INT NOT NULL,
   `question` VARCHAR(500) NOT NULL,
+  `image_url` VARCHAR(255) DEFAULT NULL,
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `difficulty_level` TINYINT NOT NULL DEFAULT 2,
   `points` INT NOT NULL DEFAULT 20,
@@ -142,6 +143,31 @@ CREATE TABLE IF NOT EXISTS `statistics` (
   `historical_points` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `fk_statistics_user` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `question_suggestions` (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    question_text VARCHAR(500) NOT NULL,
+    image_url VARCHAR(255) DEFAULT NULL,
+    status ENUM('PENDIENTE', 'APROBADA', 'RECHAZADA') NOT NULL DEFAULT 'PENDIENTE',
+    reviewed_by INT DEFAULT NULL,
+    reviewed_at DATETIME DEFAULT NULL,
+    resolution_notes TEXT DEFAULT NULL,
+    published_question_id INT DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_question_suggestions_published_question (published_question_id),
+    KEY idx_question_suggestions_user (user_id),
+    KEY idx_question_suggestions_category (category_id),
+    KEY idx_question_suggestions_reviewer (reviewed_by),
+    KEY idx_question_suggestions_status_created (status, created_at),
+    CONSTRAINT fk_question_suggestions_user FOREIGN KEY (user_id) REFERENCES usuarios (Id),
+    CONSTRAINT fk_question_suggestions_category FOREIGN KEY (category_id) REFERENCES category (id),
+    CONSTRAINT fk_question_suggestions_reviewer FOREIGN KEY (reviewed_by) REFERENCES usuarios (Id) ON DELETE SET NULL,
+    CONSTRAINT fk_question_suggestions_published_question FOREIGN KEY (published_question_id) REFERENCES questions (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 

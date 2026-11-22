@@ -3,6 +3,7 @@
     "description": "Preguntados - Trivia game with email verification",
     "type": "project",
     "require": {
+        "ext-fileinfo": "*",
         "ext-mbstring": "*",
         "phpmailer/phpmailer": "^7.1"
     },

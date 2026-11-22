@@ -5,6 +5,14 @@
     const formWrap = document.querySelector('#sugerencias-form-wrap');
     const sideToggle = document.querySelector('.sugerencias-shell .home-side-toggle');
     const sideMenu = document.querySelector('.sugerencias-shell .home-side-menu');
+    const imageInput = document.querySelector('#imagen-sugerida');
+    const imagePreviewWrap = document.querySelector('#imagen-sugerida-preview-wrap');
+    const imagePreview = document.querySelector('#imagen-sugerida-preview');
+    const imageName = document.querySelector('#imagen-sugerida-nombre');
+
+    if (formToggle && formWrap && formToggle.getAttribute('aria-expanded') === 'true') {
+        formWrap.removeAttribute('inert');
+    }
 
     if (categorySelect && formCard) {
         categorySelect.addEventListener('change', function () {
@@ -29,6 +37,46 @@
             } else {
                 formWrap.setAttribute('inert', '');
             }
+        });
+    }
+
+    if (imageInput && imagePreviewWrap && imagePreview && imageName) {
+        let previewUrl = null;
+
+        imageInput.addEventListener('change', function () {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            const file = this.files && this.files[0];
+            if (!file) {
+                imagePreview.removeAttribute('src');
+                imagePreviewWrap.hidden = true;
+                imageName.textContent = 'Ninguna imagen seleccionada.';
+                return;
+            }
+
+            if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                this.value = '';
+                imagePreview.removeAttribute('src');
+                imagePreviewWrap.hidden = true;
+                imageName.textContent = 'Elegí un archivo JPG o PNG.';
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                this.value = '';
+                imagePreview.removeAttribute('src');
+                imagePreviewWrap.hidden = true;
+                imageName.textContent = 'La imagen no puede superar los 5 MB.';
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            imagePreview.src = previewUrl;
+            imagePreviewWrap.hidden = false;
+            imageName.textContent = file.name;
         });
     }
 

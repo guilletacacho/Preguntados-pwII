@@ -41,9 +41,14 @@ class HomeController
             Redirect::toIndex();
         }
 
+        $sugerenciaError = $_SESSION['sugerencia_error'] ?? null;
+        unset($_SESSION['sugerencia_error']);
+
         $datos = [
         'preguntasAprobadas' => $this->sugerenciaModel->obtenerUltimasPreguntasAprobadas(10),
         'csrfToken' => $this->asegurarCsrfSugerencias(),
+        'sugerenciaError' => $sugerenciaError,
+        'haySugerenciaError' => is_string($sugerenciaError) && $sugerenciaError !== '',
     ];
 
         $this->render->renderiza("sugerencias", $datos);
@@ -64,25 +69,56 @@ class HomeController
             return;
         }
 
-        try{
+        $imagen = null;
+        $rutaImagen = null;
 
+        try {
             $datos = $this->validarDatosSugerencia(
                 $_POST['category'] ?? null,
                 $_POST['question'] ?? null
             );
 
+            $archivo = $_FILES['image'] ?? null;
+            if ($archivo !== null) {
+                if (!is_array($archivo)) {
+                    throw new \DomainException('El archivo de imagen no es válido.');
+                }
+
+                $errorCarga = $archivo['error'] ?? null;
+                if ($errorCarga !== UPLOAD_ERR_NO_FILE) {
+                    if ($errorCarga === UPLOAD_ERR_INI_SIZE || $errorCarga === UPLOAD_ERR_FORM_SIZE) {
+                        throw new \DomainException('La imagen no puede superar los 5 MB.');
+                    }
+                    if ($errorCarga !== UPLOAD_ERR_OK) {
+                        throw new \DomainException('No se pudo recibir la imagen. Intentá nuevamente.');
+                    }
+
+                    $imagen = \ImageUploader::upload($archivo, 'app/img-preguntas');
+                    if ($imagen === null) {
+                        throw new \DomainException('La imagen debe ser JPG o PNG y no superar los 5 MB.');
+                    }
+
+                    $rutaImagen = 'app/img-preguntas/' . $imagen;
+                }
+            }
+
             $this->sugerenciaModel->crearSugerencia(
                 $_SESSION['usuario_id'],
                 $datos['categoryId'],
-                $datos['questionText']
+                $datos['questionText'],
+                $imagen
             );
-        
+
             Redirect::to("/Preguntados/home/show");
             return;
-        }catch (\DomainException $error){
+        } catch (\DomainException $error) {
+            $this->eliminarImagenTemporal($rutaImagen);
             $_SESSION['sugerencia_error'] = $error->getMessage();
             Redirect::to('/Preguntados/home/mostrarSugerencias');
             return;
+        } catch (\Throwable $error) {
+            $this->eliminarImagenTemporal($rutaImagen);
+            throw $error;
         }
     }
 
@@ -136,5 +172,12 @@ class HomeController
                 && $tokenSesion !== ''
                 && hash_equals($tokenSesion, $tokenEnviado);
         }
+
+    private function eliminarImagenTemporal($ruta)
+    {
+        if ($ruta !== null && is_file($ruta) && !unlink($ruta)) {
+            throw new \RuntimeException('No se pudo eliminar una imagen de sugerencia no guardada.');
+        }
+    }
     
 }

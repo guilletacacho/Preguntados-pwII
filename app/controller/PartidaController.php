@@ -231,6 +231,8 @@ class PartidaController{
             'categoria' => $turno['categoria'],
             'categoriaSlug' => $turno['slug'],
             'pregunta' => $turno['pregunta'],
+            'imagen' => $turno['imagen'] ?? null,
+            'hayImagen' => !empty($turno['imagen']),
             // Solo se manda letra + texto + un token opaco.
             // El id real de la respuesta y cuál es la correcta quedan en el servidor.
             'respuestas' => $this->opcionesParaVista($turno),
@@ -712,6 +714,7 @@ class PartidaController{
             'categoria' => $pregunta['categoria'],
             'slug' => $this->slugCategoria($pregunta['categoria']),
             'pregunta' => $pregunta['pregunta'],
+            'imagen' => $pregunta['image_url'] ?? null,
             'dificultad' => (int) $pregunta['dificultad'],
             'inicio' => null,
             'girada' => false,
@@ -850,6 +853,8 @@ class PartidaController{
             'categoria' => $turno['categoria'],
             'categoriaSlug' => $turno['slug'],
             'pregunta' => $turno['pregunta'],
+            'imagen' => $turno['imagen'] ?? null,
+            'hayImagen' => !empty($turno['imagen']),
             'respuestas' => $this->opcionesParaResultado(
                 $turno,
                 $elegida['token'],
@@ -897,6 +902,8 @@ class PartidaController{
             'categoria' => $turno['categoria'],
             'categoriaSlug' => $turno['slug'],
             'pregunta' => $turno['pregunta'],
+            'imagen' => $turno['imagen'] ?? null,
+            'hayImagen' => !empty($turno['imagen']),
             'respuestas' => $this->opcionesParaResultado($turno, null, $correcta['id'] ?? null, false),
             'esCorrecta' => false,
             'tiempoAgotado' => true,

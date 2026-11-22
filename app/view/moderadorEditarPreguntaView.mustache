@@ -29,8 +29,28 @@
 
         {{#editorDisponible}}
             <section class="moderador-correccion-formulario" aria-label="Formulario de edición de pregunta">
-                <form method="post" action="{{basePath}}/moderadorPreguntas/actualizarPregunta">
+                <form method="post" enctype="multipart/form-data" action="{{basePath}}/moderadorPreguntas/actualizarPregunta">
                     <input type="hidden" name="question_id" value="{{editorQuestionId}}">
+                    <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+
+                    <fieldset class="moderador-imagen-pregunta">
+                        <legend>Imagen de la pregunta (opcional)</legend>
+                        {{#hayEditorImagen}}
+                            <div class="moderador-imagen-actual" id="imagen-pregunta-actual-wrap">
+                                <img src="{{basePath}}/app/img-preguntas/{{editorImagen}}" alt="Imagen actual de la pregunta">
+                            </div>
+                        {{/hayEditorImagen}}
+                        <label for="editar-imagen">Elegir una imagen nueva</label>
+                        <input id="editar-imagen" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="editar-imagen-ayuda">
+                        <small id="editar-imagen-ayuda">JPG o PNG, hasta 5 MB.</small>
+                        <div class="moderador-imagen-nueva" id="editar-imagen-preview-wrap" hidden>
+                            <img id="editar-imagen-preview" alt="Vista previa de la nueva imagen">
+                        </div>
+                        <p id="editar-imagen-nombre" aria-live="polite">Ninguna imagen nueva seleccionada.</p>
+                        {{#hayEditorImagen}}
+                            <label class="moderador-quitar-imagen"><input type="checkbox" name="remove_image" value="1" id="quitar-imagen-pregunta"> Quitar la imagen actual</label>
+                        {{/hayEditorImagen}}
+                    </fieldset>
 
                     <label for="editar-categoria">Categoría</label>
                     <select id="editar-categoria" name="category_id" required>
@@ -72,6 +92,15 @@
     </div>
 </main>
 
+<style>
+    .moderador-imagen-pregunta{display:grid;gap:.55rem;margin:0 0 1.25rem;padding:1rem;border:1px solid var(--borde);border-radius:12px}
+    .moderador-imagen-pregunta legend{padding:0 .35rem;font-weight:700}
+    .moderador-imagen-pregunta input[type=file]{max-width:100%;color:var(--texto-sec)}
+    .moderador-imagen-actual,.moderador-imagen-nueva{width:min(100%,36rem);overflow:hidden;border:1px solid var(--borde);border-radius:10px;background:var(--hundido)}
+    .moderador-imagen-actual img,.moderador-imagen-nueva img{display:block;width:100%;max-width:100%;max-height:22rem;object-fit:contain}
+    .moderador-imagen-pregunta small,.moderador-imagen-pregunta p{margin:0;color:var(--texto-sec);font-size:.85rem}
+    .moderador-quitar-imagen{display:flex;align-items:center;gap:.5rem}
+</style>
 <script>
     document.querySelector('.moderador-shell .home-side-toggle').addEventListener('click', function () {
         var expanded = this.getAttribute('aria-expanded') !== 'true';
@@ -85,4 +114,49 @@
             this.querySelector('button').focus();
         }
     });
+
+    (function () {
+        var input = document.getElementById('editar-imagen');
+        var previewWrap = document.getElementById('editar-imagen-preview-wrap');
+        var preview = document.getElementById('editar-imagen-preview');
+        var fileName = document.getElementById('editar-imagen-nombre');
+        var removeImage = document.getElementById('quitar-imagen-pregunta');
+        var currentWrap = document.getElementById('imagen-pregunta-actual-wrap');
+        if (!input || !previewWrap || !preview || !fileName) return;
+
+        var previewUrl = null;
+        input.addEventListener('change', function () {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+            var file = this.files && this.files[0];
+            if (!file) {
+                preview.removeAttribute('src');
+                previewWrap.hidden = true;
+                fileName.textContent = 'Ninguna imagen nueva seleccionada.';
+                return;
+            }
+            if (removeImage) removeImage.checked = false;
+            if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                this.value = '';
+                preview.removeAttribute('src');
+                previewWrap.hidden = true;
+                fileName.textContent = file.size > 5 * 1024 * 1024
+                    ? 'La imagen no puede superar los 5 MB.'
+                    : 'Elegí un archivo JPG o PNG.';
+                return;
+            }
+            if (currentWrap) currentWrap.hidden = false;
+            previewUrl = URL.createObjectURL(file);
+            preview.src = previewUrl;
+            previewWrap.hidden = false;
+            fileName.textContent = file.name;
+        });
+        if (removeImage && currentWrap) {
+            removeImage.addEventListener('change', function () {
+                currentWrap.hidden = this.checked;
+            });
+        }
+    })();
 </script>

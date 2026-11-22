@@ -64,6 +64,9 @@ class ModeradorSugerenciasController
 
         $this->asegurarCsrfToken();
 
+        $mensaje = $_SESSION['mensaje_moderador'] ?? null;
+        unset($_SESSION['mensaje_moderador']);
+
         $datos = [
             'sugerencias' => count($preguntas),
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
@@ -77,6 +80,8 @@ class ModeradorSugerenciasController
             'estadoAprobada' => $estado === 'APROBADA',
             'estadoRechazada' => $estado === 'RECHAZADA',
             'csrfToken' => $_SESSION['csrf_moderador'],
+            'mensaje' => $mensaje,
+            'hayMensaje' => $mensaje !== null,
         ];
 
         $this->render->renderiza('moderadorSugerencias', $datos);
@@ -116,6 +121,9 @@ class ModeradorSugerenciasController
 
         $this->asegurarCsrfToken();
 
+        $mensaje = $_SESSION['mensaje_moderador'] ?? null;
+        unset($_SESSION['mensaje_moderador']);
+
         $datos = [
             'sugerenciaId' => $sugerencia['id'],
             'pregunta' => $sugerencia['pregunta'],
@@ -123,6 +131,11 @@ class ModeradorSugerenciasController
             'respuestas' => $respuestas,
             'sugerenciasPendientes' => count($pendientes),
             'csrfToken' => $_SESSION['csrf_moderador'],
+            'imagenSugerida' => $sugerencia['image_url'] ?? null,
+            'hayImagenSugerida' => is_string($sugerencia['image_url'] ?? null)
+                && $sugerencia['image_url'] !== '',
+            'mensaje' => $mensaje,
+            'hayMensaje' => $mensaje !== null,
         ];
 
         $this->render->renderiza('moderadorSugerenciasEditar', $datos);

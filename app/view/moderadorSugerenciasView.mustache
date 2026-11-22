@@ -72,6 +72,10 @@
             <button class="moderador-nueva-pregunta" type="button">+ Nueva pregunta</button>
         </header>
 
+        {{#hayMensaje}}
+            <p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="alert">{{mensaje.texto}}</p>
+        {{/hayMensaje}}
+
         <nav class="moderador-tabs" aria-label="Secciones del panel">
             <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
             <a class="moderador-tab" href="{{basePath}}/moderadorReportes/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></a>
@@ -144,4 +148,3 @@
         </section>
     </div>
 </main>
-

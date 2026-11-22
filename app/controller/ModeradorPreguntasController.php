@@ -136,14 +136,14 @@ class ModeradorPreguntasController
 
     public function altaPregunta()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
+        $this->asegurarCsrfToken();
 
         $datos = [
             'categorias' => $this->model->obtenerCategorias(),
             'pendientes' => $this->model->contarReportesPendientes(),
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
+            'csrfToken' => $_SESSION['csrf_moderador'],
         ];
 
         $this->render->renderiza("moderadorAltaPregunta", $datos);
@@ -151,8 +151,18 @@ class ModeradorPreguntasController
 
     public function crearPregunta()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
+        ModeradorAccess::exigir($this->model);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            echo 'Método no permitido.';
+            return;
+        }
+
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
+            echo 'La solicitud no es válida. Actualizá la página e intentá nuevamente.';
+            return;
         }
 
         $categorias = $this->model->obtenerCategorias();
@@ -229,20 +239,46 @@ class ModeradorPreguntasController
         }
 
         if ($errores) {
-            $this->render->renderiza('moderadorAltaPregunta', [
-                'categorias' => $categorias,
-                'pendientes' => $this->model->contarReportesPendientes(),
-                'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
-                'error' => implode(' ', array_unique($errores)),
-            ]);
+            $this->renderizarAltaPregunta($categorias, implode(' ', array_unique($errores)));
             return;
         }
 
-        $questionId = $this->model->agregarPregunta($categoryId, $question, 1, 1);
+        $imagen = null;
+        $rutaImagen = null;
+        $archivo = $_FILES['image'] ?? null;
 
-        // Cada respuesta queda asociada al ID generado al insertar la pregunta.
-        foreach ($responses as $response) {
-            $this->model->agregarRespuesta($questionId, $response['text'], $response['is_correct']);
+        if ($archivo !== null) {
+            if (!is_array($archivo)) {
+                $errores[] = 'El archivo de imagen no es válido.';
+            } else {
+                $errorCarga = $archivo['error'] ?? null;
+                if ($errorCarga === UPLOAD_ERR_NO_FILE) {
+                    $archivo = null;
+                } elseif ($errorCarga === UPLOAD_ERR_INI_SIZE || $errorCarga === UPLOAD_ERR_FORM_SIZE) {
+                    $errores[] = 'La imagen no puede superar los 5 MB.';
+                } elseif ($errorCarga !== UPLOAD_ERR_OK) {
+                    $errores[] = 'No se pudo recibir la imagen. Intentá nuevamente.';
+                } else {
+                    $imagen = \ImageUploader::upload($archivo, 'app/img-preguntas');
+                    if ($imagen === null) {
+                        $errores[] = 'La imagen debe ser JPG o PNG y no superar los 5 MB.';
+                    } else {
+                        $rutaImagen = 'app/img-preguntas/' . $imagen;
+                    }
+                }
+            }
+        }
+
+        if ($errores) {
+            $this->renderizarAltaPregunta($categorias, implode(' ', array_unique($errores)));
+            return;
+        }
+
+        try {
+            $this->model->crearPreguntaConRespuestas($categoryId, $question, 1, 1, $responses, $imagen);
+        } catch (\Throwable $error) {
+            $this->eliminarImagenSubida($rutaImagen);
+            throw $error;
         }
 
         Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
@@ -347,12 +383,22 @@ class ModeradorPreguntasController
     }
     unset($opcion);
 
+    $mensaje = $_SESSION['mensaje_moderador'] ?? null;
+    unset($_SESSION['mensaje_moderador']);
+    $this->asegurarCsrfToken();
+    $imagenActual = $pregunta['image_url'] ?? null;
+
     $datos = [
         'editorQuestionId' => $id,
         'editorPregunta' => $pregunta['question'],
         'editorCategorias' => $categorias,
         'editorOpciones' => $opciones,
         'editorDisponible' => count($opciones) === 4 && count($categorias) > 0,
+        'editorImagen' => $imagenActual,
+        'hayEditorImagen' => is_string($imagenActual) && $imagenActual !== '',
+        'csrfToken' => $_SESSION['csrf_moderador'],
+        'mensaje' => $mensaje,
+        'hayMensaje' => $mensaje !== null,
     ];
 
     $this->render->renderiza('moderadorEditarPregunta', $datos);
@@ -369,25 +415,88 @@ class ModeradorPreguntasController
             return;
         }
 
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
+            return;
+        }
+
         $id = filter_var($_POST['question_id'] ?? null, FILTER_VALIDATE_INT);
-        if (!$id || !is_array($_POST['responses'] ?? null)) {
+        if (!$id || $id < 1 || !is_array($_POST['responses'] ?? null)) {
             Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+            return;
         }
 
         $respuestas = [];
-        foreach ($_POST['responses'] as $r) {
-            $respuestas[] = ['id' => $r['id'], 'response' => $r['texto']];
+        foreach ($_POST['responses'] as $respuesta) {
+            if (!is_array($respuesta) || !isset($respuesta['id']) || !is_string($respuesta['texto'] ?? null)) {
+                $this->guardarMensajePregunta('Los datos de las respuestas no son válidos.', 'error');
+                Redirect::to('/Preguntados/moderadorPreguntas/editarPregunta?id=' . (int) $id);
+                return;
+            }
+            $respuestas[] = ['id' => $respuesta['id'], 'response' => $respuesta['texto']];
         }
 
-        $this->model->actualizarPregunta(
-        $id,
-        $_POST['category_id'] ?? '',
-        $_POST['question'] ?? '',
-        $respuestas,
-        $_POST['correct_response_id'] ?? ''
-        );
+        $quitarImagen = ($_POST['remove_image'] ?? '') === '1';
+        $archivo = $_FILES['image'] ?? null;
+        $imagenNueva = null;
+        $rutaImagenNueva = null;
 
-        Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+        try {
+            if ($quitarImagen && is_array($archivo) && ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                throw new \DomainException('Elegí una imagen nueva o quitá la actual, pero no ambas cosas.');
+            }
+
+            if ($archivo !== null) {
+                if (!is_array($archivo)) {
+                    throw new \DomainException('El archivo de imagen no es válido.');
+                }
+                $errorCarga = $archivo['error'] ?? null;
+                if ($errorCarga === UPLOAD_ERR_INI_SIZE || $errorCarga === UPLOAD_ERR_FORM_SIZE) {
+                    throw new \DomainException('La imagen no puede superar los 5 MB.');
+                }
+                if ($errorCarga !== UPLOAD_ERR_NO_FILE && $errorCarga !== UPLOAD_ERR_OK) {
+                    throw new \DomainException('No se pudo recibir la imagen. Intentá nuevamente.');
+                }
+                if ($errorCarga === UPLOAD_ERR_OK) {
+                    $imagenNueva = \ImageUploader::upload($archivo, 'app/img-preguntas');
+                    if ($imagenNueva === null) {
+                        throw new \DomainException('La imagen debe ser JPG o PNG y no superar los 5 MB.');
+                    }
+                    $rutaImagenNueva = 'app/img-preguntas/' . $imagenNueva;
+                }
+            }
+
+            $imagenAnterior = $this->model->actualizarPregunta(
+                $id,
+                $_POST['category_id'] ?? '',
+                $_POST['question'] ?? '',
+                $respuestas,
+                $_POST['correct_response_id'] ?? '',
+                $imagenNueva,
+                $quitarImagen
+            );
+        } catch (\DomainException $error) {
+            $this->eliminarImagenSubida($rutaImagenNueva);
+            $this->guardarMensajePregunta($error->getMessage(), 'error');
+            Redirect::to('/Preguntados/moderadorPreguntas/editarPregunta?id=' . (int) $id);
+            return;
+        } catch (\Throwable $error) {
+            $this->eliminarImagenSubida($rutaImagenNueva);
+            throw $error;
+        }
+
+        $mensaje = 'La pregunta fue actualizada.';
+        if ($imagenNueva !== null || $quitarImagen) {
+            $imagenVigente = $imagenNueva;
+            if ($imagenAnterior !== null && $imagenAnterior !== $imagenVigente) {
+                if (!$this->eliminarImagenSiNoReferenciada($imagenAnterior)) {
+                    $mensaje = 'La pregunta se guardó, pero no se pudo eliminar la imagen anterior.';
+                }
+            }
+        }
+        $this->guardarMensajePregunta($mensaje, $mensaje === 'La pregunta fue actualizada.' ? 'exito' : 'error');
+
+        Redirect::to('/Preguntados/moderadorPreguntas/editarPregunta?id=' . (int) $id);
     }
 
     //METODOS PRIVADOS 
@@ -395,5 +504,58 @@ class ModeradorPreguntasController
     private function contarSugerenciasPendientes()
     {
         return count($this->sugerenciaModel->mostrarPreguntasSugeridas('PENDIENTE'));
+    }
+
+    private function renderizarAltaPregunta(array $categorias, $error = null)
+    {
+        $this->asegurarCsrfToken();
+        $this->render->renderiza('moderadorAltaPregunta', [
+            'categorias' => $categorias,
+            'pendientes' => $this->model->contarReportesPendientes(),
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
+            'csrfToken' => $_SESSION['csrf_moderador'],
+            'error' => $error,
+        ]);
+    }
+
+    private function asegurarCsrfToken()
+    {
+        if (empty($_SESSION['csrf_moderador'])) {
+            $_SESSION['csrf_moderador'] = bin2hex(random_bytes(32));
+        }
+    }
+
+    private function csrfSugerenciasValido($tokenEnviado)
+    {
+        $tokenSesion = $_SESSION['csrf_moderador'] ?? '';
+        return is_string($tokenSesion) && $tokenSesion !== ''
+            && is_string($tokenEnviado) && hash_equals($tokenSesion, $tokenEnviado);
+    }
+
+    private function guardarMensajePregunta($texto, $tipo)
+    {
+        $_SESSION['mensaje_moderador'] = ['texto' => $texto, 'tipo' => $tipo];
+    }
+
+    private function eliminarImagenSubida($ruta)
+    {
+        if ($ruta !== null && is_file($ruta) && !unlink($ruta)) {
+            throw new \RuntimeException('No se pudo eliminar una imagen de pregunta que no se guardó.');
+        }
+    }
+
+    private function eliminarImagenSiNoReferenciada($filename)
+    {
+        if (!is_string($filename) || !preg_match('/\A[a-f0-9]{32}\.(jpg|png)\z/i', $filename)
+            || $this->model->imagenReferenciada($filename)) {
+            return true;
+        }
+
+        $ruta = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'img-preguntas' . DIRECTORY_SEPARATOR . $filename;
+        if (is_file($ruta) && !unlink($ruta)) {
+            return false;
+        }
+
+        return true;
     }
 }

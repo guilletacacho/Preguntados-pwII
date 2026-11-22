@@ -1,4 +1,4 @@
-﻿<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=3">
+﻿<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=4">
 <main class="home-shell sugerencias-shell" id="sugerencias">
     <nav class="home-sidenav" aria-label="Secciones del sitio">
         <div class="home-side-menu">
@@ -21,14 +21,18 @@
             <p>Compartí una pregunta interesante. El equipo la revisará antes de incorporarla al juego.</p>
         </header>
 
+        {{#haySugerenciaError}}
+            <p class="sugerencias-error" role="alert">{{sugerenciaError}}</p>
+        {{/haySugerenciaError}}
+
         <div class="sugerencias-layout">
             <section class="home-card sugerencias-form-card" aria-labelledby="sugerencias-form-title">
                 <h2 id="sugerencias-form-title">¿Qué pregunta te gustaría sugerir?</h2>
                 <p>Elegí una categoría y escribí el enunciado. Las respuestas serán preparadas por el moderador.</p>
-                <button type="button" class="submit-btn sugerencias-cta" aria-expanded="false" aria-controls="sugerencias-form-wrap">Proponer una pregunta</button>
+                <button type="button" class="submit-btn sugerencias-cta" aria-expanded="{{#haySugerenciaError}}true{{/haySugerenciaError}}{{^haySugerenciaError}}false{{/haySugerenciaError}}" aria-controls="sugerencias-form-wrap" {{#haySugerenciaError}}disabled{{/haySugerenciaError}}>Proponer una pregunta</button>
 
-                <div class="sugerencias-form-wrap" id="sugerencias-form-wrap" aria-hidden="true" inert>
-                    <form class="sugerencias-form" action="{{basePath}}/home/enviarSugerencia" method="post">
+                <div class="sugerencias-form-wrap{{#haySugerenciaError}} is-open{{/haySugerenciaError}}" id="sugerencias-form-wrap" aria-hidden="{{#haySugerenciaError}}false{{/haySugerenciaError}}{{^haySugerenciaError}}true{{/haySugerenciaError}}" {{^haySugerenciaError}}inert{{/haySugerenciaError}}>
+                    <form class="sugerencias-form" action="{{basePath}}/home/enviarSugerencia" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                     <label for="categoria-sugerida">Categoría</label>
                     <select id="categoria-sugerida" name="category" required>
@@ -43,6 +47,14 @@
 
                     <label for="pregunta-sugerida">Pregunta sugerida</label>
                     <textarea id="pregunta-sugerida" name="question" rows="5" maxlength="500" required placeholder="Escribí acá el enunciado de tu pregunta"></textarea>
+
+                    <label for="imagen-sugerida">Imagen (opcional)</label>
+                    <input id="imagen-sugerida" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="imagen-sugerida-ayuda">
+                    <small id="imagen-sugerida-ayuda" class="sugerencias-imagen-ayuda">JPG o PNG, hasta 5 MB.</small>
+                    <div class="sugerencias-imagen-preview-wrap" id="imagen-sugerida-preview-wrap" hidden>
+                        <img id="imagen-sugerida-preview" class="sugerencias-imagen-preview" alt="Vista previa de la imagen seleccionada">
+                    </div>
+                    <p class="sugerencias-imagen-nombre" id="imagen-sugerida-nombre" aria-live="polite">Ninguna imagen seleccionada.</p>
 
                     <div class="sugerencias-form-actions">
                         <button type="submit" class="submit-btn sugerencias-enviar">Enviar pregunta</button>
@@ -72,6 +84,4 @@
     </div>
 </main>
 
-<script src="{{basePath}}/public/js/sugerencias.js?v=1" defer></script>
-
-
+<script src="{{basePath}}/public/js/sugerencias.js?v=2" defer></script>

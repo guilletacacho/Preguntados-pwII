@@ -17,7 +17,7 @@ class SugerenciaModel{
         return $this->database->queryOne($sql,[$categoryId]) !== null;
     }
 
-    public function crearSugerencia($userId,$categoryId,$questionText){
+    public function crearSugerencia($userId, $categoryId, $questionText, $imageUrl = null){
 
         $userId = filter_var($userId, FILTER_VALIDATE_INT);
         $categoryId = filter_var($categoryId, FILTER_VALIDATE_INT);
@@ -46,13 +46,18 @@ class SugerenciaModel{
             );
         }
 
-        
-        $sql = "INSERT INTO question_suggestions (user_id, category_id, question_text,status) VALUES (?, ?, ?,'PENDIENTE')";
+        if ($imageUrl !== null && (!is_string($imageUrl) || $imageUrl === '' || mb_strlen($imageUrl) > 255)) {
+            throw new \DomainException('La referencia de imagen no es válida.');
+        }
 
-        $this->database->execute($sql,[
+        $sql = "INSERT INTO question_suggestions (user_id, category_id, question_text, image_url, status)
+                VALUES (?, ?, ?, ?, 'PENDIENTE')";
+
+        $this->database->execute($sql, [
             $userId,
             $categoryId,
             $questionText,
+            $imageUrl,
         ]);
 
         return (int) $this->database->lastInsertId();
@@ -66,7 +71,8 @@ class SugerenciaModel{
                 u.Usuario AS usuario,
                 qs.created_at AS fecha,
                 c.name AS categoria,
-                qs.status AS estado
+                qs.status AS estado,
+                qs.image_url AS imagen
             FROM question_suggestions qs
             INNER JOIN usuarios u ON u.Id = qs.user_id
             LEFT JOIN questions q ON q.id = qs.published_question_id
@@ -93,7 +99,8 @@ class SugerenciaModel{
                 qs.id,
                 qs.question_text AS pregunta,
                 qs.category_id AS categoria_id,
-                c.name AS categoria
+                c.name AS categoria,
+                qs.image_url AS image_url
             FROM question_suggestions qs
             INNER JOIN category c ON c.id = qs.category_id
             WHERE qs.id = ?
@@ -117,12 +124,13 @@ class SugerenciaModel{
         $this->database->beginTransaction();
 
         try{
-            $this->verificarPendiente($id);
+            $sugerencia = $this->verificarPendiente($id);
 
             $questionId = $this->insertarPregunta(
                 $datos['category_id'],
                 $datos['question'],
-                $datos['difficulty_level']
+                $datos['difficulty_level'],
+                $sugerencia['image_url'] ?? null
             );
 
             $this->insertarRespuestas(
@@ -191,12 +199,12 @@ class SugerenciaModel{
 
     //METODOS PRIVADOS 
 
-    private function insertarPregunta($categoryId,$question,$difficulty){
+   private function insertarPregunta($categoryId,$question,$difficulty,$imageUrl){
 
-        $sql = "INSERT INTO questions (category_id, question, difficulty_level, points)
-            VALUES (?, ?, ?, 1)";
+        $sql = "INSERT INTO questions (category_id, question, difficulty_level, points, image_url)
+            VALUES (?, ?, ?, 1, ?)";
 
-        $this->database->execute($sql,[$categoryId,$question,$difficulty]);
+        $this->database->execute($sql,[$categoryId,$question,$difficulty,$imageUrl]);
 
         return (int) $this->database->lastInsertId();
 
@@ -238,7 +246,7 @@ class SugerenciaModel{
     private function verificarPendiente($id)
     {
         $sugerencia = $this->database->queryOne(
-            "SELECT id
+            "SELECT id, image_url
             FROM question_suggestions
             WHERE id = ? AND status = 'PENDIENTE'
             FOR UPDATE",
@@ -248,6 +256,8 @@ class SugerenciaModel{
         if ($sugerencia === null) {
             throw new \DomainException('La sugerencia no existe o ya fue revisada.');
         }
+
+        return $sugerencia;
     }
 
     private function validarDatosFinales(array $datos)

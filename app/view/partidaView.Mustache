@@ -35,6 +35,12 @@
             {{/actual}}{{/reportes}}{{/resultadoMostrado}}
         </div>
 
+        {{#hayImagen}}
+            <figure class="partida-imagen-pregunta">
+                <img src="{{basePath}}/app/img-preguntas/{{imagen}}" alt="Imagen relacionada con la pregunta">
+            </figure>
+        {{/hayImagen}}
+
         <div class="partida-respuestas">
             {{#resultadoMostrado}}
                 {{#respuestas}}

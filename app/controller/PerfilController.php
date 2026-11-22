@@ -180,7 +180,7 @@ class PerfilController
         $archivo = $_FILES['imagen_url'] ?? null;
 
         if (!$errores && $archivo !== null && $archivo['error'] !== UPLOAD_ERR_NO_FILE) {
-            $fotoNueva = $this->subirImagen($archivo);
+            $fotoNueva = \ImageUploader::upload($archivo, 'app/img-foto-perfil');
             if ($fotoNueva === null) {
                 $errores['imagen_url'] = 'No se pudo guardar la imagen.';
             }
@@ -241,40 +241,5 @@ class PerfilController
         $base = rtrim($config['app_url'] ?? '', '/');
 
         return $base . '/perfil?usuario=' . urlencode($usuario);
-    }
-
-    private function subirImagen($archivo)
-    {
-        if (!isset($archivo['error']) || $archivo['error'] !== UPLOAD_ERR_OK) {
-            return null;
-        }
-        if ($archivo['size'] > 5 * 1024 * 1024) {
-            return null;
-        }
-
-        $tiposPermitidos = [
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-        ];
-
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $tipoReal = $finfo->file($archivo['tmp_name']);
-
-        if (!isset($tiposPermitidos[$tipoReal])) {
-            return null;
-        }
-
-        $nombreUnico = uniqid() . '.' . $tiposPermitidos[$tipoReal];
-        $directorio = 'app/img-foto-perfil';
-
-        if (!is_dir($directorio)) {
-            mkdir($directorio, 0755, true);
-        }
-
-        if (!move_uploaded_file($archivo['tmp_name'], $directorio . '/' . $nombreUnico)) {
-            return null;
-        }
-
-        return $nombreUnico;
     }
 }

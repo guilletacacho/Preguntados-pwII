@@ -34,6 +34,8 @@ Options -Indexes
 
     # Permite servir las fotos de perfil y nada más dentro de esta carpeta
     RewriteRule ^app/img-foto-perfil/[^/]+\.(jpg|jpeg|png)$ - [L,NC]
+    # Permite servir las imágenes de preguntas con nombres de archivo seguros
+    RewriteRule ^app/img-preguntas/[^/]+\.(jpg|jpeg|png)$ - [L,NC]
 
     # app/ (excepto css/), helper/ y vendor/ son PHP interno (controllers, models,
     # la librería de Mustache); config/ y sql/ tienen credenciales y

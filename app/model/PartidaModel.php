@@ -192,6 +192,7 @@ class PartidaModel{
         $sql = "SELECT
                     q.id AS question_id,
                     q.question AS pregunta,
+                    q.image_url,
                     c.name AS categoria,
                     q.category_id,
                     {$expresion} AS dificultad

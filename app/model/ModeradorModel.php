@@ -121,7 +121,7 @@ class ModeradorModel
     public function obtenerDetallePregunta($questionId)
     {
         return $this->database->queryOne(
-            "SELECT q.id AS question_id, q.question, q.category_id, c.name AS categoria
+            "SELECT q.id AS question_id, q.question, q.category_id, q.image_url, c.name AS categoria
              FROM questions q
              INNER JOIN category c ON c.id = q.category_id
              WHERE q.id = ?
@@ -376,19 +376,53 @@ class ModeradorModel
             : null;
     }
 
-    public function agregarPregunta($categoryId, $question, $difficultyLevel, $points){
+    public function agregarPregunta($categoryId, $question, $difficultyLevel, $points, $imageUrl = null){
         
-        $sql = "INSERT INTO questions (category_id, question, difficulty_level, points)
-            VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO questions (category_id, question, difficulty_level, points, image_url)
+            VALUES (?, ?, ?, ?, ?)";
 
     $this->database->execute($sql, [
         $categoryId,
         $question,
         $difficultyLevel,
-        $points
+        $points,
+        $imageUrl
     ]);
 
     return (int) $this->database->lastInsertId();
+    }
+
+    public function crearPreguntaConRespuestas($categoryId, $question, $difficultyLevel, $points, array $responses, $imageUrl = null)
+    {
+        $this->database->beginTransaction();
+        try {
+            $questionId = $this->agregarPregunta(
+                $categoryId,
+                $question,
+                $difficultyLevel,
+                $points,
+                $imageUrl
+            );
+            if ($questionId < 1) {
+                throw new \RuntimeException('No se pudo crear la pregunta.');
+            }
+
+            foreach ($responses as $response) {
+                $this->agregarRespuesta(
+                    $questionId,
+                    $response['text'],
+                    $response['is_correct']
+                );
+            }
+
+            $this->database->commit();
+            return $questionId;
+        } catch (\Throwable $exception) {
+            if ($this->database->inTransaction()) {
+                $this->database->rollBack();
+            }
+            throw $exception;
+        }
     }
     
     public function agregarRespuesta($questionId, $response, $isCorrect){
@@ -413,25 +447,66 @@ class ModeradorModel
         return $this->database->execute($sql, [$id]);
     }
     
-    public function actualizarPregunta($questionId, $categoryId, $question, array $responses, $correctResponseId){
+    public function actualizarPregunta($questionId, $categoryId, $question, array $responses, $correctResponseId, $imageUrl = null, $removeImage = false){
 
-        $sql = "UPDATE questions SET category_id = ?, question = ? WHERE id = ?";
-        $this->database->execute($sql, [(int) $categoryId, $question, (int)$questionId]);
-        
-        // Actualiza cada respuesta y marca como correcta la seleccionada.
-        foreach ($responses as $response) {
-            
-            $sql = "UPDATE response SET response = ?, is_correct = ? WHERE id = ? AND question_id = ?";
-            
-            $responseId = (int) $response['id'];
-            $this->database->execute($sql, [
-                trim($response['response']),
-                $responseId === (int) $correctResponseId ? 1 : 0,
-                $responseId,
-                (int) $questionId,
-            ]);
+        $this->database->beginTransaction();
+        try {
+            $pregunta = $this->database->queryOne(
+                "SELECT image_url FROM questions WHERE id = ? FOR UPDATE",
+                [(int) $questionId]
+            );
+            if ($pregunta === null) {
+                throw new \DomainException('La pregunta ya no existe.');
+            }
+
+            $imagenAnterior = $pregunta['image_url'] ?? null;
+            if ($imageUrl !== null || $removeImage) {
+                $imagenActualizada = $imageUrl !== null ? $imageUrl : null;
+                $this->database->execute(
+                    "UPDATE questions SET category_id = ?, question = ?, image_url = ? WHERE id = ?",
+                    [(int) $categoryId, $question, $imagenActualizada, (int) $questionId]
+                );
+            } else {
+                $this->database->execute(
+                    "UPDATE questions SET category_id = ?, question = ? WHERE id = ?",
+                    [(int) $categoryId, $question, (int) $questionId]
+                );
+            }
+
+            foreach ($responses as $response) {
+                $responseId = (int) $response['id'];
+                $this->database->execute(
+                    "UPDATE response SET response = ?, is_correct = ? WHERE id = ? AND question_id = ?",
+                    [
+                        trim($response['response']),
+                        $responseId === (int) $correctResponseId ? 1 : 0,
+                        $responseId,
+                        (int) $questionId,
+                    ]
+                );
+            }
+
+            $this->database->commit();
+            return $imagenAnterior;
+        } catch (\Throwable $exception) {
+            if ($this->database->inTransaction()) {
+                $this->database->rollBack();
+            }
+            throw $exception;
         }
+    }
 
+    public function imagenReferenciada($filename)
+    {
+        $referencias = $this->database->queryOne(
+            "SELECT (
+                (SELECT COUNT(*) FROM questions WHERE image_url = ?)
+                + (SELECT COUNT(*) FROM question_suggestions WHERE image_url = ?)
+            ) AS total",
+            [$filename, $filename]
+        );
+
+        return (int) ($referencias['total'] ?? 0) > 0;
     }
 
     // OBTIENE UNA PAGINA DE PREGUNTAS, CON UN LIMITE Y DESPLAZAMIENTO CONTROLADOS.

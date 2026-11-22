@@ -30,47 +30,64 @@
             <a class="moderador-tab is-active" href="{{basePath}}/moderadorPreguntas/preguntas" aria-current="page">Preguntas</a>
         </nav>
 
-        <form class="moderador-alta-formulario" method="post" action="{{basePath}}/moderadorPreguntas/crearPregunta">
+        <form class="moderador-alta-formulario" method="post" enctype="multipart/form-data" action="{{basePath}}/moderadorPreguntas/crearPregunta">
+            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
             {{#error}}<p class="moderador-ayuda" role="alert">{{error}}</p>{{/error}}
-            <div class="moderador-alta-campo">
-                <label for="nueva-categoria">Categoría</label>
-                <select id="nueva-categoria" name="category_id" required>
-                    <option value="" selected disabled>Seleccioná una categoría</option>
-                    {{#categorias}}
-                    <option value="{{id}}">{{name}}</option>
-                    {{/categorias}}
-                </select>
-            </div>
+            <div class="moderador-alta-grid">
+                <div class="moderador-alta-columna">
+                    <div class="moderador-alta-campo">
+                        <label for="nueva-categoria">Categoría</label>
+                        <select id="nueva-categoria" name="category_id" required>
+                            <option value="" selected disabled>Seleccioná una categoría</option>
+                            {{#categorias}}
+                            <option value="{{id}}">{{name}}</option>
+                            {{/categorias}}
+                        </select>
+                    </div>
 
-            <div class="moderador-alta-campo">
-                <label for="nueva-pregunta">Pregunta</label>
-                <textarea id="nueva-pregunta" name="question" rows="2" maxlength="500" required></textarea>
-            </div>
+                    <div class="moderador-alta-campo">
+                        <label for="nueva-pregunta">Pregunta</label>
+                        <textarea id="nueva-pregunta" name="question" rows="2" maxlength="500" required></textarea>
+                    </div>
 
-            <fieldset class="moderador-respuestas">
-                <legend class="moderador-respuestas-titulo">Respuestas</legend>
-                <p class="moderador-ayuda">Marcá cuál es la correcta. Tienen que ser 4 y no se pueden repetir.</p>
-                <div class="moderador-respuesta">
-                    <label class="visually-hidden" for="respuesta-a">Respuesta A</label>
-                    <input class="moderador-respuesta-input" id="respuesta-a" name="responses[0][text]" type="text" placeholder="A" maxlength="255" required>
-                    <label class="moderador-respuesta-correcta" for="correcta-a"><input id="correcta-a" name="responses[0][is_correct]" type="checkbox" value="1"> Correcta</label>
+                    <fieldset class="moderador-respuestas">
+                        <legend class="moderador-respuestas-titulo">Respuestas</legend>
+                        <p class="moderador-ayuda">Marcá cuál es la correcta. Tienen que ser 4 y no se pueden repetir.</p>
+                        <div class="moderador-respuesta">
+                            <label class="visually-hidden" for="respuesta-a">Respuesta A</label>
+                            <input class="moderador-respuesta-input" id="respuesta-a" name="responses[0][text]" type="text" placeholder="A" maxlength="255" required>
+                            <label class="moderador-respuesta-correcta" for="correcta-a"><input id="correcta-a" name="responses[0][is_correct]" type="checkbox" value="1"> Correcta</label>
+                        </div>
+                        <div class="moderador-respuesta">
+                            <label class="visually-hidden" for="respuesta-b">Respuesta B</label>
+                            <input class="moderador-respuesta-input" id="respuesta-b" name="responses[1][text]" type="text" placeholder="B" maxlength="255" required>
+                            <label class="moderador-respuesta-correcta" for="correcta-b"><input id="correcta-b" name="responses[1][is_correct]" type="checkbox" value="1"> Correcta</label>
+                        </div>
+                        <div class="moderador-respuesta">
+                            <label class="visually-hidden" for="respuesta-c">Respuesta C</label>
+                            <input class="moderador-respuesta-input" id="respuesta-c" name="responses[2][text]" type="text" placeholder="C" maxlength="255" required>
+                            <label class="moderador-respuesta-correcta" for="correcta-c"><input id="correcta-c" name="responses[2][is_correct]" type="checkbox" value="1"> Correcta</label>
+                        </div>
+                        <div class="moderador-respuesta">
+                            <label class="visually-hidden" for="respuesta-d">Respuesta D</label>
+                            <input class="moderador-respuesta-input" id="respuesta-d" name="responses[3][text]" type="text" placeholder="D" maxlength="255" required>
+                            <label class="moderador-respuesta-correcta" for="correcta-d"><input id="correcta-d" name="responses[3][is_correct]" type="checkbox" value="1"> Correcta</label>
+                        </div>
+                    </fieldset>
                 </div>
-                <div class="moderador-respuesta">
-                    <label class="visually-hidden" for="respuesta-b">Respuesta B</label>
-                    <input class="moderador-respuesta-input" id="respuesta-b" name="responses[1][text]" type="text" placeholder="B" maxlength="255" required>
-                    <label class="moderador-respuesta-correcta" for="correcta-b"><input id="correcta-b" name="responses[1][is_correct]" type="checkbox" value="1"> Correcta</label>
-                </div>
-                <div class="moderador-respuesta">
-                    <label class="visually-hidden" for="respuesta-c">Respuesta C</label>
-                    <input class="moderador-respuesta-input" id="respuesta-c" name="responses[2][text]" type="text" placeholder="C" maxlength="255" required>
-                    <label class="moderador-respuesta-correcta" for="correcta-c"><input id="correcta-c" name="responses[2][is_correct]" type="checkbox" value="1"> Correcta</label>
-                </div>
-                <div class="moderador-respuesta">
-                    <label class="visually-hidden" for="respuesta-d">Respuesta D</label>
-                    <input class="moderador-respuesta-input" id="respuesta-d" name="responses[3][text]" type="text" placeholder="D" maxlength="255" required>
-                    <label class="moderador-respuesta-correcta" for="correcta-d"><input id="correcta-d" name="responses[3][is_correct]" type="checkbox" value="1"> Correcta</label>
-                </div>
-            </fieldset>
+
+                <fieldset class="moderador-alta-imagen">
+                    <legend>Imagen de la pregunta (opcional)</legend>
+                    <p class="moderador-ayuda">La imagen aparecerá junto al enunciado durante la partida. JPG o PNG, hasta 5 MB.</p>
+                    <label for="nueva-imagen">Elegir imagen</label>
+                    <input id="nueva-imagen" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="nueva-imagen-ayuda">
+                    <small id="nueva-imagen-ayuda">La vista previa se muestra aquí; la imagen se sube al crear la pregunta.</small>
+                    <div class="moderador-alta-imagen-preview" id="nueva-imagen-preview-wrap" hidden>
+                        <img id="nueva-imagen-preview" alt="Vista previa de la imagen seleccionada">
+                    </div>
+                    <p class="moderador-alta-imagen-nombre" id="nueva-imagen-nombre" aria-live="polite">Ninguna imagen seleccionada.</p>
+                </fieldset>
+            </div>
 
             <p class="moderador-dificultad-nota">Todas las preguntas nuevas se crean con dificultad fácil.</p>
 
@@ -94,4 +111,43 @@
             this.querySelector('button').focus();
         }
     });
+
+    (function () {
+        var input = document.getElementById('nueva-imagen');
+        var previewWrap = document.getElementById('nueva-imagen-preview-wrap');
+        var preview = document.getElementById('nueva-imagen-preview');
+        var fileName = document.getElementById('nueva-imagen-nombre');
+        if (!input || !previewWrap || !preview || !fileName) return;
+
+        var previewUrl = null;
+        input.addEventListener('change', function () {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            var file = this.files && this.files[0];
+            if (!file) {
+                preview.removeAttribute('src');
+                previewWrap.hidden = true;
+                fileName.textContent = 'Ninguna imagen seleccionada.';
+                return;
+            }
+
+            if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                this.value = '';
+                preview.removeAttribute('src');
+                previewWrap.hidden = true;
+                fileName.textContent = file.size > 5 * 1024 * 1024
+                    ? 'La imagen no puede superar los 5 MB.'
+                    : 'Elegí un archivo JPG o PNG.';
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            preview.src = previewUrl;
+            previewWrap.hidden = false;
+            fileName.textContent = file.name;
+        });
+    })();
 </script>

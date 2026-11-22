@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `category_id` INT NOT NULL,
   `question` VARCHAR(500) NOT NULL,
+  `image_url` VARCHAR(255) DEFAULT NULL,
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `difficulty_level` TINYINT NOT NULL DEFAULT 2,
   `points` INT NOT NULL DEFAULT 1,
@@ -191,11 +192,21 @@ PREPARE partida_schema_stmt FROM @partida_schema_sql;
 EXECUTE partida_schema_stmt;
 DEALLOCATE PREPARE partida_schema_stmt;
 
+SET @partida_schema_sql = IF(
+    EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'questions' AND column_name = 'image_url'),
+    'SELECT 1',
+    'ALTER TABLE questions ADD COLUMN image_url VARCHAR(255) DEFAULT NULL'
+);
+PREPARE partida_schema_stmt FROM @partida_schema_sql;
+EXECUTE partida_schema_stmt;
+DEALLOCATE PREPARE partida_schema_stmt;
+
 CREATE TABLE IF NOT EXISTS `question_suggestions` (
     id BIGINT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     category_id INT NOT NULL,
     question_text VARCHAR(500) NOT NULL,
+    image_url VARCHAR(255) DEFAULT NULL,
     status ENUM('PENDIENTE', 'APROBADA', 'RECHAZADA') NOT NULL DEFAULT 'PENDIENTE',
     reviewed_by INT DEFAULT NULL,
     reviewed_at DATETIME DEFAULT NULL,
@@ -214,6 +225,15 @@ CREATE TABLE IF NOT EXISTS `question_suggestions` (
     CONSTRAINT fk_question_suggestions_reviewer FOREIGN KEY (reviewed_by) REFERENCES usuarios (Id) ON DELETE SET NULL,
     CONSTRAINT fk_question_suggestions_published_question FOREIGN KEY (published_question_id) REFERENCES questions (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+SET @partida_schema_sql = IF(
+    EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'question_suggestions' AND column_name = 'image_url'),
+    'SELECT 1',
+    'ALTER TABLE question_suggestions ADD COLUMN image_url VARCHAR(255) DEFAULT NULL'
+);
+PREPARE partida_schema_stmt FROM @partida_schema_sql;
+EXECUTE partida_schema_stmt;
+DEALLOCATE PREPARE partida_schema_stmt;
 
 INSERT INTO usuarios
     (Nombre, Anio_nacimiento, Sexo, Provincia, Pais, Usuario, Email, Contrasena, Verificado, Token, Foto_url, rol)
