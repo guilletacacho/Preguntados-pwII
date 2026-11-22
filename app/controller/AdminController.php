@@ -60,6 +60,8 @@ class AdminController
         $datos = $this->model->obtenerEstadisticas((int) $_SESSION['usuario_id']);
         $datos['esResumen'] = true;
         $datos['mensaje'] = $this->consumirMensaje();
+        $datos['sinVerificar'] = max(0, (int) $datos['totalUsuarios'] - (int) $datos['usuariosVerificados']);
+        $datos['graficosJson'] = $this->prepararGraficos($datos);
 
         $this->render->renderiza('admin', $datos);
     }
@@ -505,6 +507,42 @@ class AdminController
         }
 
         return $resultado;
+    }
+
+    private function prepararGraficos(array $datos)
+    {
+        $graficos = [
+            'roles' => [
+                ['etiqueta' => 'Jugadores', 'cantidad' => (int) $datos['jugadores']],
+                ['etiqueta' => 'Moderadores', 'cantidad' => (int) $datos['moderadores']],
+                ['etiqueta' => 'Administradores', 'cantidad' => (int) $datos['administradores']],
+            ],
+            'totalUsuarios' => (int) $datos['totalUsuarios'],
+            'jugadoresReales' => (int) $datos['jugadoresReales'],
+            'verificados' => (int) $datos['usuariosVerificados'],
+            'sinVerificar' => (int) $datos['sinVerificar'],
+            'niveles' => [],
+            'paises' => [],
+            'edades' => [],
+            'sexos' => [],
+        ];
+
+        foreach (['niveles', 'paises', 'edades', 'sexos'] as $clave) {
+            foreach ($datos[$clave] as $fila) {
+                $graficos[$clave][] = [
+                    'etiqueta' => (string) $fila['etiqueta'],
+                    'cantidad' => (int) $fila['cantidad'],
+                ];
+            }
+        }
+
+        $json = json_encode(
+            $graficos,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+
+        return $json === false ? '{}' : $json;
     }
 
     private function asegurarCsrfToken()

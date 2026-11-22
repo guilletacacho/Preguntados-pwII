@@ -214,11 +214,51 @@
     font-variant-numeric: tabular-nums;
 }
 
-.admin-panel .admin-metric small {
-    display: block;
-    color: var(--texto-tenue);
-    font-size: .73rem;
-    line-height: 1.45;
+.admin-panel .admin-metric-notas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.admin-panel .admin-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 9px;
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .04);
+    color: #F3EEE6 !important;
+    font-size: .68rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.admin-panel .admin-chip strong {
+    color: #FFFFFF !important;
+    font-weight: 800;
+}
+
+.admin-panel .admin-chip--vivo {
+    border-color: rgba(124, 194, 67, .35);
+    background: rgba(124, 194, 67, .12);
+    color: #B6E88D;
+}
+
+.admin-panel .admin-chip--vivo::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--deporte);
+    box-shadow: 0 0 0 3px rgba(124, 194, 67, .18);
+}
+
+.admin-panel .admin-chip--hoy {
+    border-color: rgba(242, 194, 48, .35);
+    background: rgba(242, 194, 48, .12);
+    color: #F6DC8A;
 }
 
 .admin-panel .admin-split,
@@ -237,9 +277,27 @@
     background: var(--superficie);
 }
 
-.admin-panel .admin-card-graficos {
-    border-style: dashed;
-    background: linear-gradient(180deg, var(--superficie), var(--hundido));
+.admin-panel .admin-chart {
+    position: relative;
+    height: 220px;
+    margin-top: 2px;
+}
+
+.admin-panel .admin-chart--alto {
+    height: 270px;
+}
+
+.admin-panel .admin-card-niveles .admin-chart,
+.admin-panel .admin-card-sexos .admin-chart {
+    height: 220px;
+}
+
+.admin-panel .admin-card:not(.tiene-grafico) .admin-chart {
+    display: none;
+}
+
+.admin-panel .admin-card.tiene-grafico .admin-chart-fallback {
+    display: none;
 }
 
 .admin-panel .admin-card-niveles { --admin-bar: var(--deporte); }
@@ -264,7 +322,7 @@
 }
 
 .admin-panel .admin-card-head span {
-    color: var(--texto-tenue);
+    color: #D7DEE8 !important;
     font-size: .72rem;
     text-align: right;
 }
@@ -331,7 +389,7 @@
     margin: 14px 0 0;
     padding-top: 12px;
     border-top: 1px solid var(--borde);
-    color: var(--texto-tenue);
+    color: #D7DEE8 !important;
     font-size: .73rem;
     line-height: 1.5;
 }
@@ -353,7 +411,7 @@
 }
 
 .admin-panel .admin-stat-label span {
-    color: var(--texto-sec);
+    color: #D7DEE8 !important;
     font-size: .76rem;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -376,7 +434,7 @@
 
 .admin-panel .admin-empty {
     margin: 0;
-    color: var(--texto-tenue);
+    color: #D7DEE8 !important;
     font-size: .85rem;
 }
 
@@ -390,9 +448,14 @@
 }
 
 .admin-panel .admin-footnote {
-    max-width: 78ch;
+    max-width: 90ch;
     margin: 0;
-    color: var(--texto-tenue);
+    padding: 12px 15px;
+    border: 1px solid rgba(59, 158, 234, .25);
+    border-left: 3px solid var(--geografia);
+    border-radius: 10px;
+    background: rgba(59, 158, 234, .07);
+    color: #D7DEE8 !important;
     font-size: .76rem;
     line-height: 1.55;
 }
@@ -818,6 +881,8 @@
     .admin-panel .admin-split,
     .admin-panel .admin-profile-grid { grid-template-columns: 1fr; }
     .admin-panel .admin-filtros-usuarios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-panel .admin-chart { height: 200px; }
+    .admin-panel .admin-chart--alto { height: 240px; }
 }
 
 @media (max-width: 800px) {
@@ -839,6 +904,8 @@
     .admin-panel .admin-filtros-historial { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .admin-panel .admin-filtros-historial label { grid-column: 1 / -1; }
     .admin-panel .admin-form-campos { grid-template-columns: minmax(0, 1fr); }
+    .admin-panel .admin-chart { height: 190px; }
+    .admin-panel .admin-chart--alto { height: 220px; }
 }
 
 @media (max-width: 380px) {

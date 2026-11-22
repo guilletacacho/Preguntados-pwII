@@ -83,7 +83,7 @@ class AdminModel
                )
              GROUP BY etiqueta
              ORDER BY cantidad DESC, etiqueta ASC",
-            $usuarioActual,
+            [$usuarioActual],
             $totalJugadores
         );
 
@@ -99,7 +99,7 @@ class AdminModel
                )
              GROUP BY etiqueta
              ORDER BY cantidad DESC, etiqueta ASC",
-            $usuarioActual,
+            [$usuarioActual],
             $totalJugadores
         );
 
@@ -169,9 +169,9 @@ class AdminModel
         return $niveles;
     }
 
-    private function calcularDistribucion($sql, $usuarioActual, $total)
+    private function calcularDistribucion($sql, array $params, $total)
     {
-        $filas = $this->database->queryAll($sql, [$usuarioActual]);
+        $filas = $this->database->queryAll($sql, $params);
         $resultado = [];
 
         foreach ($filas as $fila) {
