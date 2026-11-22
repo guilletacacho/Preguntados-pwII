@@ -22,9 +22,7 @@ class ModeradorController
 
     public function show()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         $ultimosReportes = $this->model->obtenerUltimosReportes(4);
 
@@ -538,9 +536,7 @@ class ModeradorController
 
     public function preguntas()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         $categoriaInput = $_GET['categoria_id'] ?? '';
         $categoriaId = null;
@@ -652,9 +648,7 @@ class ModeradorController
 
     public function altaPregunta()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         $datos = [
             'categorias' => $this->model->obtenerCategorias(),
@@ -664,11 +658,152 @@ class ModeradorController
         $this->render->renderiza("moderadorAltaPregunta", $datos);
     }
 
+    public function categorias()
+    {
+        ModeradorAccess::exigir($this->model);
+
+        $editarId = Request::get('editar');
+        $categoria = null;
+        if (is_string($editarId) && preg_match('/\A[1-9][0-9]*\z/', $editarId)) {
+            $categoria = $this->model->obtenerCategoria((int) $editarId);
+        }
+
+        $mensaje = Request::get('guardada') === '1' ? 'Categoría guardada.' : null;
+        $this->mostrarCategorias($categoria, null, $mensaje);
+    }
+
+    public function guardarCategoria()
+    {
+        ModeradorAccess::exigir($this->model);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            echo 'Método no permitido.';
+            return;
+        }
+
+        $id = filter_var($_POST['category_id'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $actual = $id ? $this->model->obtenerCategoria($id) : null;
+        if ($id && $actual === null) {
+            Redirect::to('/Preguntados/moderador/categorias');
+        }
+
+        $nombre = is_string($_POST['name'] ?? null) ? trim($_POST['name']) : '';
+        $color = is_string($_POST['color'] ?? null) ? strtoupper(trim($_POST['color'])) : '';
+        $errores = [];
+
+        $largo = preg_match_all('/./us', $nombre);
+        if ($nombre === '' || $largo === false || $largo > 40) {
+            $errores[] = 'El nombre es obligatorio y no puede superar los 40 caracteres.';
+        } elseif ($this->model->existeNombreCategoria($nombre, $id ?: 0)) {
+            $errores[] = 'Ya existe una categoría con ese nombre.';
+        }
+
+        if (!preg_match('/\A#[0-9A-F]{6}\z/', $color)) {
+            $errores[] = 'El color tiene que ser un hexadecimal como #3B9EEA.';
+        }
+
+        $archivo = $_FILES['icono'] ?? null;
+        $hayArchivo = is_array($archivo) && ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+        if (!$hayArchivo && $actual === null) {
+            $errores[] = 'Subí el SVG del personaje.';
+        }
+
+        $icono = $actual['icono'] ?? null;
+        if (!$errores && $hayArchivo) {
+            $subida = $this->guardarSvg($archivo);
+            if (isset($subida['error'])) {
+                $errores[] = $subida['error'];
+            } else {
+                $icono = $subida['ruta'];
+            }
+        }
+
+        if ($errores) {
+            $this->mostrarCategorias([
+                'id' => $id ?: null,
+                'name' => $nombre,
+                'color' => preg_match('/\A#[0-9A-F]{6}\z/', $color) ? $color : ($actual['color'] ?? '#9A6BF2'),
+                'icono' => $actual['icono'] ?? null,
+            ], implode(' ', $errores));
+            return;
+        }
+
+        if ($actual === null) {
+            $this->model->crearCategoria($nombre, $color, $icono);
+        } else {
+            $this->model->actualizarCategoria($id, $nombre, $color, $icono);
+            if ($icono !== $actual['icono'] && strpos($actual['icono'], 'categorias/') === 0) {
+                @unlink('public/img/' . $actual['icono']);
+            }
+        }
+
+        Redirect::to('/Preguntados/moderador/categorias?guardada=1');
+    }
+
+    private function mostrarCategorias($formulario = null, $error = null, $mensaje = null)
+    {
+        $editandoId = (int) ($formulario['id'] ?? 0);
+
+        $categorias = $this->model->listarCategoriasConDetalle();
+        foreach ($categorias as &$categoria) {
+            $categoria['editando'] = (int) $categoria['id'] === $editandoId;
+        }
+        unset($categoria);
+
+        $this->render->renderiza('moderadorCategorias', [
+            'pendientes' => $this->model->contarReportesPendientes(),
+            'categorias' => $categorias,
+            'formEditando' => $editandoId > 0,
+            'formId' => $editandoId ?: '',
+            'formNombre' => $formulario['name'] ?? '',
+            'formColor' => strtolower($formulario['color'] ?? '#9A6BF2'),
+            'formIcono' => $formulario['icono'] ?? null,
+            'error' => $error,
+            'mensaje' => $mensaje,
+        ]);
+    }
+
+    private function guardarSvg($archivo)
+    {
+        if (($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file($archivo['tmp_name'] ?? '')) {
+            return ['error' => 'No se pudo subir el SVG. Probá de nuevo.'];
+        }
+        if ((int) ($archivo['size'] ?? 0) > 300 * 1024) {
+            return ['error' => 'El SVG no puede pesar más de 300 KB.'];
+        }
+        if (strtolower(pathinfo($archivo['name'] ?? '', PATHINFO_EXTENSION)) !== 'svg') {
+            return ['error' => 'El archivo tiene que ser .svg.'];
+        }
+
+        $contenido = file_get_contents($archivo['tmp_name']);
+        if ($contenido === false || !preg_match('/<svg[\s>]/i', $contenido)) {
+            return ['error' => 'El archivo no es un SVG válido.'];
+        }
+
+
+        $peligroso = '/<script|<foreignobject|<iframe|<embed|<object|<!entity|\son[a-z]+\s*=|javascript:'
+            . '|href\s*=\s*["\']\s*(?!#|data:image\/)/i';
+        if (preg_match($peligroso, $contenido)) {
+            return ['error' => 'El SVG tiene scripts o enlaces externos. Exportalo de nuevo como SVG simple.'];
+        }
+
+        $directorio = 'public/img/categorias';
+        if (!is_dir($directorio)) {
+            mkdir($directorio, 0755, true);
+        }
+
+        $nombre = bin2hex(random_bytes(8)) . '.svg';
+        if (!move_uploaded_file($archivo['tmp_name'], $directorio . '/' . $nombre)) {
+            return ['error' => 'No se pudo guardar el SVG.'];
+        }
+
+        return ['ruta' => 'categorias/' . $nombre];
+    }
+
     public function crearPregunta()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         $categorias = $this->model->obtenerCategorias();
         $errores = [];
@@ -764,9 +899,7 @@ class ModeradorController
 
     public function desactivarPregunta()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         // VALIDA QUE EL ID RECIBIDO SEA UN ENTERO POSITIVO.
         $idInput = $_POST['question_id'] ?? null;
@@ -798,9 +931,7 @@ class ModeradorController
 
     public function reactivarPregunta()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         // VALIDA QUE EL ID RECIBIDO SEA UN ENTERO POSITIVO.
         $idInput = $_POST['question_id'] ?? null;

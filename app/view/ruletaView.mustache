@@ -18,9 +18,9 @@
             <div class="roulette-marker" aria-hidden="true"></div>
             <div class="roulette-track" aria-hidden="true">
                 {{#categorias}}
-                <div class="roulette-card" data-selected="{{#seleccionada}}true{{/seleccionada}}" data-name="{{name}}" data-color="{{slug}}">
+                <div class="roulette-card" data-selected="{{#seleccionada}}true{{/seleccionada}}" data-name="{{name}}" style="--category-color: {{color}}">
                     <span class="roulette-card-label">CATEGORÍA</span>
-                    <img src="{{basePath}}/public/img/personajes/{{slug}}.svg" alt="">
+                    <img src="{{basePath}}/public/img/{{icono}}" alt="">
                     <strong>{{name}}</strong>
                 </div>
                 {{/categorias}}

@@ -17,18 +17,6 @@ class PartidaController{
     /** Segundos sin actividad antes de que otra sesión pueda tomar la cuenta. */
     private const SESION_VIGENCIA = 45;
 
-    /** Categoría => archivo de imagen en public/img/personajes. */
-    private const SLUGS = [
-        'Geografía' => 'geografia',
-        'Historia'  => 'historia',
-        'Ciencia'   => 'ciencia',
-        'Arte'      => 'arte',
-        'Deportes'  => 'deporte',
-        'Deporte'   => 'deporte',
-        'Cine y TV' => 'cine',
-        'Cine'      => 'cine',
-    ];
-
     private const MOTIVOS_REPORTE = [
         'respuesta_incorrecta' => 'La respuesta marcada como correcta es incorrecta',
         'varias_validas' => 'Hay más de una respuesta válida',
@@ -147,7 +135,6 @@ class PartidaController{
         $turno = $_SESSION['turno'];
 
         foreach ($categorias as &$categoria) {
-            $categoria['slug'] = $this->slugCategoria($categoria['name']);
             $categoria['seleccionada'] = $categoria['name'] === $turno['categoria'];
         }
         unset($categoria);
@@ -159,7 +146,7 @@ class PartidaController{
             'ruletaGirada' => !empty($turno['girada']),
             'partidaReanudada' => !empty($_SESSION['partida_reanudada']),
             'categoria' => $turno['categoria'],
-            'categoriaSlug' => $turno['slug'],
+            'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
         ]);
 
         // El aviso de partida reanudada se muestra una sola vez.
@@ -229,7 +216,7 @@ class PartidaController{
         $this->render->renderiza('partida', [
             'resultadoMostrado' => false,
             'categoria' => $turno['categoria'],
-            'categoriaSlug' => $turno['slug'],
+            'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
             'pregunta' => $turno['pregunta'],
             // Solo se manda letra + texto + un token opaco.
             // El id real de la respuesta y cuál es la correcta quedan en el servidor.
@@ -710,7 +697,8 @@ class PartidaController{
             'numero' => (int) ($_SESSION['pregunta_numero'] ?? 1),
             'question_id' => (int) $pregunta['question_id'],
             'categoria' => $pregunta['categoria'],
-            'slug' => $this->slugCategoria($pregunta['categoria']),
+            'icono' => $pregunta['categoria_icono'],
+            'color' => $pregunta['categoria_color'],
             'pregunta' => $pregunta['pregunta'],
             'dificultad' => (int) $pregunta['dificultad'],
             'inicio' => null,
@@ -848,7 +836,7 @@ class PartidaController{
             'resultadoMostrado' => true,
             'preguntaNumero' => (int) $turno['numero'],
             'categoria' => $turno['categoria'],
-            'categoriaSlug' => $turno['slug'],
+            'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
             'pregunta' => $turno['pregunta'],
             'respuestas' => $this->opcionesParaResultado(
                 $turno,
@@ -895,7 +883,7 @@ class PartidaController{
             'resultadoMostrado' => true,
             'preguntaNumero' => (int) $turno['numero'],
             'categoria' => $turno['categoria'],
-            'categoriaSlug' => $turno['slug'],
+            'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
             'pregunta' => $turno['pregunta'],
             'respuestas' => $this->opcionesParaResultado($turno, null, $correcta['id'] ?? null, false),
             'esCorrecta' => false,
@@ -932,11 +920,6 @@ class PartidaController{
     private function tiempoRestante(array $turno){
 
         return max(0, (int) ceil(self::TIEMPO_LIMITE - $this->tiempoTranscurrido($turno)));
-    }
-
-    private function slugCategoria($categoria){
-
-        return self::SLUGS[$categoria] ?? 'ciencia';
     }
 
     private function limpiarSesionPartida(){

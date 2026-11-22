@@ -28,6 +28,7 @@
             <a class="moderador-tab" href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
             <button class="moderador-tab" type="button">Sugeridas <span class="moderador-badge">3</span></button>
             <a class="moderador-tab is-active" href="{{basePath}}/moderador/preguntas" aria-current="page">Preguntas</a>
+            <a class="moderador-tab" href="{{basePath}}/moderador/categorias">Categorías</a>
         </nav>
 
         <section class="moderador-preguntas" aria-label="Administrar preguntas">
@@ -75,7 +76,7 @@
                         <tr{{^activa}} class="pregunta-inactiva"{{/activa}}>
                             <td>{{id}}</td>
                             <td>{{question}}</td>
-                            <td><span class="moderador-categoria" data-categoria="{{categoria}}">{{categoria}}</span></td>
+                            <td><span class="moderador-categoria" style="color: {{categoria_color}}">{{categoria}}</span></td>
                             <td><span class="moderador-dificultad" data-dificultad="{{dificultad}}" aria-label="Dificultad nivel {{dificultad}} de 3"><i></i><i></i><i></i></span></td>
                             <td>{{entregas}}</td>
                             <td>{{acierto}}%</td>

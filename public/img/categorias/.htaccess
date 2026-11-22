@@ -1,0 +1,10 @@
+# SVG subidos por el moderador. Aunque alguien abra el archivo directo
+# en el navegador, no puede ejecutar código ni cargar nada de afuera.
+<IfModule mod_headers.c>
+    Header set Content-Security-Policy "default-src 'none'; img-src data:; style-src 'unsafe-inline'"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+<FilesMatch "\.(php|phtml|phar)$">
+    Require all denied
+</FilesMatch>

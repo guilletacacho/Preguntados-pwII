@@ -2,7 +2,7 @@
     <section class="partida-contenido" aria-label="Pregunta de {{categoria}}">
         <header class="partida-header">
             <div class="partida-categoria">
-                <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" class="partida-categoria-icono">
+                <img src="{{basePath}}/public/img/{{categoriaIcono}}" alt="" class="partida-categoria-icono">
                 <strong>{{categoria}}</strong>
                 <span>Pregunta {{preguntaNumero}}</span>
             </div>
@@ -26,7 +26,7 @@
         {{/resultadoMostrado}}
 
         <div class="partida-pregunta">
-            <img src="{{basePath}}/public/img/personajes/{{categoriaSlug}}.svg" alt="" class="partida-pregunta-icono">
+            <img src="{{basePath}}/public/img/{{categoriaIcono}}" alt="" class="partida-pregunta-icono">
             <h1>{{pregunta}}</h1>
             {{#resultadoMostrado}}{{#reportes}}{{#actual}}
             <button type="button" class="reporte-disparador" data-reporte-abrir="reporte-{{id}}" aria-label="Reportar esta pregunta" title="Reportar esta pregunta" aria-haspopup="dialog">

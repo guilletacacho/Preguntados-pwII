@@ -8,6 +8,10 @@
 
 /app/img-foto-perfil/
 
+# SVG de categorías subidos desde el panel del moderador
+/public/img/categorias/*
+!/public/img/categorias/.htaccess
+
 /vendor/*
 !/vendor/mustache/
 !/vendor/phpqrcode/
