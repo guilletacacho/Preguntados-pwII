@@ -69,6 +69,7 @@ class ModeradorSugerenciasController
 
         $datos = [
             'sugerencias' => count($preguntas),
+            'pendientes' => $this->model->contarReportesPendientes(),
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'preguntas' => $preguntas,
             'categorias' => $categorias,
@@ -97,7 +98,7 @@ class ModeradorSugerenciasController
         $sugerencia = $filas[0] ?? null;
 
         if ($sugerencia === null) {
-            Redirect::to('/Preguntados/moderadorSugerencias/sugerencias');
+            Redirect::to('/Preguntados/moderador/sugerencias');
             return;
         }
 
@@ -127,6 +128,7 @@ class ModeradorSugerenciasController
         $datos = [
             'sugerenciaId' => $sugerencia['id'],
             'pregunta' => $sugerencia['pregunta'],
+            'pendientes' => $this->model->contarReportesPendientes(),
             'categorias' => $categorias,
             'respuestas' => $respuestas,
             'sugerenciasPendientes' => count($pendientes),
@@ -159,7 +161,7 @@ class ModeradorSugerenciasController
 
         if ($id === false || $id < 1) {
             $this->guardarMensaje('La sugerencia seleccionada no es válida.', 'error');
-            Redirect::to('/Preguntados/moderadorSugerencias/sugerencias');
+            Redirect::to('/Preguntados/moderador/sugerencias');
             return;
         }
 
@@ -185,7 +187,7 @@ class ModeradorSugerenciasController
             $this->guardarMensaje('No se pudo publicar la sugerencia.', 'error');
         }
 
-        Redirect::to('/Preguntados/moderadorSugerencias/sugerencias');
+        Redirect::to('/Preguntados/moderador/sugerencias');
     
     }
 
@@ -211,7 +213,7 @@ class ModeradorSugerenciasController
 
         if ($id === false || $id < 1 || !is_string($nota)) {
             $this->guardarMensaje('La sugerencia o el motivo no son válidos.', 'error');
-            Redirect::to('/Preguntados/moderadorSugerencias/sugerencias?estado=PENDIENTE');
+            Redirect::to('/Preguntados/moderador/sugerencias?estado=PENDIENTE');
             return;
         }
 
@@ -224,18 +226,18 @@ class ModeradorSugerenciasController
 
             if (!$rechazada) {
                 $this->guardarMensaje('La sugerencia ya no está pendiente.', 'error');
-                Redirect::to('/Preguntados/moderadorSugerencias/sugerencias?estado=PENDIENTE');
+                Redirect::to('/Preguntados/moderador/sugerencias?estado=PENDIENTE');
                 return;
             }
 
             $this->guardarMensaje('La sugerencia fue rechazada.', 'success');
         } catch (\DomainException $error) {
             $this->guardarMensaje($error->getMessage(), 'error');
-            Redirect::to('/Preguntados/moderadorSugerencias/sugerencias?estado=PENDIENTE');
+            Redirect::to('/Preguntados/moderador/sugerencias?estado=PENDIENTE');
             return;
         }
 
-        Redirect::to('/Preguntados/moderadorSugerencias/sugerencias?estado=RECHAZADA');
+        Redirect::to('/Preguntados/moderador/sugerencias?estado=RECHAZADA');
     }
 
     //METODOS PRIVADOS

@@ -25,9 +25,9 @@
 
     <nav class="moderador-tabs" aria-label="Secciones del panel">
         <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
-        <a class="moderador-tab is-active" href="{{basePath}}/moderadorReportes/reportes" aria-current="page">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
-        <a class="moderador-tab" href="{{basePath}}/moderadorSugerencias/sugerencias">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
-        <a class="moderador-tab" href="{{basePath}}/moderadorPreguntas/preguntas">Preguntas</a>
+        <a class="moderador-tab is-active" href="{{basePath}}/moderador/reportes" aria-current="page">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
+        <a class="moderador-tab" href="{{basePath}}/moderador/sugerencias">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
+        <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
     </nav>
 
     {{#hayMensaje}}
@@ -35,10 +35,10 @@
     {{/hayMensaje}}
 
     <nav class="moderador-reportes-filtros" aria-label="Filtrar reportes por estado">
-        <a class="{{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderadorReportes/reportes?estado=PENDIENTE&amp;orden={{orden}}">Pendientes</a>
-        <a class="{{#estadoResuelto}}activo{{/estadoResuelto}}" href="{{basePath}}/moderadorReportes/reportes?estado=RESUELTO&amp;orden={{orden}}">Resueltos</a>
-        <a class="{{#estadoDescartado}}activo{{/estadoDescartado}}" href="{{basePath}}/moderadorReportes/reportes?estado=DESCARTADO&amp;orden={{orden}}">Descartados</a>
-        <form class="moderador-orden" method="get" action="{{basePath}}/moderadorReportes/reportes">
+        <a class="{{#estadoPendiente}}activo{{/estadoPendiente}}" href="{{basePath}}/moderador/reportes?estado=PENDIENTE&amp;orden={{orden}}">Pendientes</a>
+        <a class="{{#estadoResuelto}}activo{{/estadoResuelto}}" href="{{basePath}}/moderador/reportes?estado=RESUELTO&amp;orden={{orden}}">Resueltos</a>
+        <a class="{{#estadoDescartado}}activo{{/estadoDescartado}}" href="{{basePath}}/moderador/reportes?estado=DESCARTADO&amp;orden={{orden}}">Descartados</a>
+        <form class="moderador-orden" method="get" action="{{basePath}}/moderador/reportes">
             <label for="moderador-orden">Orden:</label>
             <select id="moderador-orden" name="orden" onchange="this.form.submit()">
                 <option value="mas_reportadas" {{#ordenMasReportadas}}selected{{/ordenMasReportadas}}>Más reportadas</option>
@@ -60,7 +60,7 @@
             {{#hayPreguntas}}
                 <div class="moderador-lista">
                     {{#preguntas}}
-                        <a class="moderador-item{{#seleccionada}} seleccionado{{/seleccionada}}" href="{{basePath}}/moderadorReportes/detalle?id={{question_id}}&estado={{estado}}&orden={{orden}}">
+                        <a class="moderador-item{{#seleccionada}} seleccionado{{/seleccionada}}" href="{{basePath}}/moderador/detalle?id={{question_id}}&estado={{estado}}&orden={{orden}}">
                             <span class="moderador-item-categoria">{{categoria}}</span>
                             <strong>{{question}}</strong>
                             <span class="moderador-item-meta"><b>{{total_reportes}}</b> {{#pluralReportes}}reportes{{/pluralReportes}}{{^pluralReportes}}reporte{{/pluralReportes}} · primero: {{primer_reporte_formateado}}</span>
@@ -141,9 +141,9 @@
                         <label for="nota-resolucion">Nota (opcional)</label>
                         <textarea id="nota-resolucion" name="resolution_notes" maxlength="500" rows="3" placeholder="Dejá un comentario sobre la decisión."></textarea>
                         <div class="moderador-acciones">
-                            <button class="moderador-boton moderador-boton-resolver" type="submit" formaction="{{basePath}}/moderadorReportes/resolver">Resolver reportes</button>
-                            <button class="moderador-boton moderador-boton-descartar" type="submit" formaction="{{basePath}}/moderadorReportes/descartar">Descartar reportes</button>
-                            <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/moderadorReportes/editar?id={{detalle.question_id}}">Corregir pregunta</a>
+                            <button class="moderador-boton moderador-boton-resolver" type="submit" formaction="{{basePath}}/moderador/resolver">Resolver reportes</button>
+                            <button class="moderador-boton moderador-boton-descartar" type="submit" formaction="{{basePath}}/moderador/descartar">Descartar reportes</button>
+                            <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/moderador/editar?id={{detalle.question_id}}">Corregir pregunta</a>
                         </div>
                     </form>
                 {{/detalle.hayPendientes}}
@@ -160,7 +160,7 @@
 
     {{#modoEditor}}
         <header class="moderador-editor-encabezado">
-            <a class="moderador-editor-volver" href="{{basePath}}/moderadorReportes/reportes?estado=PENDIENTE&amp;id={{editorQuestionId}}">← Volver a la bandeja</a>
+            <a class="moderador-editor-volver" href="{{basePath}}/moderador/reportes?estado=PENDIENTE&amp;id={{editorQuestionId}}">← Volver a la bandeja</a>
             <p class="moderador-eyebrow">Corrección de pregunta · #{{editorQuestionId}}</p>
             <h1>Corregir pregunta</h1>
             <p>Actualizá el contenido y resolvé en conjunto los reportes pendientes.</p>
@@ -174,7 +174,7 @@
         {{#editorDisponible}}
             <div class="moderador-correccion-columnas">
                 <section class="moderador-correccion-formulario">
-                    <form method="post" action="{{basePath}}/moderadorReportes/corregir" data-correccion-form>
+                    <form method="post" action="{{basePath}}/moderador/corregir" data-correccion-form>
                         <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                         <input type="hidden" name="question_id" value="{{editorQuestionId}}">
 
@@ -208,7 +208,7 @@
 
                         <div class="moderador-correccion-acciones">
                             <button class="moderador-boton moderador-boton-resolver" type="submit">Guardar corrección y resolver reportes</button>
-                            <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/moderadorReportes/reportes?estado=PENDIENTE&amp;id={{editorQuestionId}}">Cancelar</a>
+                            <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/moderador/reportes?estado=PENDIENTE&amp;id={{editorQuestionId}}">Cancelar</a>
                         </div>
                     </form>
                 </section>

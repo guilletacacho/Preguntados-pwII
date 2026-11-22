@@ -17,7 +17,7 @@
 
     <div class="moderador-content">
         <header class="moderador-editor-encabezado">
-            <a class="moderador-editor-volver" href="{{basePath}}/moderadorPreguntas/preguntas">← Volver a preguntas</a>
+            <a class="moderador-editor-volver" href="{{basePath}}/moderador/preguntas">← Volver a preguntas</a>
             <p class="moderador-eyebrow">PANEL MODERADOR · PREGUNTA #{{editorQuestionId}}</p>
             <h1>Editar pregunta</h1>
             <p>Actualizá la categoría, el enunciado y las respuestas.</p>
@@ -29,7 +29,7 @@
 
         {{#editorDisponible}}
             <section class="moderador-correccion-formulario" aria-label="Formulario de edición de pregunta">
-                <form method="post" enctype="multipart/form-data" action="{{basePath}}/moderadorPreguntas/actualizarPregunta">
+                <form method="post" enctype="multipart/form-data" action="{{basePath}}/moderador/actualizarPregunta">
                     <input type="hidden" name="question_id" value="{{editorQuestionId}}">
                     <input type="hidden" name="csrf_token" value="{{csrfToken}}">
 
@@ -79,7 +79,7 @@
 
                     <div class="moderador-correccion-acciones">
                         <button class="moderador-boton moderador-boton-resolver" type="submit">Confirmar cambios</button>
-                        <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/moderadorPreguntas/preguntas">Cancelar</a>
+                        <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/moderador/preguntas">Cancelar</a>
                     </div>
                 </form>
             </section>

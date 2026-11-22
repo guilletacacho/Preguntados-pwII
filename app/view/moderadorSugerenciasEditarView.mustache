@@ -24,11 +24,11 @@
             .sug-edit-image{display:grid;gap:8px;margin:0 0 16px}.sug-edit-image img{display:block;width:min(100%,36rem);max-height:22rem;object-fit:contain;border:1px solid var(--borde);border-radius:10px;background:var(--hundido)}
             @media(max-width:520px){.sug-edit-head{align-items:flex-start;flex-direction:column}.sug-edit-answer{grid-template-columns:22px minmax(0,1fr)}.sug-edit-answer .sug-edit-correct{grid-column:2}}
         </style>
-        <header class="sug-edit-head"><div><span class="moderador-eyebrow">PANEL MODERADOR</span><h1>Revisar sugerencia</h1><p>Ajust&aacute; lo que haga falta y aprobala.</p></div><a class="moderador-nueva-pregunta" href="{{basePath}}/moderadorPreguntas/altaPregunta">+ Nueva pregunta</a></header>
+        <header class="sug-edit-head"><div><span class="moderador-eyebrow">PANEL MODERADOR</span><h1>Revisar sugerencia</h1><p>Ajust&aacute; lo que haga falta y aprobala.</p></div><a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a></header>
         {{#hayMensaje}}<p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="alert">{{mensaje.texto}}</p>{{/hayMensaje}}
-        <nav class="sug-edit-tabs" aria-label="Secciones del panel"><a href="{{basePath}}/moderador">Resumen</a><a href="{{basePath}}/moderadorReportes/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">7</span></a><a class="active" href="{{basePath}}/moderadorSugerencias/sugerencias" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a><a href="{{basePath}}/moderadorPreguntas/preguntas">Preguntas</a></nav>
+        <nav class="sug-edit-tabs" aria-label="Secciones del panel"><a href="{{basePath}}/moderador">Resumen</a><a href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a><a class="active" href="{{basePath}}/moderador/sugerencias" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a><a href="{{basePath}}/moderador/preguntas">Preguntas</a></nav>
         <section class="sug-edit-form" aria-label="Formulario para revisar sugerencia">
-            <form method="post" action="{{basePath}}/moderadorSugerencias/publicarSugerencias">
+            <form method="post" action="{{basePath}}/moderador/publicarSugerencias">
                 <input type="hidden" name="suggestion_id" value="{{sugerenciaId}}"><input type="hidden" name="csrf_token" value="{{csrfToken}}">
                 {{#hayImagenSugerida}}<div class="sug-edit-image"><span class="sug-edit-help">Imagen enviada con la sugerencia</span><img src="{{basePath}}/app/img-preguntas/{{imagenSugerida}}" alt="Imagen propuesta para la pregunta"></div>{{/hayImagenSugerida}}
                 <label for="sug-category">Categor&iacute;a</label><select id="sug-category" name="category_id" required>{{#categorias}}<option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>{{/categorias}}</select>
@@ -38,7 +38,7 @@
                 </fieldset>
                 <fieldset class="sug-edit-diffs"><legend>Dificultad</legend><label><input type="radio" name="difficulty_level" value="1"> F&aacute;cil</label><label><input type="radio" name="difficulty_level" value="2" checked> Media</label><label><input type="radio" name="difficulty_level" value="3"> Dif&iacute;cil</label></fieldset>
                 <span class="sug-edit-diff-help">Es la dificultad inicial; despu&eacute;s se ajusta sola seg&uacute;n cu&aacute;ntos la aciertan.</span>
-                <div class="sug-edit-actions"><button type="submit">Finalizar</button><a href="{{basePath}}/moderadorSugerencias/sugerencias">Cancelar</a></div>
+                <div class="sug-edit-actions"><button type="submit">Finalizar</button><a href="{{basePath}}/moderador/sugerencias">Cancelar</a></div>
             </form>
         </section>
     </div>

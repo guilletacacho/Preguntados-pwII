@@ -19,18 +19,18 @@
                 <h1>Resumen</h1>
                 <p>Lo que necesita tu revisión hoy.</p>
             </div>
-            <a class="moderador-nueva-pregunta" href="{{basePath}}/moderadorPreguntas/altaPregunta">+ Nueva pregunta</a>
+            <a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a>
         </header>
 
         <nav class="moderador-tabs" aria-label="Secciones del panel">
             <a class="moderador-tab is-active" href="{{basePath}}/moderador" aria-current="page">Resumen</a>
-            <a class="moderador-tab" href="{{basePath}}/moderadorReportes/reportes">
+            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">
             Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span>
             </a>
-            <a class="moderador-tab" href="{{basePath}}/moderadorSugerencias/sugerencias">
+            <a class="moderador-tab" href="{{basePath}}/moderador/sugerencias">
                 Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span>
             </a>
-            <a class="moderador-tab" href="{{basePath}}/moderadorPreguntas/preguntas">Preguntas</a>
+            <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
         </nav>
 
         <section class="moderador-metricas" aria-label="Resumen de actividad">
@@ -60,7 +60,7 @@
             <section class="moderador-panel moderador-reportes" aria-labelledby="moderador-reportes-titulo">
                 <header class="moderador-panel-header">
                     <h2 id="moderador-reportes-titulo">Últimos reportes</h2>
-                    <a class="moderador-boton-secundario" href="{{basePath}}/moderadorReportes/reportes">Ver bandeja</a>
+                    <a class="moderador-boton-secundario" href="{{basePath}}/moderador/reportes">Ver bandeja</a>
                 </header>
                 <ul class="moderador-lista-reportes">
                     {{#ultimosReportes}}

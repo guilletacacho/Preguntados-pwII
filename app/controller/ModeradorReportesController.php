@@ -120,13 +120,13 @@ class ModeradorReportesController
         $id = Request::get('id');
         if (!is_string($id) || !preg_match('/\A[0-9]+\z/', $id) || (int) $id < 1) {
             $this->guardarMensaje('La pregunta solicitada no es válida.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         if ($this->model->obtenerDetallePregunta((int) $id) === null
             || !$this->model->obtenerReportesPregunta((int) $id)) {
             $this->guardarMensaje('No se encontraron reportes para esa pregunta.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $estado = Request::get('estado', 'PENDIENTE');
@@ -138,7 +138,7 @@ class ModeradorReportesController
             $orden = 'mas_viejas';
         }
 
-        Redirect::to('/Preguntados/moderadorReportes/reportes?estado=' . $estado . '&orden=' . $orden . '&id=' . (int) $id);
+        Redirect::to('/Preguntados/moderador/reportes?estado=' . $estado . '&orden=' . $orden . '&id=' . (int) $id);
     }
 
     public function editar()
@@ -146,20 +146,20 @@ class ModeradorReportesController
         ModeradorAccess::exigir($this->model);
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $id = Request::get('id');
         if (!is_string($id) || !preg_match('/\A[0-9]+\z/', $id) || (int) $id < 1) {
             $this->guardarMensaje('La pregunta solicitada no es válida.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $questionId = (int) $id;
         if ($this->model->obtenerDetallePregunta($questionId) === null
             || !$this->model->tieneReportesPendientes($questionId)) {
             $this->guardarMensaje('La pregunta no tiene reportes pendientes para corregir.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $this->renderizarEditor($questionId, null, null);
@@ -170,7 +170,7 @@ class ModeradorReportesController
         ModeradorAccess::exigir($this->model);
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $tokenSesion = $_SESSION['csrf_moderador'] ?? '';
@@ -178,20 +178,20 @@ class ModeradorReportesController
         if (!is_string($tokenSesion) || !is_string($tokenEnviado)
             || $tokenSesion === '' || !hash_equals($tokenSesion, $tokenEnviado)) {
             $this->guardarMensaje('No se pudo validar el formulario. Volvé a intentarlo.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $questionId = $_POST['question_id'] ?? null;
         if (!is_string($questionId) || !preg_match('/\A[0-9]+\z/', $questionId) || (int) $questionId < 1) {
             $this->guardarMensaje('La pregunta seleccionada no es válida.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
         $questionId = (int) $questionId;
 
         if ($this->model->obtenerDetallePregunta($questionId) === null
             || !$this->model->tieneReportesPendientes($questionId)) {
             $this->guardarMensaje('La pregunta no tiene reportes pendientes para corregir.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $formulario = [
@@ -223,7 +223,7 @@ class ModeradorReportesController
         }
 
         $this->guardarMensaje('Pregunta corregida y reportes resueltos correctamente.', 'success');
-        Redirect::to('/Preguntados/moderadorReportes/reportes?estado=RESUELTO&id=' . $questionId);
+        Redirect::to('/Preguntados/moderador/reportes?estado=RESUELTO&id=' . $questionId);
     }
 
     public function resolver()
@@ -244,7 +244,7 @@ class ModeradorReportesController
         ModeradorAccess::exigir($this->model);
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $tokenSesion = $_SESSION['csrf_moderador'] ?? '';
@@ -252,32 +252,32 @@ class ModeradorReportesController
         if (!is_string($tokenSesion) || !is_string($tokenEnviado)
             || $tokenSesion === '' || !hash_equals($tokenSesion, $tokenEnviado)) {
             $this->guardarMensaje('No se pudo validar el formulario. Volvé a intentarlo.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $questionId = $_POST['question_id'] ?? null;
         if (!is_string($questionId) || !preg_match('/\A[0-9]+\z/', $questionId) || (int) $questionId < 1) {
             $this->guardarMensaje('La pregunta seleccionada no es válida.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
         $questionId = (int) $questionId;
 
         $nota = $_POST['resolution_notes'] ?? '';
         if (!is_string($nota)) {
             $this->guardarMensaje('La nota de resolución no es válida.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
         $nota = trim($nota);
         $cantidadCaracteres = preg_match_all('/./us', $nota);
         if ($cantidadCaracteres === false || $cantidadCaracteres > 500) {
             $this->guardarMensaje('La nota debe ser texto válido y no superar los 500 caracteres.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         if ($this->model->obtenerDetallePregunta($questionId) === null
             || !$this->model->tieneReportesPendientes($questionId)) {
             $this->guardarMensaje('La pregunta no tiene reportes pendientes para actualizar.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $actualizado = $this->model->actualizarReportesPendientes(
@@ -289,12 +289,12 @@ class ModeradorReportesController
 
         if (!$actualizado) {
             $this->guardarMensaje('Los reportes ya no estaban pendientes. Actualizá la bandeja.', 'error');
-            Redirect::to('/Preguntados/moderadorReportes/reportes');
+            Redirect::to('/Preguntados/moderador/reportes');
         }
 
         $texto = $estado === 'RESUELTO' ? 'Reportes resueltos correctamente.' : 'Reportes descartados correctamente.';
         $this->guardarMensaje($texto, 'success');
-        Redirect::to('/Preguntados/moderadorReportes/reportes?estado=' . $estado);
+        Redirect::to('/Preguntados/moderador/reportes?estado=' . $estado);
     }
 
     private function armarDetalle($questionId)

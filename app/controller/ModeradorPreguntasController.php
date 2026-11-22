@@ -131,6 +131,11 @@ class ModeradorPreguntasController
             'hayPaginaSiguiente' => $pagina < $ultimaPagina,
         ];
 
+        $mensaje = $_SESSION['mensaje_moderador'] ?? null;
+        unset($_SESSION['mensaje_moderador']);
+        $datos['mensaje'] = $mensaje;
+        $datos['hayMensaje'] = $mensaje !== null;
+
         $this->render->renderiza('moderadorPreguntas', $datos);
     }
 
@@ -281,7 +286,7 @@ class ModeradorPreguntasController
             throw $error;
         }
 
-        Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+        Redirect::to('/Preguntados/moderador/preguntas');
     }
 
     public function desactivarPregunta()
@@ -315,7 +320,7 @@ class ModeradorPreguntasController
             return;
         }
 
-        Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+        Redirect::to('/Preguntados/moderador/preguntas');
     }
 
     public function reactivarPregunta()
@@ -349,7 +354,7 @@ class ModeradorPreguntasController
             return;
         }
 
-        Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+        Redirect::to('/Preguntados/moderador/preguntas');
     }
 
     public function editarPregunta(){
@@ -358,14 +363,14 @@ class ModeradorPreguntasController
 
     $id = Request::get('id');
     if (!is_string($id) || !preg_match('/\A[0-9]+\z/', $id) || (int) $id < 1) {
-        Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+        Redirect::to('/Preguntados/moderador/preguntas');
     }
 
     $id = (int) $id;
     $pregunta = $this->model->obtenerDetallePregunta($id);
 
     if ($pregunta === null) {
-        Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+        Redirect::to('/Preguntados/moderador/preguntas');
     }
     
     $categorias = $this->model->listarCategorias();
@@ -422,7 +427,7 @@ class ModeradorPreguntasController
 
         $id = filter_var($_POST['question_id'] ?? null, FILTER_VALIDATE_INT);
         if (!$id || $id < 1 || !is_array($_POST['responses'] ?? null)) {
-            Redirect::to('/Preguntados/moderadorPreguntas/preguntas');
+            Redirect::to('/Preguntados/moderador/preguntas');
             return;
         }
 
@@ -430,7 +435,7 @@ class ModeradorPreguntasController
         foreach ($_POST['responses'] as $respuesta) {
             if (!is_array($respuesta) || !isset($respuesta['id']) || !is_string($respuesta['texto'] ?? null)) {
                 $this->guardarMensajePregunta('Los datos de las respuestas no son válidos.', 'error');
-                Redirect::to('/Preguntados/moderadorPreguntas/editarPregunta?id=' . (int) $id);
+                Redirect::to('/Preguntados/moderador/editarPregunta?id=' . (int) $id);
                 return;
             }
             $respuestas[] = ['id' => $respuesta['id'], 'response' => $respuesta['texto']];
@@ -478,7 +483,7 @@ class ModeradorPreguntasController
         } catch (\DomainException $error) {
             $this->eliminarImagenSubida($rutaImagenNueva);
             $this->guardarMensajePregunta($error->getMessage(), 'error');
-            Redirect::to('/Preguntados/moderadorPreguntas/editarPregunta?id=' . (int) $id);
+            Redirect::to('/Preguntados/moderador/editarPregunta?id=' . (int) $id);
             return;
         } catch (\Throwable $error) {
             $this->eliminarImagenSubida($rutaImagenNueva);
@@ -496,7 +501,7 @@ class ModeradorPreguntasController
         }
         $this->guardarMensajePregunta($mensaje, $mensaje === 'La pregunta fue actualizada.' ? 'exito' : 'error');
 
-        Redirect::to('/Preguntados/moderadorPreguntas/editarPregunta?id=' . (int) $id);
+        Redirect::to('/Preguntados/moderador/preguntas');
     }
 
     //METODOS PRIVADOS 
