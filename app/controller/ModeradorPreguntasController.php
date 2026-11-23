@@ -454,15 +454,20 @@ class ModeradorPreguntasController
         }
         unset($opcion);
 
+        $rutaImagen = $pregunta['image_url'] ?? '';
+        $editorImagen = is_string($rutaImagen) && trim($rutaImagen) !== ''
+            ? basename(str_replace('\\', '/', $rutaImagen))
+            : '';
+
         $mensaje = $this->consumirMensajePregunta();
         $datos = [
             'editorQuestionId' => $id,
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'editorPregunta' => $pregunta['question'],
-            'editorImagen' => $pregunta['image_url'],
-            'hayEditorImagen' => !empty($pregunta['image_url']),
             'mensaje' => $mensaje,
             'hayMensaje' => $mensaje !== null,
+            'editorImagen' => $editorImagen,
+            'hayEditorImagen' => $editorImagen !== '',
             'editorCategorias' => $categorias,
             'editorOpciones' => $opciones,
             'editorDisponible' => count($opciones) === 4 && count($categorias) > 0,
