@@ -1545,6 +1545,8 @@ body:has(.home-shell) .footer-content { min-height: 70px; }
 .moderador-alta-imagen input[type="file"] { box-sizing: border-box; max-width: 100%; color: var(--texto-sec); font: 500 var(--moderador-texto-pequeno) var(--fuente); }
 .moderador-alta-imagen > label { color: var(--texto); font-size: var(--moderador-texto-interfaz); font-weight: 700; }
 .moderador-alta-imagen small, .moderador-alta-imagen-nombre { margin: 0; color: var(--texto-tenue); font-size: var(--moderador-texto-pequeno); line-height: 1.5; overflow-wrap: anywhere; }
+.moderador-alta-imagen-quitar { justify-self: start; padding: 7px 11px; border: 1px solid var(--borde-fuerte); border-radius: 7px; background: var(--superficie); color: var(--texto); font: 600 var(--moderador-texto-pequeno) var(--fuente); cursor: pointer; }
+.moderador-alta-imagen-quitar[hidden] { display: none; }
 .moderador-alta-imagen-preview { display: grid; min-height: 220px; place-items: center; overflow: hidden; border: 1px dashed var(--borde-fuerte); border-radius: 9px; background: var(--superficie); }
 .moderador-alta-imagen-preview[hidden] { display: none; }
 .moderador-alta-imagen-preview img { display: block; width: 100%; max-width: 100%; max-height: 360px; object-fit: contain; }

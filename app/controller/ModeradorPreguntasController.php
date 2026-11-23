@@ -423,9 +423,16 @@ class ModeradorPreguntasController
         }
         unset($opcion);
 
+        $rutaImagen = $pregunta['image_url'] ?? '';
+        $editorImagen = is_string($rutaImagen) && trim($rutaImagen) !== ''
+            ? basename(str_replace('\\', '/', $rutaImagen))
+            : '';
+
         $datos = [
             'editorQuestionId' => $id,
             'editorPregunta' => $pregunta['question'],
+            'editorImagen' => $editorImagen,
+            'hayEditorImagen' => $editorImagen !== '',
             'editorCategorias' => $categorias,
             'editorOpciones' => $opciones,
             'editorDisponible' => count($opciones) === 4 && count($categorias) > 0,
