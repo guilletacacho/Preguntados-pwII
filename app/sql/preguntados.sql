@@ -191,12 +191,13 @@ SET @partida_schema_sql = IF(
     'ALTER TABLE questions ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1'
 );
 
---LINEA 194 A 207 TIRAR EN UNA CONSULTA EN PHPMYADMIN
+
 
 PREPARE partida_schema_stmt FROM @partida_schema_sql;
 EXECUTE partida_schema_stmt;
 DEALLOCATE PREPARE partida_schema_stmt;
 
+--LINEA 200 A 209 TIRAR EN UNA CONSULTA EN PHPMYADMIN
 SET @partida_schema_sql = IF(
     EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'questions' AND column_name = 'image_url'),
     'SELECT 1',
