@@ -213,7 +213,7 @@ class PartidaController{
         }
 
         $nivel = $this->nivelJugador();
-        $this->render->renderiza('partida', [
+        $this->render->renderiza('partidaJuego', [
             'resultadoMostrado' => false,
             'categoria' => $turno['categoria'],
             'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
@@ -393,7 +393,7 @@ class PartidaController{
 
         $datos = $_SESSION['resultado'];
         $datos['reportes'] = $this->datosReportes(!empty($datos['gameOver']));
-        $this->render->renderiza('partida', $datos);
+        $this->render->renderiza('partidaJuego', $datos);
     }
 
     /**

@@ -36,7 +36,7 @@ class RankingModel
   WHERE g.status = 'FINALIZADA' 
     AND g.finished_at >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) 
     AND g.finished_at <= NOW() 
-  GROUP BY u.Id, u.Usuario 
+  GROUP BY u.Id, u.Usuario, u.Foto_url
   ORDER BY puntos DESC, u.Id ASC 
   LIMIT 10;";
         return $this->obtenerRanking($sql);
@@ -57,7 +57,7 @@ class RankingModel
                     INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY 
                 ) 
                 AND g.finished_at <= NOW() 
-              GROUP BY u.Id, u.Usuario 
+              GROUP BY u.Id, u.Usuario, u.Foto_url
               ORDER BY puntos DESC, u.Id ASC 
               LIMIT 10";
 
@@ -75,7 +75,7 @@ class RankingModel
               FROM usuarios u 
               JOIN game g ON g.user_id = u.Id 
               WHERE g.status = 'FINALIZADA' 
-              GROUP BY u.Id, u.Usuario 
+              GROUP BY u.Id, u.Usuario, u.Foto_url
               ORDER BY puntos DESC, u.Id ASC 
               LIMIT 10";
 

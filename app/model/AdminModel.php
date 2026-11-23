@@ -131,7 +131,7 @@ class AdminModel
 
         $niveles = $this->calcularNiveles($usuarioActual, $totalJugadores, $inicio);
         $categorias = $this->calcularCategorias($usuarioActual, $inicio);
-        $masAcertada = isset($categorias[0])
+        $masAcertada = ($categorias[0]['cantidad'] ?? 0) > 0
             ? $categorias[0]
             : ['etiqueta' => 'Sin datos', 'cantidad' => 0, 'sinDatos' => true];
 
@@ -207,10 +207,9 @@ class AdminModel
     {
         $sql = "SELECT g.user_id,
                        COUNT(*) AS respondidas,
-                       COALESCE(SUM(r.is_correct = 1), 0) AS correctas
+                       COALESCE(SUM(ga.earned_points > 0), 0) AS correctas
                 FROM game_answers ga
                 INNER JOIN game g ON g.id = ga.game_id
-                INNER JOIN response r ON r.id = ga.response_id
                 WHERE g.user_id <> ?";
         $params = [$usuarioActual];
         if ($inicio !== null) {
@@ -277,18 +276,17 @@ class AdminModel
             $params[] = $inicio;
         }
 
-        $sql = "SELECT c.id, c.name AS etiqueta, c.color,
-                       COALESCE(SUM(
-                           CASE WHEN g.user_id <> ? AND r.is_correct = 1 AND $condicionFecha
-                                THEN 1 ELSE 0 END
-                       ), 0) AS cantidad
+        $sql = "SELECT c.*, COALESCE(aciertos.cantidad, 0) AS cantidad
                 FROM category c
-                LEFT JOIN questions q ON q.category_id = c.id
-                LEFT JOIN game_answers ga ON ga.question_id = q.id
-                LEFT JOIN game g ON g.id = ga.game_id
-                LEFT JOIN response r ON r.id = ga.response_id
-                GROUP BY c.id, c.name, c.color
-                ORDER BY cantidad DESC, etiqueta ASC";
+                LEFT JOIN (
+                    SELECT q.category_id, COUNT(*) AS cantidad
+                    FROM questions q
+                    JOIN game_answers ga ON ga.question_id = q.id
+                    JOIN game g ON g.id = ga.game_id
+                    WHERE g.user_id <> ? AND ga.earned_points > 0 AND $condicionFecha
+                    GROUP BY q.category_id
+                ) aciertos ON aciertos.category_id = c.id
+                ORDER BY cantidad DESC, c.name ASC";
 
         $filas = $this->database->queryAll($sql, $params);
         $total = 0;
@@ -301,8 +299,8 @@ class AdminModel
             $cantidad = (int) $fila['cantidad'];
             $porcentaje = $total > 0 ? round($cantidad * 100 / $total, 1) : 0;
             $resultado[] = [
-                'etiqueta' => (string) $fila['etiqueta'],
-                'color' => $fila['color'],
+                'etiqueta' => (string) $fila['name'],
+                'color' => $fila['color'] ?? null,
                 'cantidad' => $cantidad,
                 'porcentaje' => $porcentaje,
                 'porcentajeTexto' => number_format($porcentaje, 1, ',', '.'),

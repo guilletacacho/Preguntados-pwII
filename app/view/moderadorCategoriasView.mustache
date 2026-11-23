@@ -32,6 +32,7 @@
                 {{#mensaje}}<p class="moderador-categoria-mensaje" role="status">{{mensaje}}</p>{{/mensaje}}
                 {{#error}}<p class="moderador-ayuda moderador-categoria-error" role="alert">{{error}}</p>{{/error}}
                 <input type="hidden" name="category_id" value="{{formId}}">
+                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
 
                 <div class="moderador-alta-campo">
                     <label for="categoria-nombre">Nombre</label>

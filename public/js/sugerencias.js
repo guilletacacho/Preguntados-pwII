@@ -15,10 +15,10 @@
     if (categorySelect && formCard) {
         categorySelect.addEventListener('change', function () {
             const categoryColor = this.selectedOptions[0]?.dataset.color;
-            if (categoryColor) {
-                formCard.dataset.category = categoryColor;
+            if (/^#[0-9a-f]{6}$/i.test(categoryColor ?? '')) {
+                formCard.style.borderColor = categoryColor;
             } else {
-                delete formCard.dataset.category;
+                formCard.style.removeProperty('border-color');
             }
         });
     }

@@ -1,4 +1,4 @@
-﻿<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=4">
+﻿<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=5">
 <main class="home-shell sugerencias-shell" id="sugerencias">
     {{> navegacionLateral}}
 
@@ -25,12 +25,9 @@
                     <label for="categoria-sugerida">Categoría</label>
                     <select id="categoria-sugerida" name="category" required>
                         <option value="" selected disabled>Seleccioná una categoría</option>
-                        <option value="1" data-color="geografia">Geografía</option>
-                        <option value="2" data-color="historia">Historia</option>
-                        <option value="3" data-color="ciencia">Ciencia</option>
-                        <option value="4" data-color="arte">Arte</option>
-                        <option value="5" data-color="deporte">Deportes</option>
-                        <option value="6" data-color="cine">Cine y TV</option>
+                        {{#categorias}}
+                        <option value="{{id}}" data-color="{{color}}">{{name}}</option>
+                        {{/categorias}}
                     </select>
 
                     <label for="pregunta-sugerida">Pregunta sugerida</label>
@@ -72,4 +69,4 @@
     </div>
 </main>
 
-<script src="{{basePath}}/public/js/sugerencias.js?v=2" defer></script>
+<script src="{{basePath}}/public/js/sugerencias.js?v=3" defer></script>

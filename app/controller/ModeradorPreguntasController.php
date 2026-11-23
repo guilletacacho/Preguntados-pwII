@@ -22,10 +22,17 @@ class ModeradorPreguntasController
     public function preguntas()
     {
         ModeradorAccess::exigir($this->model);
+        $this->asegurarCsrfToken();
 
         $categoriaInput = $_GET['categoria_id'] ?? '';
         $categoriaId = null;
-        $texto = trim($_GET['texto'] ?? '');
+        $textoInput = Request::get('texto', '');
+        if (!is_string($textoInput)) {
+            http_response_code(400);
+            echo 'El texto de búsqueda no es válido.';
+            return;
+        }
+        $texto = trim($textoInput);
 
         if ($categoriaInput !== '') {
             $categoriaId = (is_string($categoriaInput) || is_int($categoriaInput))
@@ -80,7 +87,8 @@ class ModeradorPreguntasController
         $totalPreguntas = $this->model->contarPreguntas(
             $categoriaId,
             $dificultad,
-            $estado
+            $estado,
+            $texto
         );
         $ultimaPagina = max(1, (int) ceil($totalPreguntas / $porPagina));
         $pagina = min($pagina, $ultimaPagina);
@@ -92,20 +100,19 @@ class ModeradorPreguntasController
             'categoria_id' => $categoriaId,
             'dificultad' => $dificultad,
             'estado' => $estadoInput,
+            'texto' => $texto !== '' ? $texto : null,
         ]);
 
-        if($texto !== ''){
-            $preguntas = $this->model->buscarPreguntaPorTexto($texto);
-        }else{
-            $preguntas = $this->model->obtenerPreguntas(
-                $porPagina,
-                $offset,
-                $categoriaId,
-                $dificultad,
-                $estado
-            );
-        }
+        $preguntas = $this->model->obtenerPreguntas(
+            $porPagina,
+            $offset,
+            $categoriaId,
+            $dificultad,
+            $estado,
+            $texto
+        );
 
+        $mensaje = $this->consumirMensajePregunta();
         $datos = [
             'pendientes' => $this->model->contarReportesPendientes(),
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
@@ -123,6 +130,8 @@ class ModeradorPreguntasController
             'desde' => $desde,
             'hasta' => $hasta,
             'totalPreguntas' => $totalPreguntas,
+            'csrfToken' => $_SESSION['csrf_moderador'],
+            'mensaje' => $mensaje,
             'paginaAnterior' => $pagina - 1,
             'paginaSiguiente' => $pagina + 1,
             'hayPaginaAnterior' => $pagina > 1,
@@ -136,13 +145,7 @@ class ModeradorPreguntasController
     {
         ModeradorAccess::exigir($this->model);
 
-        $datos = [
-            'categorias' => $this->model->obtenerCategorias(),
-            'pendientes' => $this->model->contarReportesPendientes(),
-            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
-        ];
-
-        $this->render->renderiza("moderadorAltaPregunta", $datos);
+        $this->renderizarAltaPregunta($this->model->obtenerCategorias());
     }
 
     
@@ -160,13 +163,18 @@ class ModeradorPreguntasController
         $this->mostrarCategorias($categoria, null, $mensaje);
     }
 
-        public function guardarCategoria()
+    public function guardarCategoria()
     {
         ModeradorAccess::exigir($this->model);
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
             echo 'Método no permitido.';
+            return;
+        }
+
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
             return;
         }
 
@@ -232,6 +240,15 @@ class ModeradorPreguntasController
     public function crearPregunta()
     {
         ModeradorAccess::exigir($this->model);
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            return;
+        }
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
+            return;
+        }
 
         $categorias = $this->model->obtenerCategorias();
         $errores = [];
@@ -306,21 +323,24 @@ class ModeradorPreguntasController
             $errores[] = 'Marcá exactamente una respuesta como correcta.';
         }
 
+        $imagen = null;
+        $archivo = $_FILES['image'] ?? null;
+        if (!$errores && $archivo !== null && ($archivo['error'] ?? null) !== UPLOAD_ERR_NO_FILE) {
+            $imagen = \ImageUploader::upload($archivo, 'app/img-preguntas');
+            if ($imagen === null) {
+                $errores[] = 'La imagen debe ser JPG o PNG y no superar los 5 MB.';
+            }
+        }
         if ($errores) {
-            $this->render->renderiza('moderadorAltaPregunta', [
-                'categorias' => $categorias,
-                'pendientes' => $this->model->contarReportesPendientes(),
-                'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
-                'error' => implode(' ', array_unique($errores)),
-            ]);
+            $this->renderizarAltaPregunta($categorias, implode(' ', array_unique($errores)));
             return;
         }
 
-        $questionId = $this->model->agregarPregunta($categoryId, $question, 1, 1);
-
-        // Cada respuesta queda asociada al ID generado al insertar la pregunta.
-        foreach ($responses as $response) {
-            $this->model->agregarRespuesta($questionId, $response['text'], $response['is_correct']);
+        try {
+            $this->model->crearPreguntaConRespuestas($categoryId, $question, 1, 1, $responses, $imagen);
+        } catch (\Throwable $error) {
+            $this->eliminarImagenSubida($imagen !== null ? 'app/img-preguntas/' . $imagen : null);
+            throw $error;
         }
 
         Redirect::to('/Preguntados/moderador/preguntas');
@@ -340,6 +360,11 @@ class ModeradorPreguntasController
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
             echo 'Método no permitido.';
+            return;
+        }
+
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
             return;
         }
 
@@ -372,6 +397,11 @@ class ModeradorPreguntasController
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
             echo 'Método no permitido.';
+            return;
+        }
+
+        if (!$this->csrfSugerenciasValido($_POST['csrf_token'] ?? null)) {
+            http_response_code(403);
             return;
         }
 
@@ -424,10 +454,15 @@ class ModeradorPreguntasController
         }
         unset($opcion);
 
+        $mensaje = $this->consumirMensajePregunta();
         $datos = [
             'editorQuestionId' => $id,
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'editorPregunta' => $pregunta['question'],
+            'editorImagen' => $pregunta['image_url'],
+            'hayEditorImagen' => !empty($pregunta['image_url']),
+            'mensaje' => $mensaje,
+            'hayMensaje' => $mensaje !== null,
             'editorCategorias' => $categorias,
             'editorOpciones' => $opciones,
             'editorDisponible' => count($opciones) === 4 && count($categorias) > 0,
@@ -534,6 +569,7 @@ class ModeradorPreguntasController
 
     private function mostrarCategorias($formulario = null, $error = null, $mensaje = null)
     {
+        $this->asegurarCsrfToken();
         $editandoId = (int) ($formulario['id'] ?? 0);
 
         $categorias = $this->model->listarCategoriasConDetalle();
@@ -547,6 +583,7 @@ class ModeradorPreguntasController
             'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'categorias' => $categorias,
             'formEditando' => $editandoId > 0,
+            'csrfToken' => $_SESSION['csrf_moderador'],
             'formId' => $editandoId ?: '',
             'formNombre' => $formulario['name'] ?? '',
             'formColor' => strtolower($formulario['color'] ?? '#9A6BF2'),
@@ -626,7 +663,14 @@ class ModeradorPreguntasController
 
     private function guardarMensajePregunta($texto, $tipo)
     {
-        $_SESSION['mensaje_moderador'] = ['texto' => $texto, 'tipo' => $tipo];
+        $_SESSION['mensaje_preguntas'] = ['texto' => $texto, 'tipo' => $tipo];
+    }
+
+    private function consumirMensajePregunta()
+    {
+        $mensaje = $_SESSION['mensaje_preguntas'] ?? null;
+        unset($_SESSION['mensaje_preguntas']);
+        return $mensaje;
     }
 
     private function eliminarImagenSubida($ruta)

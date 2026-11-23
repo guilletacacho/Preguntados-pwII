@@ -45,6 +45,7 @@ class HomeController
         unset($_SESSION['sugerencia_error']);
 
         $datos = [
+        'categorias' => $this->sugerenciaModel->obtenerCategorias(),
         'preguntasAprobadas' => $this->sugerenciaModel->obtenerUltimasPreguntasAprobadas(10),
         'csrfToken' => $this->asegurarCsrfSugerencias(),
         'sugerenciaError' => $sugerenciaError,

@@ -363,7 +363,7 @@ check($descartado['status'] === 'DESCARTADO' && (int) $descartado['reviewed_by']
 $_SESSION['preguntas_partida'][3] = ['game_id' => 2, 'question_id' => 101, 'resultado' => $result];
 $send(['turn_number' => 3]);
 check((int) $pdo->query('SELECT COUNT(*) FROM question_reports')->fetchColumn() === 5, 'El controlador debe rechazar turnos de otra partida');
-$template = file_get_contents(__DIR__ . '/../app/view/partidaView.Mustache');
+$template = file_get_contents(__DIR__ . '/../app/view/partidaJuegoView.mustache');
 $html = $engine->render($template, ['resultadoMostrado' => true, 'gameOver' => true, 'reportes' => $data->invoke($controller, true)]);
 check(!str_contains($html, '<script>alert(1)</script>') && str_contains($html, '&lt;script&gt;'), 'La vista debe escapar el contenido');
 check(str_contains($html, 'Ya reportaste') && str_contains($html, 'data-reporte-abrir'), 'Debe mostrar el modal y el estado');

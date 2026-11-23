@@ -112,7 +112,7 @@ class SugerenciaModel{
 
    public function obtenerCategorias(){
 
-        $sql = "SELECT id, name FROM category";
+        $sql = "SELECT id, name, color FROM category ORDER BY name";
 
         return $this->database->queryAll($sql);
    }

@@ -535,14 +535,15 @@ class ModeradorModel
     }
 
     // OBTIENE UNA PAGINA DE PREGUNTAS, CON UN LIMITE Y DESPLAZAMIENTO CONTROLADOS.
-    public function obtenerPreguntas($limite = 10, $offset = 0, $categoriaId = null, $dificultad = null, $estado = null){
+    public function obtenerPreguntas($limite = 10, $offset = 0, $categoriaId = null, $dificultad = null, $estado = null, $texto = ''){
         $limite = max(1, (int) $limite);
         $offset = max(0, (int) $offset);
 
         $filtros = $this->construirFiltrosPreguntas(
         $categoriaId,
         $dificultad,
-        $estado
+        $estado,
+        $texto
         );
         
         // USA LA MISMA DIFICULTAD EFECTIVA QUE APLICA LA PARTIDA.
@@ -571,13 +572,14 @@ class ModeradorModel
     }
 
     // CUENTA TODAS LAS PREGUNTAS PARA MOSTRAR EL TOTAL REAL DE LA PAGINACION.
-    public function contarPreguntas($categoriaId = null, $dificultad = null, $estado = null)
+    public function contarPreguntas($categoriaId = null, $dificultad = null, $estado = null, $texto = '')
     {
 
     $filtros = $this->construirFiltrosPreguntas(
         $categoriaId,
         $dificultad,
-        $estado
+        $estado,
+        $texto
     );
 
     $sql = "SELECT COUNT(q.id) AS total
@@ -588,32 +590,6 @@ class ModeradorModel
     $fila = $this->database->queryOne($sql, $filtros['parametros']);
 
     return (int) ($fila['total'] ?? 0);
-    }
-
-    public function buscarPreguntaPorTexto($texto){
-
-        $expresionDificultad = \Dificultad::sqlDificultad();
-
-        $sql = "SELECT
-                    q.id,
-                    q.is_active AS activa,
-                    q.question,
-                    c.name AS categoria,
-                    c.color AS categoria_color,
-                    {$expresionDificultad} AS dificultad,
-                    COALESCE(qs.times_delivered, 0) AS entregas,
-                    CASE
-                        WHEN COALESCE(qs.times_answered, 0) = 0 THEN 0
-                        ELSE ROUND(100 * qs.times_correct / qs.times_answered)
-                    END AS acierto
-                FROM questions q
-                INNER JOIN category c ON c.id = q.category_id
-                LEFT JOIN question_stats qs ON qs.question_id = q.id
-                WHERE q.question LIKE ?
-                ORDER BY q.id ASC";
-
-        $parametro = '%' . $texto . '%';
-        return $this->database->queryAll($sql, [$parametro]);
     }
 
     public function listarCategoriasConDetalle(){
@@ -695,7 +671,7 @@ class ModeradorModel
         
         return $reportes;
     }
-    private function construirFiltrosPreguntas($categoriaId, $dificultad, $estado)
+    private function construirFiltrosPreguntas($categoriaId, $dificultad, $estado, $texto)
     {
         $condiciones = [];
         $parametros = [];
@@ -715,6 +691,11 @@ class ModeradorModel
             $condiciones[] = "q.is_active = 1";
         } elseif ($estado === 'inactiva') {
             $condiciones[] = "q.is_active = 0";
+        }
+
+        if ($texto !== '') {
+            $condiciones[] = "q.question LIKE ?";
+            $parametros[] = '%' . $texto . '%';
         }
 
         $where = empty($condiciones)

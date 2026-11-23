@@ -310,10 +310,9 @@ class PartidaModel{
      */
     public function obtenerEstadisticasJugador($userId){
         $sql = "SELECT COUNT(*) AS respondidas,
-                       COALESCE(SUM(r.is_correct = 1), 0) AS correctas
+                       COALESCE(SUM(ga.earned_points > 0), 0) AS correctas
                 FROM game_answers ga
                 INNER JOIN game g ON g.id = ga.game_id
-                INNER JOIN response r ON r.id = ga.response_id
                 WHERE g.user_id = ?";
 
         $fila = $this->database->queryOne($sql, [$userId]);

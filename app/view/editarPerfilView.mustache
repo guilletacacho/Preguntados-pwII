@@ -18,6 +18,7 @@
             <div class="alert alert-danger" role="alert">{{error}}</div>
         {{/error}}
         <form id="editar-form" method="post" action="{{basePath}}/perfil/guardar" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
             <div class="register-grid">
                 <div class="register-col">
                     <h2>Sobre vos</h2>

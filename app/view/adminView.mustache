@@ -647,6 +647,9 @@
         columnas('chartEdades', edades, coloresPara(edades, paleta.edades, 260), 'jugadores', datos.jugadoresReales);
         torta('chartSexos', sexos, coloresPara(sexos, paleta.sexos, 330), datos.jugadoresReales, 'jugadores');
         ajustarAltura('chartCategorias', categorias, 26, 200, 520);
-        barrasHorizontales('chartCategorias', categorias, categorias.map(function (categoria) { return categoria.color; }), totalAciertos);
+        var coloresCategorias = coloresDinamicos(categorias.length, 95);
+        barrasHorizontales('chartCategorias', categorias, categorias.map(function (categoria, indice) {
+            return categoria.color || coloresCategorias[indice];
+        }), totalAciertos);
     })();
 </script>

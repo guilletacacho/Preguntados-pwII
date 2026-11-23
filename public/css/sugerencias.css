@@ -1,12 +1,6 @@
 .sugerencias-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .8fr); gap: 1.5rem; align-items: start; }
 .sugerencias-form-card h2, .sugerencias-aprobadas > h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: .75rem; }
 .sugerencias-form-card { transition: border-color .3s ease, box-shadow .3s ease; }
-.sugerencias-form-card[data-category="geografia"] { border-color: var(--geografia); }
-.sugerencias-form-card[data-category="historia"] { border-color: var(--historia); }
-.sugerencias-form-card[data-category="ciencia"] { border-color: var(--ciencia); }
-.sugerencias-form-card[data-category="arte"] { border-color: var(--arte); }
-.sugerencias-form-card[data-category="deporte"] { border-color: var(--deporte); }
-.sugerencias-form-card[data-category="cine"] { border-color: var(--cine); }
 .sugerencias-form-card > p, .sugerencia-aprobada p { color: var(--texto-sec); font-size: .88rem; line-height: 1.65; }
 .sugerencias-cta { margin: .5rem 0 1.5rem; padding: .75rem 1.2rem; border: 0; border-radius: 10px; cursor: pointer; }
 .sugerencias-cta:disabled { cursor: not-allowed; opacity: .78; }

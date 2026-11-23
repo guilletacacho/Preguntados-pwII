@@ -223,6 +223,12 @@ class PerfilController
             \Redirect::to('/Preguntados/perfil/editar');
         }
 
+        $token = \Request::post('csrf_token');
+        if (!is_string($token) || empty($_SESSION['csrf_perfil']) || !hash_equals($_SESSION['csrf_perfil'], $token)) {
+            http_response_code(403);
+            return;
+        }
+
         $id = (int) $_SESSION['usuario_id'];
         $actual = $this->model->obtenerParaEditar($id);
 
@@ -255,6 +261,8 @@ class PerfilController
 
     private function renderizarEditar($data)
     {
+        $_SESSION['csrf_perfil'] ??= bin2hex(random_bytes(32));
+        $data['csrfToken'] = $_SESSION['csrf_perfil'];
         $data['anioActual'] = date('Y');
         foreach (['Femenino', 'Masculino', 'Otro'] as $sexo) {
             $data['sexo' . $sexo] = ($data['sexo'] ?? '') === $sexo;
@@ -269,7 +277,7 @@ class PerfilController
         require_once 'vendor/phpqrcode/qrlib.php';
 
         $tamanoPunto = 6;
-        $margen = 1;
+        $margen = 4;
 
         $encoder = \QRencode::factory(QR_ECLEVEL_M, $tamanoPunto, $margen);
         ob_start();
@@ -308,6 +316,12 @@ class PerfilController
     {
         $config = parse_ini_file("config/config.ini");
         $base = rtrim($config['app_url'] ?? '', '/');
+        if ($base === '') {
+            $protocolo = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $ruta = rtrim(str_replace("\\", "/", dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
+            $base = "{$protocolo}://{$host}{$ruta}";
+        }
 
         return $base . '/perfil?usuario=' . urlencode($usuario);
     }
