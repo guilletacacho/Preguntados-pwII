@@ -16,8 +16,14 @@ $assetBase = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCR
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="<?= $assetBase ?>/public/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= $assetBase ?>/app/css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>" rel="stylesheet">
+    <?php if (!empty($layoutData['enAdministracion'])): ?>
+        <link href="<?= $assetBase ?>/app/css/admin-panel.css?v=<?= filemtime(__DIR__ . '/../css/admin-panel.css') ?>" rel="stylesheet">
+    <?php endif; ?>
+    <?php if (!empty($layoutData['tieneNavegacionLateral'])): ?>
+        <script src="<?= $assetBase ?>/public/js/navegacion-lateral.js" defer></script>
+    <?php endif; ?>
 </head>
-<body>
+<body<?= !empty($layoutData['enAdministracion']) ? ' class="admin-panel"' : '' ?>>
 <?php if (isset($_SESSION['usuario_id'])): ?>
 <?php
 if (!isset($_SESSION['presence_token'])) {

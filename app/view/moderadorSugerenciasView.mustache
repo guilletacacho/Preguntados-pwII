@@ -49,40 +49,23 @@
 </style>
 
 <main class="moderador-shell">
-    <nav class="home-sidenav" aria-label="Secciones del sitio">
-        <div class="home-side-menu">
-            <button type="button" class="home-side-toggle" aria-label="Secciones" aria-expanded="false"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
-            <div class="home-side-links">
-                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
-                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
-                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
-                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
-                <a href="{{basePath}}/moderador" aria-label="Panel moderador" aria-current="page"><span aria-hidden="true">⚑</span><span class="side-label">Panel moderador</span></a>
-            </div>
-        </div>
-    </nav>
+    {{> navegacionLateral}}
 
     <div class="moderador-content">
         <header class="moderador-header">
             <div>
-                <span class="moderador-eyebrow">PANEL MODERADOR</span>
+                <span class="moderador-eyebrow">MODERACIÓN</span>
                 <h1>Preguntas sugeridas</h1>
                 <p>Preguntas que mandaron los jugadores desde el lobby. Si las aprobás, entran al juego.</p>
             </div>
-            <button class="moderador-nueva-pregunta" type="button">+ Nueva pregunta</button>
+            <a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a>
         </header>
 
         {{#hayMensaje}}
             <p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="alert">{{mensaje.texto}}</p>
         {{/hayMensaje}}
 
-        <nav class="moderador-tabs" aria-label="Secciones del panel">
-            <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
-            <a class="moderador-tab is-active" href="{{basePath}}/moderador/sugerencias" aria-current="page">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/categorias">Categorías</a>
-        </nav>
+        {{> moderadorNavegacion}}
 
         <section class="moderador-sugerencias-vista" aria-label="Preguntas sugeridas por jugadores">
             <div class="moderador-sugerencias-intro">

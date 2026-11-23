@@ -1,0 +1,93 @@
+<main class="moderador-shell admin-alta-shell">
+    {{> navegacionLateral}}
+    <div class="admin-wrap admin-alta">
+        <header class="admin-hero">
+            <div>
+                <span class="admin-eyebrow">Administración</span>
+                <h1>Nuevo usuario</h1>
+            </div>
+        </header>
+        {{> adminNavegacion}}
+
+        {{#mensaje}}
+            <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="alert">{{texto}}</p>
+        {{/mensaje}}
+        <div class="moderador-correccion-formulario admin-form-alta">
+            {{#tieneErrores}}
+                <div class="moderador-mensaje moderador-mensaje-error" role="alert">
+                    <ul>{{#errores}}<li>{{.}}</li>{{/errores}}</ul>
+                </div>
+            {{/tieneErrores}}
+            <form method="post" action="{{basePath}}/admin/crearUsuario">
+                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+
+                <div class="admin-form-grupos">
+                    <fieldset>
+                        <legend>Cuenta y acceso</legend>
+                        <div class="admin-form-campos">
+                            <div class="admin-form-campo">
+                                <label for="usuario">Nombre de usuario</label>
+                                <input id="usuario" name="usuario" type="text" value="{{usuario}}" minlength="3" maxlength="255" autocomplete="username" required>
+                            </div>
+                            <div class="admin-form-campo">
+                                <label for="email">Correo</label>
+                                <input id="email" name="email" type="email" value="{{email}}" maxlength="255" autocomplete="email" required>
+                            </div>
+                            <div class="admin-form-campo">
+                                <label for="contrasena">Contraseña</label>
+                                <input id="contrasena" name="contrasena" type="password" minlength="8" autocomplete="new-password" aria-describedby="requisito-contrasena" required>
+                                <small id="requisito-contrasena" class="moderador-item-meta">Mínimo 8 caracteres.</small>
+                            </div>
+                            <div class="admin-form-campo">
+                                <label for="rol">Rol</label>
+                                <select id="rol" name="rol">
+                                    {{#roles}}
+                                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                                    {{/roles}}
+                                </select>
+                            </div>
+                            <label class="admin-check-card admin-form-ancho" for="verificado">
+                                <input id="verificado" name="verificado" type="checkbox" value="1" {{#verificado}}checked{{/verificado}}>
+                                <span class="admin-check-copy">
+                                    <strong>Correo verificado</strong>
+                                    <small>Habilita el inicio de sesión.</small>
+                                </span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Datos de perfil</legend>
+                        <div class="admin-form-campos">
+                            <div class="admin-form-campo admin-form-ancho">
+                                <label for="nombre">Nombre</label>
+                                <input id="nombre" name="nombre" type="text" value="{{nombre}}" maxlength="50" autocomplete="name" required>
+                            </div>
+                            <div class="admin-form-campo">
+                                <label for="anioNacimiento">Año de nacimiento</label>
+                                <input id="anioNacimiento" name="anioNacimiento" type="number" value="{{anioNacimiento}}" min="1900" max="{{anioActual}}" autocomplete="bday-year" required>
+                            </div>
+                            <div class="admin-form-campo">
+                                <label for="sexo">Sexo (opcional)</label>
+                                <input id="sexo" name="sexo" type="text" value="{{sexo}}" maxlength="30" placeholder="No especificado">
+                            </div>
+                            <div class="admin-form-campo">
+                                <label for="pais">País</label>
+                                <input id="pais" name="pais" type="text" value="{{pais}}" maxlength="150" autocomplete="country-name" required>
+                            </div>
+                            <div class="admin-form-campo">
+                                <label for="provincia">Provincia</label>
+                                <input id="provincia" name="provincia" type="text" value="{{provincia}}" maxlength="150" autocomplete="address-level1" required>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="admin-form-acciones">
+                    <a class="admin-btn" href="{{basePath}}/admin/usuarios">Cancelar</a>
+                    <button class="admin-btn admin-btn-primary" type="submit">Crear usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

@@ -726,6 +726,7 @@ a:hover { color: var(--texto); }
     background: var(--deporte);
     color: #14200A;
     font-weight: 700;
+    text-decoration: none;
 }
 .submit-btn:hover,
 .submit-btn:focus { background: #8ED255; color: #14200A; }
@@ -828,6 +829,9 @@ a:hover { color: var(--texto); }
 .foto-perfil-elegir { display: flex; align-items: center; gap: .75rem; min-width: 0; margin-top: .3rem; }
 .foto-perfil-boton { flex-shrink: 0; padding: .45rem .9rem; border: 1px solid var(--borde-fuerte); border-radius: 9px; font-size: .85rem; font-weight: 600; cursor: pointer; }
 .foto-perfil-boton:hover { background: #323D4B; }
+.foto-perfil-borrar { flex-shrink: 0; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--borde-fuerte); border-radius: 9px; background: transparent; color: var(--error); cursor: pointer; }
+.foto-perfil-borrar:hover { background: var(--hundido); border-color: var(--error); }
+.foto-perfil-borrar:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
 .foto-perfil-elegir input:focus-visible + .foto-perfil-boton { outline: 3px solid var(--link); outline-offset: 2px; }
 .foto-perfil-nombre { min-width: 0; overflow: hidden; color: var(--texto-sec); font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; }
 .register-submit { display: flex; flex-direction: column; gap: .9rem; margin-top: auto; padding-top: .5rem; }
@@ -883,6 +887,19 @@ a:hover { color: var(--texto); }
     gap: clamp(0.8rem, 2vw, 4rem);
     padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
     overflow-x: clip;
+}
+
+/* La barra lateral de Rankings vale para todos los roles: ADMIN, moderador y jugador. */
+.ranking-shell.con-barra-ranking {
+    --side-width: 76px;
+    padding-left: calc(var(--side-width) + 24px);
+}
+
+@media (max-width: 640px) {
+    .ranking-shell.con-barra-ranking {
+        --side-width: 58px;
+        padding-left: calc(var(--side-width) + 14px);
+    }
 }
 
 .ranking-characters {
@@ -1588,9 +1605,9 @@ body:has(.home-shell) .footer-content { min-height: 70px; }
 }
 @media (max-width: 640px) {
     .moderador-shell { --side-width: 58px; padding: 18px clamp(1rem, 5vw, 4.5rem) 18px calc(var(--side-width) + 14px); }
-    .moderador-header { align-items: flex-start; gap: 12px; }
+    .moderador-header { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
     .moderador-nueva-pregunta { padding: 9px 10px; }
-    .moderador-tabs { overflow-x: auto; }
+    .moderador-tabs { flex-wrap: wrap; }
     .moderador-tab { padding-inline: 10px; }
     .moderador-metricas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .moderador-metrica { min-height: 96px; padding: 10px; }
@@ -1799,6 +1816,29 @@ body:has(.home-shell) .footer-content { min-height: 70px; }
     .editar-submit { flex-direction: column; }
 }
 
+/* Fotos en los círculos del navbar y del ranking. */
+.profile-avatar, .jugador-avatar { overflow: hidden; flex-shrink: 0; }
+.profile-avatar img, .jugador-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.jugador-info-enlace { border-radius: 10px; text-decoration: none; padding: .25rem .35rem; margin: -.25rem -.35rem; }
+.jugador-info-enlace:hover .jugador-nombre, .jugador-info-enlace:focus-visible .jugador-nombre { color: var(--link); text-decoration: underline; }
+
+/* Términos y condiciones: compacto y con el mismo lenguaje visual del home. */
+.home-terms { padding: 1.25rem clamp(1rem, 3vw, 1.75rem) 1.35rem; border: 1px solid var(--borde); border-radius: 16px; background: linear-gradient(135deg, var(--superficie), var(--hundido)); }
+.home-terms-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--borde); }
+.home-terms-head .eyebrow { color: var(--deporte); }
+.home-terms h2 { margin: .25rem 0 .35rem; font-size: 1.25rem; }
+.home-terms-intro { margin: 0; color: var(--texto-sec); font-size: .85rem; line-height: 1.5; }
+.home-terms-sello { display: grid; place-items: center; flex: 0 0 68px; width: 68px; height: 68px; border: 1px dashed var(--borde-fuerte); border-radius: 50%; color: var(--arte); font-size: 2rem; line-height: 1; }
+.home-terms-lista { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; margin-top: 1rem; }
+.home-terms-lista details { padding: .8rem .9rem; border: 1px solid var(--borde); border-radius: 10px; background: #1E263399; }
+.home-terms-lista summary { display: flex; align-items: center; gap: .6rem; cursor: pointer; font-size: .85rem; font-weight: 600; list-style: none; }
+.home-terms-lista summary::-webkit-details-marker { display: none; }
+.home-terms-lista summary::after { content: '+'; margin-left: auto; color: var(--texto-tenue); font-weight: 400; }
+.home-terms-lista details[open] summary::after { content: '−'; }
+.home-terms-num { color: var(--geografia); font-size: .72rem; font-weight: 800; }
+.home-terms-lista p { margin: .6rem 0 0; color: var(--texto-sec); font-size: .78rem; line-height: 1.55; }
+.home-terms-pie { margin: 1rem 0 0; color: var(--texto-tenue); font-size: .72rem; }
+@media (max-width: 767.98px) { .home-terms-lista { grid-template-columns: minmax(0, 1fr); } }
 .partida-pregunta:has(.reporte-disparador) { grid-template-columns: 70px minmax(0, 1fr) 36px; }
 .partida-pregunta h1 { min-width: 0; }
 .reporte-disparador { flex: 0 0 36px; display: grid; place-items: center; width: 36px; height: 36px; margin-left: auto; border: 1px solid var(--borde-fuerte); border-radius: 50%; background: transparent; color: var(--texto-sec); cursor: pointer; transition: color .2s, border-color .2s, background .2s; }

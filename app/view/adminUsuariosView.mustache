@@ -1,0 +1,153 @@
+<main class="moderador-shell">
+    {{> navegacionLateral}}
+    <div class="admin-wrap">
+        {{> adminEncabezado}}
+
+        <form class="moderador-filtros admin-filtros-usuarios" method="get" action="{{basePath}}/admin/usuarios" role="search" aria-label="Filtros de usuarios">
+            <label class="admin-filtro-busqueda">
+                Buscar usuarios
+                <input type="search" name="busqueda" value="{{filtros.busqueda}}" placeholder="Usuario, nombre o correo" maxlength="100">
+            </label>
+            <label>
+                Rol
+                <select name="rol">
+                    {{#roles}}
+                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                    {{/roles}}
+                </select>
+            </label>
+            <label>
+                Estado de la cuenta
+                <select name="estado">
+                    {{#estados}}
+                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                    {{/estados}}
+                </select>
+            </label>
+            <label>
+                Alta desde
+                <input type="date" name="desde" value="{{filtros.desde}}">
+            </label>
+            <label>
+                Alta hasta
+                <input type="date" name="hasta" value="{{filtros.hasta}}">
+            </label>
+            <label>
+                Puntos mínimos
+                <input type="number" name="puntosMinimos" value="{{filtros.puntosMinimos}}" min="0" step="1" placeholder="Sin mínimo">
+            </label>
+            <label>
+                Ordenar por
+                <select name="orden">
+                    {{#ordenes}}
+                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                    {{/ordenes}}
+                </select>
+            </label>
+            <div class="admin-filtros-acciones">
+                <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Limpiar</a>
+                <button class="moderador-boton" type="submit">Filtrar</button>
+            </div>
+        </form>
+        {{#errorFechas}}
+            <p class="moderador-mensaje moderador-mensaje-error" role="alert">La fecha desde debe ser anterior o igual a la fecha hasta.</p>
+        {{/errorFechas}}
+
+        <div class="moderador-tabla-contenedor admin-tabla-usuarios-contenedor">
+            <table class="moderador-tabla-preguntas admin-tabla-usuarios">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre y correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Puntos</th>
+                        <th>Fecha de alta</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#usuarios}}
+                        <tr>
+                            <td><strong>{{usuario}}</strong></td>
+                            <td>{{nombre}}<br><span class="moderador-item-meta">{{email}}</span></td>
+                            <td>
+                                <span class="moderador-badge {{#esAdmin}}moderador-badge-alerta{{/esAdmin}} {{#esModerador}}moderador-badge-verde{{/esModerador}}">{{rol}}</span>
+                            </td>
+                            <td>
+                                {{#verificado}}Verificado{{/verificado}}{{^verificado}}Sin verificar{{/verificado}}
+                                {{#bloqueado}}<br><span class="admin-estado-bloqueado">Bloqueado</span>{{/bloqueado}}
+                            </td>
+                            <td>{{puntos}}</td>
+                            <td>{{#fechaAlta}}{{fechaAlta}}{{/fechaAlta}}{{^fechaAlta}}<span class="moderador-item-meta">Sin registro</span>{{/fechaAlta}}</td>
+                            <td>
+                                <div class="admin-usuario-acciones">
+                                    <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/admin/editarUsuario?id={{id}}" aria-label="Editar a {{usuario}}">Editar</a>
+                                    {{^esAdmin}}
+                                        {{^bloqueado}}
+                                            <button class="moderador-boton admin-boton-bloqueo" type="button" aria-haspopup="dialog" aria-label="Bloquear a {{usuario}}" data-admin-bloqueo data-id="{{id}}" data-usuario="{{usuario}}">Bloquear</button>
+                                        {{/bloqueado}}
+                                        {{#bloqueado}}
+                                            <form method="post" action="{{basePath}}/admin/cambiarBloqueoUsuario?{{queryFiltros}}&amp;pagina={{pagina}}">
+                                                <input type="hidden" name="id" value="{{id}}">
+                                                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                                                <button class="moderador-boton admin-boton-bloqueo" type="submit" name="bloquear" value="0" aria-label="Desbloquear a {{usuario}}">Desbloquear</button>
+                                            </form>
+                                        {{/bloqueado}}
+                                        <form method="post" action="{{basePath}}/admin/bajaUsuario?{{queryFiltros}}&amp;pagina={{pagina}}" onsubmit="return confirm('¿Eliminar esta cuenta de forma permanente?');">
+                                            <input type="hidden" name="id" value="{{id}}">
+                                            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                                            <button class="moderador-boton moderador-boton-descartar" type="submit" aria-label="Eliminar a {{usuario}}">Eliminar</button>
+                                        </form>
+                                    {{/esAdmin}}
+                                </div>
+                            </td>
+                        </tr>
+                    {{/usuarios}}
+                    {{^usuarios}}
+                        <tr><td colspan="7" class="moderador-vacio">No hay usuarios con esos filtros.</td></tr>
+                    {{/usuarios}}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="moderador-paginacion">
+            <span>Página {{pagina}} de {{paginas}} · {{totalUsuarios}} usuarios</span>
+            <nav aria-label="Páginas de usuarios">
+                {{#hayPaginaAnterior}}
+                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&amp;pagina={{paginaAnterior}}">Anterior</a>
+                {{/hayPaginaAnterior}}
+                {{^hayPaginaAnterior}}
+                    <span class="paginacion-deshabilitada">Anterior</span>
+                {{/hayPaginaAnterior}}
+                {{#hayPaginaSiguiente}}
+                    <a href="{{basePath}}/admin/usuarios?{{queryFiltros}}&amp;pagina={{paginaSiguiente}}">Siguiente</a>
+                {{/hayPaginaSiguiente}}
+                {{^hayPaginaSiguiente}}
+                    <span class="paginacion-deshabilitada">Siguiente</span>
+                {{/hayPaginaSiguiente}}
+            </nav>
+        </div>
+    </div>
+
+    <dialog class="moderador-correccion-formulario admin-dialogo" id="admin-dialogo-bloqueo" aria-labelledby="admin-titulo-bloqueo">
+        <form method="post" action="{{basePath}}/admin/cambiarBloqueoUsuario?{{queryFiltros}}&amp;pagina={{pagina}}">
+            <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+            <input type="hidden" name="id">
+            <input type="hidden" name="bloquear" value="1">
+            <div>
+                <h2 id="admin-titulo-bloqueo">Bloquear cuenta</h2>
+                <p>Se cerrarán las sesiones activas de <strong data-admin-cuenta></strong>.</p>
+            </div>
+            <div class="admin-form-campo">
+                <label for="admin-motivo">Motivo del bloqueo</label>
+                <textarea id="admin-motivo" name="motivo" rows="3" maxlength="250" required autofocus></textarea>
+            </div>
+            <div class="admin-form-acciones">
+                <button class="admin-btn" type="button" data-admin-cancelar>Cancelar</button>
+                <button class="admin-btn admin-boton-bloqueo" type="submit">Bloquear cuenta</button>
+            </div>
+        </form>
+    </dialog>
+    <script src="{{basePath}}/public/js/admin-bloqueo.js" defer></script>
+</main>

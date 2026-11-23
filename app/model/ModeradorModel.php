@@ -20,14 +20,14 @@ class ModeradorModel
         $this->database = $database;
     }
 
-    public function esModerador($userId)
+    public function puedeModerar($userId)
     {
         $fila = $this->database->queryOne(
             "SELECT rol FROM usuarios WHERE Id = ? LIMIT 1",
             [(int) $userId]
         );
 
-        return $fila !== null && $fila['rol'] === 'MODERADOR';
+        return $fila !== null && in_array($fila['rol'], ['MODERADOR', 'ADMIN'], true);
     }
 
     public function contarReportesPendientes()
@@ -46,6 +46,31 @@ class ModeradorModel
 
         return (int) ($fila['cantidad'] ?? 0);
     }
+
+    public function motivosRecientes()
+    {
+        $reportes = $this->database->queryAll(
+            'SELECT reasons FROM question_reports WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL 30 DAY'
+        );
+        $cantidades = [];
+        foreach ($reportes as $reporte) {
+            foreach (array_unique($this->codigosMotivos($reporte['reasons'])) as $codigo) {
+                $cantidades[$codigo] = ($cantidades[$codigo] ?? 0) + 1;
+            }
+        }
+        arsort($cantidades);
+        $primero = reset($cantidades);
+        $motivos = [];
+        foreach ($cantidades as $codigo => $cantidad) {
+            $motivos[] = [
+                'texto' => self::MOTIVOS[$codigo],
+                'cantidad' => $cantidad,
+                'porcentaje' => (int) round(100 * $cantidad / $primero),
+            ];
+        }
+        return $motivos;
+    }
+
     public function listarPreguntasReportadas($status, $orden)
     {
         $ordenes = [

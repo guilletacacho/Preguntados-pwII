@@ -1,0 +1,75 @@
+<main class="moderador-shell">
+    {{> navegacionLateral}}
+    <div class="admin-wrap">
+        {{> adminEncabezado}}
+
+        <form class="moderador-filtros admin-filtros-historial" method="get" action="{{basePath}}/admin/historial" role="search" aria-label="Filtrar historial">
+            <label>
+                Buscar por usuario
+                <input type="search" name="busqueda" value="{{busqueda}}" placeholder="Administrador o cuenta" maxlength="100">
+            </label>
+            <label>
+                Acción
+                <select name="accion">
+                    {{#acciones}}
+                        <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                    {{/acciones}}
+                </select>
+            </label>
+            <button class="admin-btn" type="submit">Filtrar</button>
+            {{#hayFiltros}}
+                <a class="admin-btn" href="{{basePath}}/admin/historial">Limpiar</a>
+            {{/hayFiltros}}
+        </form>
+
+        <div class="moderador-tabla-contenedor" role="region" aria-label="Registros del historial" tabindex="0">
+            <table class="admin-tabla-historial" aria-label="Historial administrativo">
+                <thead>
+                    <tr>
+                        <th scope="col">Fecha y hora</th>
+                        <th scope="col">Acción</th>
+                        <th scope="col">Cuenta</th>
+                        <th scope="col">Administrador</th>
+                        <th scope="col">Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#eventos}}
+                        <tr>
+                            <td>{{fecha}}</td>
+                            <td><strong>{{accion}}</strong></td>
+                            <td>{{cuenta}} <span class="moderador-item-meta">#{{cuentaId}}</span></td>
+                            <td>{{administrador}}</td>
+                            <td>
+                                {{#motivo}}<span class="admin-historial-motivo">{{motivo}}</span>{{/motivo}}
+                                {{#rolNuevo}}{{#rolAnterior}}{{rolAnterior}} → {{/rolAnterior}}{{rolNuevo}}{{/rolNuevo}}
+                                {{^motivo}}{{^rolNuevo}}—{{/rolNuevo}}{{/motivo}}
+                            </td>
+                        </tr>
+                    {{/eventos}}
+                    {{^eventos}}
+                        <tr><td colspan="5" class="moderador-vacio">{{#hayFiltros}}No hay acciones con esos filtros.{{/hayFiltros}}{{^hayFiltros}}Todavía no hay acciones registradas.{{/hayFiltros}}</td></tr>
+                    {{/eventos}}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="moderador-paginacion">
+            <span>Página {{pagina}} de {{paginas}} · {{total}} en total</span>
+            <nav aria-label="Páginas del historial">
+                {{#hayPaginaAnterior}}
+                    <a href="{{basePath}}/admin/historial?{{queryFiltros}}&amp;pagina={{paginaAnterior}}">Anterior</a>
+                {{/hayPaginaAnterior}}
+                {{^hayPaginaAnterior}}
+                    <span class="paginacion-deshabilitada">Anterior</span>
+                {{/hayPaginaAnterior}}
+                {{#hayPaginaSiguiente}}
+                    <a href="{{basePath}}/admin/historial?{{queryFiltros}}&amp;pagina={{paginaSiguiente}}">Siguiente</a>
+                {{/hayPaginaSiguiente}}
+                {{^hayPaginaSiguiente}}
+                    <span class="paginacion-deshabilitada">Siguiente</span>
+                {{/hayPaginaSiguiente}}
+            </nav>
+        </div>
+    </div>
+</main>

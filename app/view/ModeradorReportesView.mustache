@@ -1,17 +1,5 @@
 <main class="moderador-shell">
-    <nav class="home-sidenav" aria-label="Secciones del sitio">
-        <div class="home-side-menu">
-            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="false" aria-controls="moderador-reportes-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
-            <div class="home-side-links" id="moderador-reportes-side-links">
-                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
-                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
-                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
-                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
-                <a href="{{basePath}}/home/show#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
-                <a href="{{basePath}}/moderador" aria-label="Panel moderador" aria-current="page"><span aria-hidden="true"><svg class="side-flag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4m0 1c5-4 9 4 14 0v11c-5 4-9-4-14 0"></path></svg></span><span class="side-label">Panel moderador</span></a>
-            </div>
-        </div>
-    </nav>
+    {{> navegacionLateral}}
     <div class="moderador-content">
     {{^modoEditor}}
     <header class="moderador-encabezado">
@@ -23,13 +11,7 @@
         <div class="moderador-contador"><strong>{{pendientes}}</strong><span>pendientes</span></div>
     </header>
 
-    <nav class="moderador-tabs" aria-label="Secciones del panel">
-        <a class="moderador-tab" href="{{basePath}}/moderador">Resumen</a>
-        <a class="moderador-tab is-active" href="{{basePath}}/moderador/reportes" aria-current="page">Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span></a>
-        <a class="moderador-tab" href="{{basePath}}/moderador/sugerencias">Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
-        <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
-        <a class="moderador-tab" href="{{basePath}}/moderador/categorias">Categorías</a>
-    </nav>
+    {{> moderadorNavegacion}}
 
     {{#hayMensaje}}
         <p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="status">{{mensaje.texto}}</p>
@@ -166,6 +148,7 @@
             <h1>Corregir pregunta</h1>
             <p>Actualizá el contenido y resolvé en conjunto los reportes pendientes.</p>
         </header>
+        {{> moderadorNavegacion}}
 
         <div class="moderador-correccion-banner">
             Corregiendo por <strong>{{cantidadReportesCorreccion}}</strong>
@@ -244,18 +227,6 @@
 </main>
 
 <script>
-    document.querySelector('.moderador-shell .home-side-toggle').addEventListener('click', function () {
-        var expanded = this.getAttribute('aria-expanded') !== 'true';
-        this.setAttribute('aria-expanded', String(expanded));
-        this.parentElement.classList.toggle('is-expanded', expanded);
-    });
-    document.querySelector('.moderador-shell .home-side-menu').addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
-            this.classList.remove('is-expanded');
-            this.querySelector('button').setAttribute('aria-expanded', 'false');
-            this.querySelector('button').focus();
-        }
-    });
     function actualizarResumenCorrecta(respuesta) {
         var resumen = document.querySelector('[data-respuesta-actual]');
         var radio = respuesta.matches('[data-respuesta-radio]')

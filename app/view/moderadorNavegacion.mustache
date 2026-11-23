@@ -1,0 +1,7 @@
+<nav class="moderador-tabs" aria-label="Secciones de moderación">
+    <a class="moderador-tab{{#enResumenModeracion}} is-active{{/enResumenModeracion}}" href="{{basePath}}/moderador"{{#enResumenModeracion}} aria-current="page"{{/enResumenModeracion}}>Resumen</a>
+    <a class="moderador-tab{{#enReportes}} is-active{{/enReportes}}" href="{{basePath}}/moderador/reportes"{{#enReportes}} aria-current="{{ubicacionReportes}}"{{/enReportes}}>Reportes <span class="moderador-badge moderador-badge-alerta">{{reportesPendientes}}</span></a>
+    <a class="moderador-tab{{#enSugerencias}} is-active{{/enSugerencias}}" href="{{basePath}}/moderador/sugerencias"{{#enSugerencias}} aria-current="{{ubicacionSugerencias}}"{{/enSugerencias}}>Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span></a>
+    <a class="moderador-tab{{#enPreguntas}} is-active{{/enPreguntas}}" href="{{basePath}}/moderador/preguntas"{{#enPreguntas}} aria-current="{{ubicacionPreguntas}}"{{/enPreguntas}}>Preguntas</a>
+    <a class="moderador-tab{{#enCategorias}} is-active{{/enCategorias}}" href="{{basePath}}/moderador/categorias"{{#enCategorias}} aria-current="page"{{/enCategorias}}>Categorías</a>
+</nav>

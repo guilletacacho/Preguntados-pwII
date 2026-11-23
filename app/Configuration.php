@@ -11,8 +11,10 @@ use app\controller\PartidaController;
 use app\controller\ModeradorPreguntasController;
 use app\controller\ModeradorReportesController;
 use app\controller\ModeradorSugerenciasController;
+use app\controller\AdminController;
 use app\model\PartidaModel;
 use app\model\ModeradorModel;
+use app\model\AdminModel;
 use app\model\PerfilModel;
 use app\model\LoginModel;
 use app\model\RegistroModel;
@@ -29,6 +31,7 @@ require_once("helper/Autoloader.php");
 
 class Configuration
 {
+    private $database = null;
 
     public function __construct()
     {
@@ -41,6 +44,25 @@ class Configuration
             $this->gerRender(),
             $this->getPresenceModel()
         );
+    }
+
+    public function validarSesionActiva()
+    {
+        if (!isset($_SESSION['usuario_id'])) {
+            return;
+        }
+
+        $login = $this->getLoginModel();
+        $estado = $login->estadoSesion($_SESSION['usuario_id']);
+        if ($estado && !$estado['bloqueado'] && (int) $estado['version_sesion'] === (int) ($_SESSION['version_sesion'] ?? 0)) {
+            return;
+        }
+
+        $login->liberarSesionUnica($_SESSION['usuario_id'], $_SESSION['sesion_unica'] ?? '');
+        $this->getPresenceModel()->remove(session_id());
+        $_SESSION = [];
+        session_destroy();
+        \Redirect::to(!empty($estado['bloqueado']) ? '/Preguntados/?login_error=3' : '/Preguntados/');
     }
 
     public function getHomeController()
@@ -125,6 +147,14 @@ class Configuration
         );
     }
 
+    public function getAdminController()
+    {
+        return new AdminController(
+            $this->getAdminModel(),
+            $this->gerRender()
+        );
+    }
+
     public function getPerfilController()
     {
         return new \app\controller\PerfilController(
@@ -136,6 +166,10 @@ class Configuration
     //fin de carga de controladores y model para redireccionamientos
     private function getDatabase()
     {
+        if ($this->database !== null) {
+            return $this->database;
+        }
+
         $configFile = "config/config.ini";
 
         if (!file_exists($configFile)) {
@@ -144,17 +178,19 @@ class Configuration
 
         $config = parse_ini_file($configFile);
 
-        return new MyDatabase($config["db_host"],
+        $this->database = new MyDatabase($config["db_host"],
             $config["db_user"],
             $config["db_pass"],
             $config["db_name"],
             $config["db_port"]
         );
+
+        return $this->database;
     }
 
     private function gerRender()
     {
-        return new MustacheRender($this->getModeradorModel());
+        return new MustacheRender($this->getModeradorModel(), $this->getAdminModel());
     }
 
     private function getMailHelper()
@@ -201,6 +237,12 @@ class Configuration
     
     private function getSugerenciaModel(){
         return new SugerenciaModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getAdminModel(){
+        return new AdminModel(
             $this->getDatabase()
         );
     }

@@ -1,0 +1,652 @@
+<main class="moderador-shell">
+    {{> navegacionLateral}}
+    <div class="admin-wrap">
+
+        {{> adminEncabezado}}
+
+        <form class="admin-periodo" method="get" action="{{basePath}}/admin">
+            <label for="admin-periodo">Mostrar estadísticas de</label>
+            <select id="admin-periodo" name="periodo" onchange="this.form.submit()">
+                {{#periodos}}<option value="{{value}}"{{#seleccionado}} selected{{/seleccionado}}>{{label}}</option>{{/periodos}}
+            </select>
+            {{#periodoDesde}}<span class="admin-periodo-desde">Desde el {{periodoDesde}}</span>{{/periodoDesde}}
+        </form>
+
+        <div class="admin-print">
+            <header class="admin-print-cabecera">
+                <div class="admin-print-marca">
+                    <span class="admin-print-logo">P</span>
+                    <span><strong>Preguntados</strong><small>Panel administrador</small></span>
+                </div>
+                <div class="admin-print-titulo">
+                    <h1>Reportes del panel</h1>
+                    <p>{{#esHistorico}}Histórico · todo lo registrado hasta hoy{{/esHistorico}}{{^esHistorico}}{{etiquetaPeriodo}} · desde {{periodoDesde}}{{/esHistorico}}</p>
+                </div>
+                <div class="admin-print-fecha">{{fechaImpresion}}</div>
+            </header>
+
+            <section class="admin-print-resumen">
+                <article><span>Reportes por revisar</span><strong>{{reportesPendientes}}</strong><small>En vivo</small></article>
+                <article><span>Reportes enviados</span><strong>{{reportesPeriodo}}</strong><small>{{etiquetaPeriodo}}</small></article>
+                <article><span>Preguntas distintas</span><strong>{{preguntasReportadas}}</strong><small>Sin repetir</small></article>
+                <article><span>Categoría más acertada</span><strong class="admin-print-valor-texto">{{categoriaMasCorrecta.etiqueta}}</strong><small>{{categoriaMasCorrecta.cantidad}} aciertos</small></article>
+            </section>
+
+            <div class="admin-print-tabla">
+                <section>
+                    <h2>Indicadores generales</h2>
+                    <table>
+                        <thead><tr><th>Dato</th><th>Valor · {{etiquetaPeriodo}}</th></tr></thead>
+                        <tbody>
+                            <tr><td>{{#esHistorico}}Usuarios registrados{{/esHistorico}}{{^esHistorico}}Altas del período{{/esHistorico}}</td><td>{{totalUsuarios}}</td></tr>
+                            <tr><td>Verificados</td><td>{{usuariosVerificados}}</td></tr>
+                            <tr><td>Jugadores reales</td><td>{{jugadoresReales}}</td></tr>
+                            <tr><td>Partidas finalizadas</td><td>{{partidasFinalizadas}}</td></tr>
+                            <tr><td>Reportes por revisar</td><td>{{reportesPendientes}}</td></tr>
+                            <tr><td>Reportes enviados</td><td>{{reportesPeriodo}}</td></tr>
+                            <tr><td>Preguntas distintas</td><td>{{preguntasReportadas}}</td></tr>
+                            <tr><td>Categoría más acertada</td><td>{{categoriaMasCorrecta.etiqueta}} · {{categoriaMasCorrecta.cantidad}}</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+                <section>
+                    <h2>Aciertos por categoría</h2>
+                    <p class="admin-print-nota">Participación = porcentaje sobre el total de aciertos de {{etiquetaPeriodo}}.</p>
+                    <table class="admin-print-categorias">
+                        <thead><tr><th>Categoría</th><th>Participación</th><th>Aciertos</th></tr></thead>
+                        <tbody>
+                            {{#categorias}}<tr><td>{{etiqueta}}</td><td class="admin-print-barra"><span class="admin-print-barra-numero">{{porcentajeTexto}}%</span><span class="admin-print-barra-pista"><i style="width:{{porcentaje}}%"></i></span></td><td>{{cantidad}}</td></tr>{{/categorias}}
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <footer class="admin-print-pie">
+                <span>Generado desde el panel /admin · Tu cuenta de ADMIN queda fuera de todos los cálculos.</span>
+            </footer>
+        </div>
+
+        <section class="admin-section" aria-labelledby="admin-indicadores">
+            <div class="admin-section-head">
+                <div>
+                    <h2 id="admin-indicadores">Indicadores</h2>
+                    <p>Lo que pasó en el sitio en {{etiquetaPeriodo}}, sin números estimados.</p>
+                </div>
+                <span class="admin-section-tag">{{etiquetaPeriodo}}</span>
+            </div>
+
+            <div class="admin-metrics">
+                <article class="admin-metric admin-metric--usuarios">
+                    <span class="admin-metric-label">{{#esHistorico}}Usuarios registrados{{/esHistorico}}{{^esHistorico}}Altas en el período{{/esHistorico}}</span>
+                    <strong class="admin-metric-value">{{totalUsuarios}}</strong>
+                    <div class="admin-metric-notas">
+                        <span class="admin-chip"><strong>{{usuariosVerificados}}</strong> verificados</span>
+                        <span class="admin-chip"><strong>{{jugadoresReales}}</strong> respondieron</span>
+                    </div>
+                </article>
+
+                <article class="admin-metric admin-metric--online">
+                    <span class="admin-metric-label">Jugando ahora (sin vos)</span>
+                    <strong class="admin-metric-value">{{usuariosOnline}}</strong>
+                    <div class="admin-metric-notas">
+                        <span class="admin-chip admin-chip--vivo">En vivo · 90 s</span>
+                    </div>
+                </article>
+
+                <article class="admin-metric admin-metric--partidas">
+                    <span class="admin-metric-label">Partidas finalizadas</span>
+                    <strong class="admin-metric-value">{{partidasFinalizadas}}</strong>
+                    <div class="admin-metric-notas">
+                        <span class="admin-chip admin-chip--hoy"><strong>{{partidasHoy}}</strong> empezadas hoy</span>
+                    </div>
+                </article>
+
+                <article class="admin-metric admin-metric--reportes">
+                    <span class="admin-metric-label">Reportes por revisar</span>
+                    <strong class="admin-metric-value">{{reportesPendientes}}</strong>
+                    <div class="admin-metric-notas">
+                        <span class="admin-chip admin-chip--vivo">En vivo · a revisar</span>
+                        <span class="admin-chip"><strong>{{reportesPeriodo}}</strong> enviados en {{etiquetaPeriodo}}</span>
+                        <span class="admin-chip"><strong>{{preguntasReportadas}}</strong> preguntas distintas</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="admin-accesos">
+            <div class="admin-section-head">
+                <div>
+                    <h2 id="admin-accesos">Cuentas y accesos</h2>
+                    <p>Quiénes tienen cuenta y qué rol cumplen en el sitio.</p>
+                </div>
+            </div>
+
+            <div class="admin-split">
+                <article class="admin-card">
+                    <div class="admin-card-head">
+                        <h3>{{#esHistorico}}Usuarios por rol{{/esHistorico}}{{^esHistorico}}Altas por rol{{/esHistorico}}</h3>
+                        <span>{{totalUsuarios}} en total</span>
+                    </div>
+                    <div class="admin-chart">
+                        <canvas id="chartRoles" role="img" aria-label="Columnas con la cantidad de usuarios por rol"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        <div class="admin-role-row">
+                            <span class="admin-role-name"><span class="admin-role-icon">J</span> Jugadores</span>
+                            <strong class="admin-role-value">{{jugadores}}</strong>
+                        </div>
+                        <div class="admin-role-row">
+                            <span class="admin-role-name"><span class="admin-role-icon">M</span> Moderadores</span>
+                            <strong class="admin-role-value">{{moderadores}}</strong>
+                        </div>
+                        <div class="admin-role-row">
+                            <span class="admin-role-name"><span class="admin-role-icon">A</span> Administradores</span>
+                            <strong class="admin-role-value">{{administradores}}</strong>
+                        </div>
+                    </div>
+                    <p class="admin-role-note">Se cuenta el valor exacto de la columna <strong>rol</strong>: JUGADOR, MODERADOR o ADMIN.</p>
+                </article>
+
+                <article class="admin-card">
+                    <div class="admin-card-head">
+                        <h3>{{#esHistorico}}Verificación de cuentas{{/esHistorico}}{{^esHistorico}}Verificación de altas{{/esHistorico}}</h3>
+                        <span>{{usuariosVerificados}} de {{totalUsuarios}}</span>
+                    </div>
+                    <div class="admin-chart">
+                        <canvas id="chartVerificados" role="img" aria-label="Torta con cuentas verificadas y pendientes"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        <div class="admin-role-row">
+                            <span class="admin-role-name">Verificados</span>
+                            <strong class="admin-role-value">{{usuariosVerificados}}</strong>
+                        </div>
+                        <div class="admin-role-row">
+                            <span class="admin-role-name">Sin verificar</span>
+                            <strong class="admin-role-value">{{sinVerificar}}</strong>
+                        </div>
+                    </div>
+                    <p class="admin-role-note">La cuenta del administrador queda afuera de los cálculos de juego.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="admin-perfil">
+            <div class="admin-section-head">
+                <div>
+                    <h2 id="admin-perfil">Perfil de quienes juegan</h2>
+                    <p>{{jugadoresReales}} jugadores reales con al menos una respuesta en {{etiquetaPeriodo}}.</p>
+                </div>
+                <span class="admin-section-tag">Datos reales</span>
+            </div>
+
+            <div class="admin-profile-grid">
+                <article class="admin-card admin-card-niveles">
+                    <div class="admin-card-head">
+                        <h3>Nivel de los jugadores</h3>
+                        <span>regla del juego</span>
+                    </div>
+                    <div class="admin-chart">
+                        <canvas id="chartNiveles" role="img" aria-label="Torta con el nivel de los jugadores"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        {{#niveles}}
+                            <div class="admin-stat-row">
+                                <div class="admin-stat-label">
+                                    <strong>{{etiqueta}}</strong>
+                                    <span>{{cantidad}} · {{porcentaje}}%</span>
+                                </div>
+                                <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                            </div>
+                        {{/niveles}}
+                        {{^niveles}}
+                            <p class="admin-empty">Todavía no hay respuestas registradas.</p>
+                        {{/niveles}}
+                    </div>
+                </article>
+
+                <article class="admin-card admin-card-paises">
+                    <div class="admin-card-head">
+                        <h3>Países</h3>
+                        <span>según el perfil</span>
+                    </div>
+                    <div class="admin-chart admin-chart--alto">
+                        <canvas id="chartPaises" role="img" aria-label="Barras horizontales con los países de los jugadores"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        {{#paises}}
+                            <div class="admin-stat-row">
+                                <div class="admin-stat-label">
+                                    <strong>{{etiqueta}}</strong>
+                                    <span>{{cantidad}} · {{porcentaje}}%</span>
+                                </div>
+                                <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                            </div>
+                        {{/paises}}
+                        {{^paises}}
+                            <p class="admin-empty">No hay datos de países.</p>
+                        {{/paises}}
+                    </div>
+                </article>
+
+                <article class="admin-card admin-card-edades">
+                    <div class="admin-card-head">
+                        <h3>Edades</h3>
+                        <span>promedio {{edadPromedio}} años</span>
+                    </div>
+                    <div class="admin-chart">
+                        <canvas id="chartEdades" role="img" aria-label="Columnas con los rangos de edad"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        {{#edades}}
+                            <div class="admin-stat-row">
+                                <div class="admin-stat-label">
+                                    <strong>{{etiqueta}}</strong>
+                                    <span>{{cantidad}} · {{porcentaje}}%</span>
+                                </div>
+                                <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                            </div>
+                        {{/edades}}
+                    </div>
+                </article>
+
+                <article class="admin-card admin-card-sexos">
+                    <div class="admin-card-head">
+                        <h3>Sexo</h3>
+                        <span>según el perfil</span>
+                    </div>
+                    <div class="admin-chart">
+                        <canvas id="chartSexos" role="img" aria-label="Torta con la distribución por sexo"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        {{#sexos}}
+                            <div class="admin-stat-row">
+                                <div class="admin-stat-label">
+                                    <strong>{{etiqueta}}</strong>
+                                    <span>{{cantidad}} · {{porcentaje}}%</span>
+                                </div>
+                                <div class="admin-bar"><span style="width:{{porcentaje}}%"></span></div>
+                            </div>
+                        {{/sexos}}
+                        {{^sexos}}
+                            <p class="admin-empty">No hay datos.</p>
+                        {{/sexos}}
+                    </div>
+                </article>
+
+                <article class="admin-card admin-card-categoria">
+                    <div class="admin-card-head">
+                        <h3>Aciertos por categoría</h3>
+                        <span>la más respondida bien: {{categoriaMasCorrecta.etiqueta}} ({{categoriaMasCorrecta.cantidad}})</span>
+                    </div>
+                    <div class="admin-chart">
+                        <canvas id="chartCategorias" role="img" aria-label="Barras con las respuestas correctas por categoría"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        {{#categorias}}
+                            <div class="admin-stat-row">
+                                <div class="admin-stat-label">
+                                    <strong>{{etiqueta}}</strong>
+                                    <span>{{cantidad}} aciertos</span>
+                                </div>
+                            </div>
+                        {{/categorias}}
+                        {{^categorias}}
+                            <p class="admin-empty">No hay categorías cargadas.</p>
+                        {{/categorias}}
+                    </div>
+                    <p class="admin-role-note">Se suma cada respuesta correcta. Si agregás una categoría nueva aparece sola en la lista, aunque todavía tenga 0.</p>
+                </article>
+            </div>
+        </section>
+
+        <footer class="admin-footer">
+            <p class="admin-footnote">Edad estimada con el año de nacimiento (no se guarda día ni mes). Porcentajes sobre {{jugadoresReales}} jugadores de {{etiquetaPeriodo}}; tu cuenta no entra en el cálculo.</p>
+            <a class="admin-btn" href="{{basePath}}/admin/usuarios">Ir al ABM de usuarios →</a>
+        </footer>
+
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    var botonImprimirAdmin = document.querySelector('[data-imprimir-admin]');
+    if (botonImprimirAdmin) {
+        botonImprimirAdmin.addEventListener('click', function () { window.print(); });
+    }
+    (function () {
+        var datos = {{{graficosJson}}};
+        if (typeof Chart === 'undefined') return;
+
+        var texto = '#A9B2BF';
+        var rejilla = 'rgba(126, 136, 150, .18)';
+        Chart.defaults.color = texto;
+        Chart.defaults.font.family = "'Sora', sans-serif";
+        Chart.defaults.font.size = 11;
+        Chart.defaults.plugins.legend.labels.boxWidth = 12;
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+        var paleta = {
+            roles: ['#3B9EEA', '#7CC243', '#E84855'],
+            verificados: ['#2DD4BF', '#94A3B8'],
+            niveles: ['#9A6BF2', '#F2C230', '#38BDF8'],
+            paises: ['#F97316', '#FB7185', '#14B8A6', '#EAB308', '#EC4899', '#0EA5E9', '#84CC16'],
+            edades: ['#C084FC', '#FBBF24', '#34D399', '#60A5FA', '#FB923C', '#A1A1AA'],
+            sexos: ['#F472B6', '#22D3EE', '#A3E635', '#F59E0B']
+        };
+
+        function coloresDinamicos(cantidad, inicio) {
+            var lista = [];
+            for (var i = 0; i < cantidad; i++) {
+                var matiz = (inicio + i * 137.508) % 360;
+                lista.push('hsl(' + matiz.toFixed(1) + ', 70%, 58%)');
+            }
+            return lista;
+        }
+
+        function coloresPara(filas, fijos, inicio) {
+            return filas.length <= fijos.length
+                ? fijos.slice(0, filas.length)
+                : coloresDinamicos(filas.length, inicio);
+        }
+
+        function ajustarAltura(id, filas, altoPorFila, min, max) {
+            var canvas = document.getElementById(id);
+            if (!canvas || !canvas.parentElement) return;
+            var alto = Math.max(min, Math.min(max, filas.length * altoPorFila + 70));
+            canvas.parentElement.style.height = alto + 'px';
+        }
+
+        var valorVertical = {
+            id: 'valorVertical',
+            afterDatasetsDraw: function (chart) {
+                if (chart.config.type !== 'bar' || chart.options.indexAxis === 'y') return;
+                var ctx = chart.ctx;
+                ctx.save();
+                ctx.font = "700 11px 'Sora', sans-serif";
+                ctx.fillStyle = '#DCE3EC';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                chart.data.datasets.forEach(function (dataset, di) {
+                    chart.getDatasetMeta(di).data.forEach(function (bar, i) {
+                        var valor = dataset.data[i];
+                        if (valor === null || valor === undefined) return;
+                        ctx.fillText(String(valor), bar.x, bar.y - 6);
+                    });
+                });
+                ctx.restore();
+            }
+        };
+
+        var valorHorizontal = {
+            id: 'valorHorizontal',
+            afterDatasetsDraw: function (chart) {
+                if (chart.config.type !== 'bar' || chart.options.indexAxis !== 'y') return;
+                var ctx = chart.ctx;
+                ctx.save();
+                ctx.font = "700 11px 'Sora', sans-serif";
+                ctx.fillStyle = '#DCE3EC';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                chart.data.datasets.forEach(function (dataset, di) {
+                    chart.getDatasetMeta(di).data.forEach(function (bar, i) {
+                        var valor = dataset.data[i];
+                        if (valor === null || valor === undefined) return;
+                        ctx.fillText(String(valor), bar.x + 7, bar.y);
+                    });
+                });
+                ctx.restore();
+            }
+        };
+
+        var centroTorta = {
+            id: 'centroTorta',
+            afterDraw: function (chart) {
+                if (chart.config.type !== 'doughnut') return;
+                var cfg = (chart.options.plugins && chart.options.plugins.centroTorta) || {};
+                var total = chart.data.datasets[0].data.reduce(function (a, b) {
+                    return a + (Number(b) || 0);
+                }, 0);
+                var area = chart.chartArea;
+                var x = area.left + (area.right - area.left) / 2;
+                var y = area.top + (area.bottom - area.top) / 2;
+                var ctx = chart.ctx;
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#F4F7FB';
+                ctx.font = "800 22px 'Sora', sans-serif";
+                ctx.fillText(String(total), x, y - 8);
+                ctx.fillStyle = texto;
+                ctx.font = "600 10px 'Sora', sans-serif";
+                ctx.fillText(cfg.titulo || '', x, y + 14);
+                ctx.restore();
+            }
+        };
+
+        Chart.register(valorVertical, valorHorizontal, centroTorta);
+
+        function activate(id) {
+            var canvas = document.getElementById(id);
+            if (canvas) canvas.closest('.admin-card').classList.add('tiene-grafico');
+        }
+
+        function etiquetas(filas) {
+            return filas.map(function (fila) { return fila.etiqueta; });
+        }
+
+        function cantidades(filas) {
+            return filas.map(function (fila) { return fila.cantidad; });
+        }
+
+        function pct(valor, total) {
+            return total > 0 ? Math.round(valor * 100 / total) : 0;
+        }
+
+        function leyendaValores(filas, total) {
+            return {
+                position: 'bottom',
+                labels: {
+                    color: '#F3EEE6',
+                    padding: 20,
+                    usePointStyle: true,
+                    boxWidth: 9,
+                    boxHeight: 9,
+                    font: {
+                        family: "'Sora', sans-serif",
+                        size: 11,
+                        weight: '600'
+                    },
+                    generateLabels: function (chart) {
+                        return filas.map(function (fila, i) {
+                            var valor = Number(fila.cantidad) || 0;
+                            return {
+                                text: fila.etiqueta + ' · ' + valor + ' (' + pct(valor, total) + '%)',
+                                fillStyle: chart.data.datasets[0].backgroundColor[i],
+                                strokeStyle: chart.data.datasets[0].backgroundColor[i],
+                                fontColor: '#F3EEE6',
+                                font: {
+                                    family: "'Sora', sans-serif",
+                                    size: 11,
+                                    weight: '600'
+                                },
+                                hidden: false,
+                                index: i,
+                                pointStyle: 'circle'
+                            };
+                        });
+                    }
+                }
+            };
+        }
+
+        function columnas(id, filas, colores, sufijo, total) {
+            if (!filas.length) return;
+            var canvas = document.getElementById(id);
+            if (!canvas) return;
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: etiquetas(filas),
+                    datasets: [{
+                        data: cantidades(filas),
+                        backgroundColor: colores,
+                        borderRadius: 8,
+                        maxBarThickness: 52
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 18 } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    return ctx.parsed.y + ' ' + sufijo + ' (' + pct(ctx.parsed.y, total) + '%)';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: texto } },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: rejilla },
+                            ticks: { color: texto, precision: 0, stepSize: 1 },
+                            title: {
+                                display: true,
+                                text: sufijo,
+                                color: '#F3EEE6',
+                                font: {
+                                    family: "'Sora', sans-serif",
+                                    size: 11,
+                                    weight: '600'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            activate(id);
+        }
+
+        function barrasHorizontales(id, filas, colores, total) {
+            if (!filas.length) return;
+            var canvas = document.getElementById(id);
+            if (!canvas) return;
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: etiquetas(filas),
+                    datasets: [{
+                        data: cantidades(filas),
+                        backgroundColor: colores,
+                        borderRadius: 8,
+                        maxBarThickness: 18
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 30 } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    return ctx.parsed.x + ' jugadores (' + pct(ctx.parsed.x, total) + '%)';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: rejilla },
+                            ticks: { color: texto, precision: 0, stepSize: 1 },
+                            title: {
+                                display: true,
+                                text: 'Jugadores',
+                                color: '#F3EEE6',
+                                font: {
+                                    family: "'Sora', sans-serif",
+                                    size: 11,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        y: { grid: { display: false }, ticks: { color: texto } }
+                    }
+                }
+            });
+            activate(id);
+        }
+
+        function torta(id, filas, colores, total, subtitulo) {
+            if (!filas.length) return;
+            var canvas = document.getElementById(id);
+            if (!canvas) return;
+            if (!total) {
+                total = cantidades(filas).reduce(function (a, b) { return a + b; }, 0);
+            }
+            new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: etiquetas(filas),
+                    datasets: [{
+                        data: cantidades(filas),
+                        backgroundColor: colores,
+                        borderColor: '#28323F',
+                        borderWidth: 3,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: {
+                        legend: leyendaValores(filas, total),
+                        centroTorta: { titulo: subtitulo },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    var valor = ctx.parsed;
+                                    return ctx.label + ': ' + valor + ' (' + pct(valor, total) + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            activate(id);
+        }
+
+        var roles = datos.roles || [];
+        var verificados = [
+            { etiqueta: 'Verificados', cantidad: Number(datos.verificados || 0) },
+            { etiqueta: 'Sin verificar', cantidad: Number(datos.sinVerificar || 0) }
+        ];
+        var niveles = datos.niveles || [];
+        var paises = datos.paises || [];
+        var edades = datos.edades || [];
+        var sexos = datos.sexos || [];
+        var categorias = datos.categorias || [];
+        var totalAciertos = categorias.reduce(function (suma, fila) {
+            return suma + Number(fila.cantidad || 0);
+        }, 0);
+
+        // Sin max fijo: si llegan usuarios nuevos, Chart.js agranda la escala solo.
+        columnas('chartRoles', roles, coloresPara(roles, paleta.roles, 210), 'usuarios', datos.totalUsuarios);
+        torta('chartVerificados', verificados, coloresPara(verificados, paleta.verificados, 160), datos.totalUsuarios, 'cuentas');
+        torta('chartNiveles', niveles, coloresPara(niveles, paleta.niveles, 275), datos.jugadoresReales, 'jugadores');
+        ajustarAltura('chartPaises', paises, 26, 240, 620);
+        barrasHorizontales('chartPaises', paises, coloresPara(paises, paleta.paises, 18), datos.jugadoresReales);
+        columnas('chartEdades', edades, coloresPara(edades, paleta.edades, 260), 'jugadores', datos.jugadoresReales);
+        torta('chartSexos', sexos, coloresPara(sexos, paleta.sexos, 330), datos.jugadoresReales, 'jugadores');
+        ajustarAltura('chartCategorias', categorias, 26, 200, 520);
+        barrasHorizontales('chartCategorias', categorias, categorias.map(function (categoria) { return categoria.color; }), totalAciertos);
+    })();
+</script>

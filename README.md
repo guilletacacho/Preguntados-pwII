@@ -15,6 +15,14 @@ db_port = 3306
 
 `config/config.ini` está excluido de Git para mantener las credenciales locales.
 
+Si ya tenés una base instalada, importá `app/sql/migracion_gestion_usuarios.sql` sobre esa base para habilitar el bloqueo y las fechas de alta. Las cuentas anteriores a la migración conservan una fecha de alta desconocida.
+
+Importá también `app/sql/migracion_historial_admin.sql` para registrar las nuevas acciones administrativas. El historial comienza al habilitar esta función.
+
+Si la base instalada todavía no tiene sugerencias o categorías editables, importá `app/sql/migracion_categorias_sugerencias.sql`.
+
+Para habilitar Administración, configurá `@id_admin` en `app/sql/migracion_panel_admin.sql` con el ID de una cuenta propia ya verificada y ejecutá la consulta en la base del proyecto. El rol `ADMIN` puede entrar a Administración y Moderación. El rol `MODERADOR` tiene acceso a Moderación.
+
 # Instalación
 
 Necesitas PHP, Composer y MySQL (por ejemplo, con XAMPP). Desde la carpeta del proyecto ejecuta:

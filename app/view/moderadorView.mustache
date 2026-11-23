@@ -1,59 +1,33 @@
 <main class="moderador-shell">
-    <nav class="home-sidenav" aria-label="Secciones del sitio">
-        <div class="home-side-menu">
-            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="false" aria-controls="moderador-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
-            <div class="home-side-links" id="moderador-side-links">
-                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
-                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
-                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
-                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
-                <a href="{{basePath}}/home/show#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
-                <a href="{{basePath}}/moderador" aria-label="Panel moderador" aria-current="page"><span aria-hidden="true"><svg class="side-flag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4m0 1c5-4 9 4 14 0v11c-5 4-9-4-14 0"></path></svg></span><span class="side-label">Panel moderador</span></a>
-            </div>
-        </div>
-    </nav>
+    {{> navegacionLateral}}
     <div class="moderador-content">
         <header class="moderador-header">
             <div>
-                <span class="moderador-eyebrow">PANEL MODERADOR</span>
+                <span class="moderador-eyebrow">MODERACIÓN</span>
                 <h1>Resumen</h1>
                 <p>Lo que necesita tu revisión hoy.</p>
             </div>
             <a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a>
         </header>
 
-        <nav class="moderador-tabs" aria-label="Secciones del panel">
-            <a class="moderador-tab is-active" href="{{basePath}}/moderador" aria-current="page">Resumen</a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/reportes">
-            Reportes <span class="moderador-badge moderador-badge-alerta">{{pendientes}}</span>
-            </a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/sugerencias">
-                Sugerencias <span class="moderador-badge">{{sugerenciasPendientes}}</span>
-            </a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/preguntas">Preguntas</a>
-            <a class="moderador-tab" href="{{basePath}}/moderador/categorias">Categorías</a>
-        </nav>
+        {{> moderadorNavegacion}}
 
         <section class="moderador-metricas" aria-label="Resumen de actividad">
             <article class="moderador-metrica">
                 <strong class="es-alerta">{{pendientes}}</strong>
                 <span>Reportes pendientes</span>
-                <small>sobre 4 preguntas · el más viejo hace 2 días</small>
             </article>
             <article class="moderador-metrica">
-                <strong>3</strong>
-                <span>Preguntas sugeridas</span>
-                <small>esperando aprobación</small>
+                <strong>{{sugerenciasPendientes}}</strong>
+                <span>Sugerencias pendientes</span>
             </article>
             <article class="moderador-metrica">
                 <strong>{{preguntasActivas}}</strong>
                 <span>Preguntas activas</span>
-                <small>6 categorías</small>
             </article>
             <article class="moderador-metrica">
                 <strong>{{reportesResueltos}}</strong>
-                <span>Resueltos este mes</span>
-                <small>...</small>
+                <span>Reportes resueltos</span>
             </article>
         </section>
 
@@ -83,29 +57,15 @@
             <section class="moderador-panel moderador-motivos" aria-labelledby="moderador-motivos-titulo">
                 <h2 id="moderador-motivos-titulo">Motivos más reportados</h2>
                 <ul class="moderador-barras">
-                    <li><span>Respuesta incorrecta</span><span class="moderador-barra"><i style="--barra: 100%"></i></span><strong>9</strong></li>
-                    <li><span>Desactualizada</span><span class="moderador-barra"><i style="--barra: 56%"></i></span><strong>5</strong></li>
-                    <li><span>Confusa</span><span class="moderador-barra"><i style="--barra: 44%"></i></span><strong>4</strong></li>
-                    <li><span>Más de una válida</span><span class="moderador-barra"><i style="--barra: 33%"></i></span><strong>3</strong></li>
-                    <li><span>Inapropiada</span><span class="moderador-barra"><i style="--barra: 11%"></i></span><strong>1</strong></li>
-                    <li><span>Otro motivo</span><span class="moderador-barra"><i style="--barra: 22%"></i></span><strong>2</strong></li>
+                    {{#motivosRecientes}}
+                    <li><span>{{texto}}</span><span class="moderador-barra" aria-hidden="true"><i style="--barra: {{porcentaje}}%"></i></span><strong>{{cantidad}}</strong></li>
+                    {{/motivosRecientes}}
                 </ul>
+                {{^motivosRecientes}}
+                    <p>No hay motivos registrados en este período.</p>
+                {{/motivosRecientes}}
                 <p class="moderador-periodo">Últimos 30 días.</p>
             </section>
         </div>
     </div>
 </main>
-<script>
-    document.querySelector('.moderador-shell .home-side-toggle').addEventListener('click', function () {
-        const expanded = this.getAttribute('aria-expanded') !== 'true';
-        this.setAttribute('aria-expanded', String(expanded));
-        this.parentElement.classList.toggle('is-expanded', expanded);
-    });
-    document.querySelector('.moderador-shell .home-side-menu').addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
-            this.classList.remove('is-expanded');
-            this.querySelector('button').setAttribute('aria-expanded', 'false');
-            this.querySelector('button').focus();
-        }
-    });
-</script>

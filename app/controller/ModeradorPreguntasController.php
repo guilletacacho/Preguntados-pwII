@@ -310,6 +310,7 @@ class ModeradorPreguntasController
             $this->render->renderiza('moderadorAltaPregunta', [
                 'categorias' => $categorias,
                 'pendientes' => $this->model->contarReportesPendientes(),
+                'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
                 'error' => implode(' ', array_unique($errores)),
             ]);
             return;
@@ -425,6 +426,7 @@ class ModeradorPreguntasController
 
         $datos = [
             'editorQuestionId' => $id,
+            'sugerenciasPendientes' => $this->contarSugerenciasPendientes(),
             'editorPregunta' => $pregunta['question'],
             'editorCategorias' => $categorias,
             'editorOpciones' => $opciones,

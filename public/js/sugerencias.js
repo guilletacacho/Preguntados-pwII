@@ -3,8 +3,6 @@
     const formCard = document.querySelector('.sugerencias-form-card');
     const formToggle = document.querySelector('.sugerencias-cta');
     const formWrap = document.querySelector('#sugerencias-form-wrap');
-    const sideToggle = document.querySelector('.sugerencias-shell .home-side-toggle');
-    const sideMenu = document.querySelector('.sugerencias-shell .home-side-menu');
     const imageInput = document.querySelector('#imagen-sugerida');
     const imagePreviewWrap = document.querySelector('#imagen-sugerida-preview-wrap');
     const imagePreview = document.querySelector('#imagen-sugerida-preview');
@@ -80,18 +78,4 @@
         });
     }
 
-    if (sideToggle && sideMenu) {
-        sideToggle.addEventListener('click', function () {
-            const expanded = this.getAttribute('aria-expanded') !== 'true';
-            this.setAttribute('aria-expanded', String(expanded));
-            this.parentElement.classList.toggle('is-expanded', expanded);
-        });
-        sideMenu.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                this.classList.remove('is-expanded');
-                sideToggle.setAttribute('aria-expanded', 'false');
-                sideToggle.focus();
-            }
-        });
-    }
 })();

@@ -25,10 +25,17 @@ class PresenceModel
         $this->database->execute('DELETE FROM user_presence WHERE session_key = ?', [hash('sha256', $sessionId)]);
     }
 
-    public function countOnline()
+    public function countOnline($excludeUserId = 0)
     {
         $this->database->execute('DELETE FROM user_presence WHERE last_seen < NOW() - INTERVAL 90 SECOND');
-        $row = $this->database->queryOne('SELECT COUNT(DISTINCT user_id) AS total FROM user_presence WHERE last_seen >= NOW() - INTERVAL 90 SECOND');
+        $sql = 'SELECT COUNT(DISTINCT user_id) AS total FROM user_presence WHERE last_seen >= NOW() - INTERVAL 90 SECOND';
+        $params = [];
+        $excludeUserId = (int) $excludeUserId;
+        if ($excludeUserId > 0) {
+            $sql .= ' AND user_id <> ?';
+            $params[] = $excludeUserId;
+        }
+        $row = $this->database->queryOne($sql, $params);
         return (int) $row['total'];
     }
 }

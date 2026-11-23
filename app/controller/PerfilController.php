@@ -51,7 +51,10 @@ class PerfilController
 
         $puntajeTotal = $this->model->obtenerPuntajeTotal($userId);
         $cantidadPartidas = $this->model->obtenerCantidadPartidasFinalizadas($userId);
-        $puestoSemanal = $this->model->obtenerPuestoSemanal($userId);
+        $puestoHistorico = $this->model->obtenerPuestoHistorico($userId);
+
+        $fotoArchivo = 'app/img-foto-perfil/' . basename((string) $fila['Foto_url']);
+        $fotoVersion = ($fila['Foto_url'] && is_file($fotoArchivo)) ? filemtime($fotoArchivo) : '';
 
         $data = [
             'nombre' => $fila['Nombre'],
@@ -62,9 +65,10 @@ class PerfilController
             'provincia' => $fila['Provincia'],
             'ubicacion' => implode(', ', array_filter([$fila['Provincia'], $fila['Pais']])),
             'fotoUrl' => $fila['Foto_url'],
+            'fotoVersion' => $fotoVersion,
             'esMiPerfil' => (int) $fila['Id'] === (int) $_SESSION['usuario_id'],
             'puntaje' => (int) $puntajeTotal['puntaje'],
-            'puesto' => $puestoSemanal ? (int) $puestoSemanal['puesto'] : null,
+            'puesto' => $puestoHistorico ? (int) $puestoHistorico['puesto'] : null,
             'cantidadPartidas' => (int) $cantidadPartidas['cantidad'],
             'hayPartidas' => count($partidasView) > 0,
             'partidas' => $partidasView,
@@ -83,8 +87,8 @@ class PerfilController
             exit;
         }
 
-        require_once 'vendor/phpqrcode/qrlib.php';
-        \QRcode::png($this->armarEnlacePerfil($usuario), false, QR_ECLEVEL_M, 6, 1);
+        header('Content-type: image/png');
+        echo $this->generarQrPng($this->armarEnlacePerfil($usuario));
         exit;
     }
 
@@ -195,6 +199,7 @@ class PerfilController
         }
 
         $this->model->actualizar($id, $data['nombre'], $data['anioNacimiento'], $data['sexo'], $data['provincia'], $data['pais'], $data['email'], $fotoNueva);
+        $_SESSION['foto_url'] = $fotoNueva !== null ? $fotoNueva : ($actual['Foto_url'] ?? null);
 
         if ($cambiaContrasena) {
             $this->model->actualizarContrasena($id, $contrasena);
@@ -208,6 +213,29 @@ class PerfilController
         }
 
         \Redirect::to('/Preguntados/perfil');
+    }
+
+    public function quitarFoto()
+    {
+        $this->exigirSesion();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            \Redirect::to('/Preguntados/perfil/editar');
+        }
+
+        $id = (int) $_SESSION['usuario_id'];
+        $actual = $this->model->obtenerParaEditar($id);
+
+        if ($actual && $actual['Foto_url']) {
+            $archivo = 'app/img-foto-perfil/' . basename($actual['Foto_url']);
+            $this->model->quitarFoto($id);
+            if (is_file($archivo)) {
+                unlink($archivo);
+            }
+        }
+
+        $_SESSION['foto_url'] = null;
+        \Redirect::to('/Preguntados/perfil/editar');
     }
 
     private function exigirSesion()
@@ -233,6 +261,47 @@ class PerfilController
         }
 
         $this->render->renderiza('editarPerfil', $data);
+    }
+
+    // Genera el PNG sin GD: phpqrcode solo sabe dibujar usando esa extensión.
+    private function generarQrPng($texto)
+    {
+        require_once 'vendor/phpqrcode/qrlib.php';
+
+        $tamanoPunto = 6;
+        $margen = 1;
+
+        $encoder = \QRencode::factory(QR_ECLEVEL_M, $tamanoPunto, $margen);
+        ob_start();
+        $matriz = $encoder->encode($texto);
+        ob_end_clean();
+
+        $alto = count($matriz);
+        $ancho = strlen($matriz[0]);
+        $lado = ($ancho + 2 * $margen) * $tamanoPunto;
+
+        $crudo = '';
+        for ($y = 0; $y < $lado; $y++) {
+            $crudo .= chr(0);
+            $fy = intdiv($y, $tamanoPunto) - $margen;
+            for ($x = 0; $x < $lado; $x++) {
+                $fx = intdiv($x, $tamanoPunto) - $margen;
+                $negro = $fy >= 0 && $fy < $alto && $fx >= 0 && $fx < $ancho && $matriz[$fy][$fx] === '1';
+                $crudo .= chr($negro ? 0 : 255);
+            }
+        }
+
+        $chunk = function ($tipo, $datos) {
+            return pack('N', strlen($datos))
+                . $tipo
+                . $datos
+                . pack('N', crc32($tipo . $datos) & 0xffffffff);
+        };
+
+        return "\x89PNG\r\n\x1a\n"
+            . $chunk('IHDR', pack('NNCCCCC', $lado, $lado, 8, 0, 0, 0, 0))
+            . $chunk('IDAT', gzcompress($crudo, 9))
+            . $chunk('IEND', '');
     }
 
     private function armarEnlacePerfil($usuario)

@@ -17,9 +17,27 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `Token` VARCHAR(64) DEFAULT NULL,
   `Foto_url` VARCHAR(255) DEFAULT NULL,
   `rol` ENUM('JUGADOR', 'MODERADOR', 'ADMIN') NOT NULL DEFAULT 'JUGADOR',
+  `bloqueado` TINYINT(1) NOT NULL DEFAULT 0,
+  `version_sesion` INT UNSIGNED NOT NULL DEFAULT 0,
+  `creado_en` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `uk_usuarios_usuario` (`Usuario`),
   UNIQUE KEY `uk_usuarios_email` (`Email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS admin_historial (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  actor_id INT NOT NULL,
+  actor_usuario VARCHAR(255) NOT NULL,
+  cuenta_id INT NOT NULL,
+  cuenta_usuario VARCHAR(255) NOT NULL,
+  accion ENUM('CREACION', 'EDICION', 'CAMBIO_ROL', 'BLOQUEO', 'DESBLOQUEO', 'ELIMINACION') NOT NULL,
+  rol_anterior ENUM('JUGADOR', 'MODERADOR', 'ADMIN') DEFAULT NULL,
+  rol_nuevo ENUM('JUGADOR', 'MODERADOR', 'ADMIN') DEFAULT NULL,
+  motivo VARCHAR(250) DEFAULT NULL,
+  creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_admin_historial_accion (accion, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `verificacion_tokens` (
@@ -197,7 +215,6 @@ PREPARE partida_schema_stmt FROM @partida_schema_sql;
 EXECUTE partida_schema_stmt;
 DEALLOCATE PREPARE partida_schema_stmt;
 
---LINEA 200 A 209 TIRAR EN UNA CONSULTA EN PHPMYADMIN
 SET @partida_schema_sql = IF(
     EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'questions' AND column_name = 'image_url'),
     'SELECT 1',
@@ -207,7 +224,6 @@ PREPARE partida_schema_stmt FROM @partida_schema_sql;
 EXECUTE partida_schema_stmt;
 DEALLOCATE PREPARE partida_schema_stmt;
 
---ESTA TABLA TAMBIEN TIRAR EN UNA CONSULTA 
 
 CREATE TABLE IF NOT EXISTS `question_suggestions` (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -240,7 +256,10 @@ SET @partida_schema_sql = IF(
     'ALTER TABLE category ADD COLUMN color CHAR(7) NOT NULL DEFAULT ''#9A6BF2'''
 );
 
--- LINEA 242 HASTA 258 TIRAR EN UNA CONSULTA 
+PREPARE partida_schema_stmt FROM @partida_schema_sql;
+EXECUTE partida_schema_stmt;
+DEALLOCATE PREPARE partida_schema_stmt;
+
 SET @partida_schema_sql = IF(
     EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'category' AND column_name = 'icono'),
     'SELECT 1',

@@ -9,13 +9,11 @@ class ModeradorAccess
         }
 
         $userId = (int) $_SESSION['usuario_id'];
-        if (!$model->esModerador($userId)) {
-            $_SESSION['rol'] = 'JUGADOR';
+        if (!$model->puedeModerar($userId)) {
             http_response_code(403);
             exit('No tenés permisos para acceder a esta sección.');
         }
 
-        $_SESSION['rol'] = 'MODERADOR';
         return true;
     }
 }

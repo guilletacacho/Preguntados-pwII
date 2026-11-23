@@ -1,0 +1,74 @@
+<main class="moderador-shell">
+    {{> navegacionLateral}}
+    <div class="moderador-content">
+        <header class="moderador-editor-encabezado">
+            <a class="moderador-editor-volver" href="{{basePath}}/admin/usuarios">← Volver a usuarios</a>
+            <span class="moderador-eyebrow">ADMINISTRACIÓN</span>
+            <h1>Editar usuario</h1>
+            <p>Modificá los datos de <strong>{{usuario}}</strong>. Dejá la contraseña vacía para mantener la actual.</p>
+        </header>
+        {{> adminNavegacion}}
+
+        {{#mensaje}}
+            <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="alert">{{texto}}</p>
+        {{/mensaje}}
+
+        <article class="moderador-correccion-formulario">
+            <form method="post" action="{{basePath}}/admin/actualizarUsuario">
+                <input type="hidden" name="id" value="{{id}}">
+                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+
+                <label for="nombre">Nombre</label>
+                <input id="nombre" name="nombre" type="text" value="{{nombre}}" maxlength="50" required>
+
+                <label for="usuario">Nombre de usuario</label>
+                <input id="usuario" name="usuario" type="text" value="{{usuario}}" minlength="3" maxlength="255" required>
+
+                <label for="email">Correo</label>
+                <input id="email" name="email" type="email" value="{{email}}" maxlength="255" required>
+
+                <label for="contrasena">Nueva contraseña (opcional)</label>
+                <input id="contrasena" name="contrasena" type="password" minlength="8" autocomplete="new-password">
+                <span class="moderador-item-meta">Si la completás, debe tener al menos 8 caracteres.</span>
+
+                <label for="anioNacimiento">Año de nacimiento</label>
+                <input id="anioNacimiento" name="anioNacimiento" type="number" value="{{anioNacimiento}}" min="1900" max="{{anioActual}}" required>
+
+                <label for="sexo">Sexo</label>
+                <input id="sexo" name="sexo" type="text" value="{{sexo}}" maxlength="30">
+
+                <label for="provincia">Provincia</label>
+                <input id="provincia" name="provincia" type="text" value="{{provincia}}" maxlength="150" required>
+
+                <label for="pais">País</label>
+                <input id="pais" name="pais" type="text" value="{{pais}}" maxlength="150" required>
+
+                <label for="rol">Rol</label>
+                {{#rolFijoAdmin}}
+                    <input type="hidden" name="rol" value="ADMIN">
+                    <p class="admin-rol-fijo">Administrador (único)</p>
+                {{/rolFijoAdmin}}
+                {{^rolFijoAdmin}}
+                    <select id="rol" name="rol">
+                        {{#roles}}
+                            <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                        {{/roles}}
+                    </select>
+                {{/rolFijoAdmin}}
+
+                <label class="moderador-correccion-radio admin-check-card" for="verificado">
+                    <input id="verificado" name="verificado" type="checkbox" value="1" {{#verificado}}checked{{/verificado}}>
+                    <span class="admin-check-copy">
+                        <strong>Correo verificado</strong>
+                        <small>Puede iniciar sesión en el sitio.</small>
+                    </span>
+                </label>
+
+                <div class="moderador-acciones">
+                    <button class="moderador-boton moderador-boton-resolver" type="submit">Guardar cambios</button>
+                    <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Cancelar</a>
+                </div>
+            </form>
+        </article>
+    </div>
+</main>

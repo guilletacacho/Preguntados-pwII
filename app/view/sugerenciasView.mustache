@@ -1,18 +1,6 @@
 ﻿<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=4">
 <main class="home-shell sugerencias-shell" id="sugerencias">
-    <nav class="home-sidenav" aria-label="Secciones del sitio">
-        <div class="home-side-menu">
-            <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="false" aria-controls="sugerencias-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
-            <div class="home-side-links" id="sugerencias-side-links">
-                <a href="{{basePath}}/home/show" aria-label="Inicio"><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
-                <a href="{{basePath}}/home/show#jugar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
-                <a href="{{basePath}}/ranking" aria-label="Rankings"><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
-                <a href="{{basePath}}/home/show#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
-                <a href="{{basePath}}/home/show#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
-                {{#esModerador}}<a href="{{basePath}}/moderador" aria-label="Panel moderador"><span aria-hidden="true">⚑</span><span class="side-label">Panel moderador</span></a>{{/esModerador}}
-            </div>
-        </div>
-    </nav>
+    {{> navegacionLateral}}
 
     <div class="home-content">
         <header class="home-welcome">

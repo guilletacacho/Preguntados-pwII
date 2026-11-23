@@ -3,6 +3,7 @@ $escape = static function ($value) { return htmlspecialchars((string) $value, EN
 $basePath = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/");
 $siteUrl = $escape($basePath);
 $loggedIn = isset($_SESSION['usuario_id']);
+$fotoUrl = (string) ($_SESSION['foto_url'] ?? null);
 $currentPage = $_GET['controller'] ?? 'login';
 ?>
 <header class="site-header">
@@ -14,12 +15,21 @@ $currentPage = $_GET['controller'] ?? 'login';
         <div class="nav-actions">
             <?php if ($loggedIn): ?>
                 <details class="profile-menu">
-                    <summary><span class="profile-avatar" aria-hidden="true"><?= $escape(strtoupper(substr($_SESSION['usuario'] ?? 'U', 0, 1))) ?></span><span class="profile-label"><?= $escape($_SESSION['usuario'] ?? 'Jugador') ?></span><span class="menu-chevron" aria-hidden="true"></span></summary>
+                    <summary>
+                        <span class="profile-avatar" aria-hidden="true"><?php if ($fotoUrl !== ''): ?><img src="<?= $siteUrl ?>/app/img-foto-perfil/<?= $escape($fotoUrl) ?>" alt=""><?php else: ?><?= $escape(mb_strtoupper(mb_substr($_SESSION['usuario'] ?? 'U', 0, 1))) ?><?php endif; ?></span>
+                        <span class="profile-label"><?= $escape($_SESSION['usuario'] ?? 'Jugador') ?></span>
+                        <span class="menu-chevron" aria-hidden="true"></span>
+                    </summary>
                     <div class="profile-dropdown">
-                        <?php if (!empty($layoutData['esModerador'])): ?>
-                            <a class="moderador-menu-link" href="<?= $siteUrl ?>/moderador">
-                                <span>Panel moderador</span>
+                        <?php if (!empty($layoutData['puedeModerar'])): ?>
+                            <a class="moderador-menu-link" href="<?= $siteUrl ?>/moderador"<?= !empty($layoutData['enModeracion']) ? ' aria-current="location"' : '' ?>>
+                                <span>Moderación</span>
                                 <span class="moderador-menu-badge"><?= (int) ($layoutData['reportesPendientes'] ?? 0) ?></span>
+                            </a>
+                        <?php endif; ?>
+                        <?php if (!empty($layoutData['esAdmin'])): ?>
+                            <a class="moderador-menu-link" href="<?= $siteUrl ?>/admin"<?= !empty($layoutData['enAdministracion']) ? ' aria-current="location"' : '' ?>>
+                                <span>Administración</span>
                             </a>
                         <?php endif; ?>
                         <a href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/perfil') ?>">

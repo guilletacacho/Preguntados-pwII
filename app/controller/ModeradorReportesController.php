@@ -46,6 +46,7 @@ class ModeradorReportesController
             'preguntasActivas' => $this->model->contarPreguntas(null,null,'activa'),
             'reportesResueltos' => $this->model->contarReportesResueltos(),
             'ultimosReportes' => $ultimosReportes,
+            'motivosRecientes' => $this->model->motivosRecientes(),
         ];
         $this->render->renderiza("moderador",$datos);
     }

@@ -2,8 +2,9 @@
 
 require_once __DIR__ . '/../app/model/PartidaModel.php';
 require_once __DIR__ . '/../app/model/ModeradorModel.php';
+require_once __DIR__ . '/../app/model/SugerenciaModel.php';
 require_once __DIR__ . '/../app/controller/PartidaController.php';
-require_once __DIR__ . '/../app/controller/ModeradorController.php';
+require_once __DIR__ . '/../app/controller/ModeradorReportesController.php';
 require_once __DIR__ . '/../helper/ModeradorAccess.php';
 require_once __DIR__ . '/../helper/Request.php';
 require_once __DIR__ . '/../vendor/mustache/Mustache/Autoloader.php';
@@ -58,10 +59,14 @@ $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE
 $pdo->sqliteCreateFunction('NOW', static fn() => date('Y-m-d H:i:s'));
 $pdo->exec("CREATE TABLE game (id INTEGER PRIMARY KEY, user_id INT, total_points INT, status TEXT DEFAULT 'EN_CURSO', finished_at TEXT);
     CREATE TABLE category (id INTEGER PRIMARY KEY, name TEXT);
-    CREATE TABLE questions (id INTEGER PRIMARY KEY, question TEXT, category_id INT, difficulty_level INT DEFAULT 2, points INT DEFAULT 20);
+    CREATE TABLE questions (id INTEGER PRIMARY KEY, question TEXT, category_id INT, difficulty_level INT DEFAULT 2, points INT DEFAULT 20, image_url TEXT);
     CREATE TABLE usuarios (Id INTEGER PRIMARY KEY, Usuario TEXT, rol TEXT);
     CREATE TABLE response (id INTEGER PRIMARY KEY, question_id INT, response TEXT, is_correct INT);
     CREATE TABLE game_answers (id INTEGER PRIMARY KEY, response_id INT);
+    CREATE TABLE question_suggestions (
+        id INTEGER PRIMARY KEY, user_id INT, category_id INT, published_question_id INT,
+        question_text TEXT, status TEXT, created_at TEXT, image_url TEXT
+    );
     CREATE TABLE question_reports (
         id INTEGER PRIMARY KEY, user_id INT, question_id INT, game_id INT, turn_number INT,
         question_snapshot TEXT, reasons TEXT, comment TEXT, status TEXT DEFAULT 'PENDIENTE',
@@ -194,7 +199,9 @@ try {
 $estadoTrasRollback = $pdo->query('SELECT question, category_id, difficulty_level FROM questions WHERE id=99')->fetch(PDO::FETCH_ASSOC);
 check($estadoTrasRollback === $preguntaCorregida, 'Los errores de validación deben dejar la pregunta intacta');
 check((int) $pdo->query("SELECT COUNT(*) FROM question_reports WHERE question_id=99 AND status='PENDIENTE'")->fetchColumn() === 1, 'Los errores de validación deben dejar el reporte pendiente');
-$engine = new Mustache_Engine();
+$engine = new Mustache_Engine([
+    'partials_loader' => new Mustache_Loader_FilesystemLoader(__DIR__ . '/../app/view', ['extension' => '.mustache']),
+]);
 $moderadorTemplate = file_get_contents(__DIR__ . '/../app/view/ModeradorReportesView.mustache');
 $htmlModerador = $engine->render($moderadorTemplate, [
     'basePath' => '/Preguntados',
@@ -229,7 +236,11 @@ check(str_contains($htmlModerador, '<select id="moderador-orden" name="orden" on
     && !str_contains($htmlModerador, '>Aplicar</button>'),
     'El selector debe aplicar el orden al cambiar y conservar la selección actual');
 $renderModerador = new ReportTestRender();
-$moderadorController = new app\controller\ModeradorController($moderadorModel, $renderModerador);
+$moderadorController = new app\controller\ModeradorReportesController(
+    $moderadorModel,
+    new app\model\SugerenciaModel(new ReportTestDatabase($pdo)),
+    $renderModerador
+);
 $sessionJugador = $_SESSION;
 $_SESSION = ['usuario_id' => 3, 'csrf_moderador' => 'moderator-token'];
 $_SERVER['REQUEST_METHOD'] = 'GET';

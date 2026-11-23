@@ -34,7 +34,7 @@ class PresenceController
         $userId = $_SESSION['usuario_id'];
         $sessionId = session_id();
         $this->model->touch($userId, $sessionId);
-        $online = $this->model->countOnline();
+        $online = $this->model->countOnline((int) $_SESSION['usuario_id']);
         session_write_close();
         echo json_encode(['online' => $online]);
     }

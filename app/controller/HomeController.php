@@ -30,7 +30,7 @@ class HomeController
         $data = [
             "usuario" => $_SESSION['usuario'] ?? "",
             "curiosidad" => $this->curiosities->next(),
-            "usuariosOnline" => $this->presence->countOnline()
+            "usuariosOnline" => $this->presence->countOnline((int) $_SESSION['usuario_id'])
         ];
 
         $this->render->renderiza("home", $data);

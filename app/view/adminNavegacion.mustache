@@ -1,0 +1,8 @@
+<nav class="moderador-tabs admin-tabs" aria-label="Secciones de administración">
+    <a class="moderador-tab{{#esResumen}} is-active{{/esResumen}}" href="{{basePath}}/admin"{{#esResumen}} aria-current="page"{{/esResumen}}>Resumen</a>
+    <a class="moderador-tab{{#enUsuariosAdmin}} is-active{{/enUsuariosAdmin}}" href="{{basePath}}/admin/usuarios"{{#enUsuariosAdmin}} aria-current="{{ubicacionUsuariosAdmin}}"{{/enUsuariosAdmin}}>Usuarios</a>
+    <a class="moderador-tab{{#esHistorial}} is-active{{/esHistorial}}" href="{{basePath}}/admin/historial"{{#esHistorial}} aria-current="page"{{/esHistorial}}>Historial</a>
+    {{#esResumen}}
+        <button class="admin-btn admin-btn-primary admin-tab-imprimir" type="button" data-imprimir-admin>Imprimir reportes</button>
+    {{/esResumen}}
+</nav>
