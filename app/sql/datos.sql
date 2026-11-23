@@ -221,7 +221,13 @@ VALUES
 
 START TRANSACTION;
 
-INSERT IGNORE INTO category (name) VALUES ('Geografía'), ('Historia'), ('Ciencia'), ('Arte'), ('Deportes'), ('Cine y TV');
+INSERT IGNORE INTO category (name, color, icono) VALUES
+    ('Geografía', '#3B9EEA', 'personajes/geografia.svg'),
+    ('Historia', '#F28C28', 'personajes/historia.svg'),
+    ('Ciencia', '#9A6BF2', 'personajes/ciencia.svg'),
+    ('Arte', '#F2C230', 'personajes/arte.svg'),
+    ('Deportes', '#7CC243', 'personajes/deporte.svg'),
+    ('Cine y TV', '#E84855', 'personajes/cine.svg');
 
 UPDATE carga_preguntas t
 JOIN category c ON c.name = t.categoria

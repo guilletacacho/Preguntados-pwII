@@ -7,6 +7,11 @@
 /config/mail.ini
 
 /app/img-foto-perfil/
+/app/img-preguntas/
+
+# SVG de categorías subidos desde el panel del moderador
+/public/img/categorias/*
+!/public/img/categorias/.htaccess
 
 /vendor/*
 !/vendor/mustache/

@@ -23,9 +23,7 @@ class ModeradorReportesController
 
     public function show()
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            Redirect::toIndex();
-        }
+        ModeradorAccess::exigir($this->model);
 
         $ultimosReportes = $this->model->obtenerUltimosReportes(4);
 

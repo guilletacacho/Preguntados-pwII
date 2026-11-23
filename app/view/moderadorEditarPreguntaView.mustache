@@ -35,17 +35,9 @@
 
                     <fieldset class="moderador-imagen-pregunta">
                         <legend>Imagen de la pregunta (opcional)</legend>
-                        {{#hayEditorImagen}}
-                            <div class="moderador-imagen-actual" id="imagen-pregunta-actual-wrap">
-                                <img src="{{basePath}}/app/img-preguntas/{{editorImagen}}" alt="Imagen actual de la pregunta">
-                            </div>
-                        {{/hayEditorImagen}}
                         <label for="editar-imagen">Elegir una imagen nueva</label>
                         <input id="editar-imagen" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="editar-imagen-ayuda">
                         <small id="editar-imagen-ayuda">JPG o PNG, hasta 5 MB.</small>
-                        <div class="moderador-imagen-nueva" id="editar-imagen-preview-wrap" hidden>
-                            <img id="editar-imagen-preview" alt="Vista previa de la nueva imagen">
-                        </div>
                         <p id="editar-imagen-nombre" aria-live="polite">Ninguna imagen nueva seleccionada.</p>
                         {{#hayEditorImagen}}
                             <label class="moderador-quitar-imagen"><input type="checkbox" name="remove_image" value="1" id="quitar-imagen-pregunta"> Quitar la imagen actual</label>
@@ -59,8 +51,23 @@
                         {{/editorCategorias}}
                     </select>
 
-                    <label for="editar-enunciado">Enunciado de la pregunta</label>
-                    <textarea id="editar-enunciado" name="question" maxlength="500" rows="3" required>{{editorPregunta}}</textarea>
+                    <div class="moderador-enunciado-con-imagen{{#hayEditorImagen}} tiene-imagen{{/hayEditorImagen}}" id="moderador-enunciado-con-imagen">
+                        <div class="moderador-enunciado-texto">
+                            <label for="editar-enunciado">Enunciado de la pregunta</label>
+                            <textarea id="editar-enunciado" name="question" maxlength="500" rows="3" required>{{editorPregunta}}</textarea>
+                        </div>
+                        <div class="moderador-enunciado-vista-previa">
+                            {{#hayEditorImagen}}
+                                <div class="moderador-imagen-actual" id="imagen-pregunta-actual-wrap">
+                                    <img src="{{basePath}}/app/img-preguntas/{{editorImagen}}" alt="Imagen actual de la pregunta">
+                                </div>
+                            {{/hayEditorImagen}}
+                            {{^hayEditorImagen}}<div id="imagen-pregunta-actual-wrap" hidden></div>{{/hayEditorImagen}}
+                            <div class="moderador-imagen-nueva" id="editar-imagen-preview-wrap" hidden>
+                                <img id="editar-imagen-preview" alt="Vista previa de la nueva imagen">
+                            </div>
+                        </div>
+                    </div>
 
                     <fieldset class="moderador-correccion-opciones">
                         <legend>Respuestas <span>Elegí cuál es la correcta.</span></legend>
@@ -96,10 +103,16 @@
     .moderador-imagen-pregunta{display:grid;gap:.55rem;margin:0 0 1.25rem;padding:1rem;border:1px solid var(--borde);border-radius:12px}
     .moderador-imagen-pregunta legend{padding:0 .35rem;font-weight:700}
     .moderador-imagen-pregunta input[type=file]{max-width:100%;color:var(--texto-sec)}
-    .moderador-imagen-actual,.moderador-imagen-nueva{width:min(100%,36rem);overflow:hidden;border:1px solid var(--borde);border-radius:10px;background:var(--hundido)}
-    .moderador-imagen-actual img,.moderador-imagen-nueva img{display:block;width:100%;max-width:100%;max-height:22rem;object-fit:contain}
+    .moderador-imagen-actual,.moderador-imagen-nueva{width:100%;overflow:hidden;border:1px solid var(--borde);border-radius:10px;background:var(--hundido)}
+    .moderador-imagen-actual img,.moderador-imagen-nueva img{display:block;width:100%;max-width:100%;max-height:11rem;object-fit:contain}
     .moderador-imagen-pregunta small,.moderador-imagen-pregunta p{margin:0;color:var(--texto-sec);font-size:.85rem}
     .moderador-quitar-imagen{display:flex;align-items:center;gap:.5rem}
+    .moderador-enunciado-con-imagen{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;align-items:start}
+    .moderador-enunciado-con-imagen.tiene-imagen{grid-template-columns:minmax(0,1fr) minmax(180px,32%)}
+    .moderador-enunciado-texto{display:grid;gap:.55rem;min-width:0}
+    .moderador-enunciado-vista-previa{display:grid;gap:.5rem;min-width:0}
+    .moderador-enunciado-vista-previa [hidden]{display:none}
+    @media(max-width:700px){.moderador-enunciado-con-imagen.tiene-imagen{grid-template-columns:minmax(0,1fr)}.moderador-enunciado-vista-previa{max-width:320px}}
 </style>
 <script>
     document.querySelector('.moderador-shell .home-side-toggle').addEventListener('click', function () {
@@ -122,7 +135,14 @@
         var fileName = document.getElementById('editar-imagen-nombre');
         var removeImage = document.getElementById('quitar-imagen-pregunta');
         var currentWrap = document.getElementById('imagen-pregunta-actual-wrap');
+        var questionLayout = document.getElementById('moderador-enunciado-con-imagen');
         if (!input || !previewWrap || !preview || !fileName) return;
+
+        function syncImageLayout() {
+            if (questionLayout) {
+                questionLayout.classList.toggle('tiene-imagen', (currentWrap && !currentWrap.hidden) || !previewWrap.hidden);
+            }
+        }
 
         var previewUrl = null;
         input.addEventListener('change', function () {
@@ -135,6 +155,7 @@
                 preview.removeAttribute('src');
                 previewWrap.hidden = true;
                 fileName.textContent = 'Ninguna imagen nueva seleccionada.';
+                syncImageLayout();
                 return;
             }
             if (removeImage) removeImage.checked = false;
@@ -142,20 +163,23 @@
                 this.value = '';
                 preview.removeAttribute('src');
                 previewWrap.hidden = true;
+                syncImageLayout();
                 fileName.textContent = file.size > 5 * 1024 * 1024
                     ? 'La imagen no puede superar los 5 MB.'
                     : 'Elegí un archivo JPG o PNG.';
                 return;
             }
-            if (currentWrap) currentWrap.hidden = false;
+            if (currentWrap && currentWrap.querySelector('img')) currentWrap.hidden = false;
             previewUrl = URL.createObjectURL(file);
             preview.src = previewUrl;
             previewWrap.hidden = false;
             fileName.textContent = file.name;
+            syncImageLayout();
         });
         if (removeImage && currentWrap) {
             removeImage.addEventListener('change', function () {
                 currentWrap.hidden = this.checked;
+                syncImageLayout();
             });
         }
     })();

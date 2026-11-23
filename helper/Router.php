@@ -59,6 +59,8 @@ class Router
             'reactivarPregunta' => 'getModeradorPreguntasController',
             'editarPregunta' => 'getModeradorPreguntasController',
             'actualizarPregunta' => 'getModeradorPreguntasController',
+            'categorias' => 'getModeradorPreguntasController',
+            'guardarCategoria' => 'getModeradorPreguntasController',
 
             // Sugerencias
             'sugerencias' => 'getModeradorSugerenciasController',

@@ -159,7 +159,7 @@ class PartidaModel{
         // "total"    = preguntas cargadas en la categoría.
         // Si una pregunta se repitió, game_answers tiene más de una fila para
         // ella: por eso se cuenta con DISTINCT.
-        $sql = "SELECT c.id, c.name,
+        $sql = "SELECT c.id, c.name, c.icono, c.color,
                        COUNT(DISTINCT q.id) AS total,
                        COUNT(DISTINCT CASE WHEN ga.question_id IS NULL THEN q.id END) AS preguntas
                 FROM category c
@@ -169,7 +169,7 @@ class PartidaModel{
                     FROM game_answers
                     WHERE game_id = ?
                 ) ga ON ga.question_id = q.id
-                GROUP BY c.id, c.name
+                GROUP BY c.id, c.name, c.icono, c.color
                 ORDER BY c.id";
 
         return $this->database->queryAll($sql, [$gameId]);
@@ -194,6 +194,8 @@ class PartidaModel{
                     q.question AS pregunta,
                     q.image_url,
                     c.name AS categoria,
+                    c.icono AS categoria_icono,
+                    c.color AS categoria_color,
                     q.category_id,
                     {$expresion} AS dificultad
                 FROM questions q
@@ -251,6 +253,8 @@ class PartidaModel{
                     q.id AS question_id,
                     q.question AS pregunta,
                     c.name AS categoria,
+                    c.icono AS categoria_icono,
+                    c.color AS categoria_color,
                     q.category_id,
                     {$expresion} AS dificultad,
                     COALESCE(qs.times_delivered, 0) AS entregas,

@@ -528,6 +528,7 @@ class ModeradorModel
                     q.is_active AS activa,
                     q.question,
                     c.name AS categoria,
+                    c.color AS categoria_color,
                     {$expresionDificultad} AS dificultad,
                     COALESCE(qs.times_delivered, 0) AS entregas,
                     CASE
@@ -573,6 +574,7 @@ class ModeradorModel
                     q.is_active AS activa,
                     q.question,
                     c.name AS categoria,
+                    c.color AS categoria_color,
                     {$expresionDificultad} AS dificultad,
                     COALESCE(qs.times_delivered, 0) AS entregas,
                     CASE
@@ -587,6 +589,46 @@ class ModeradorModel
 
         $parametro = '%' . $texto . '%';
         return $this->database->queryAll($sql, [$parametro]);
+    }
+
+    public function listarCategoriasConDetalle(){
+
+        $sql = "SELECT c.id, c.name, c.color, c.icono, COUNT(q.id) AS preguntas
+                FROM category c
+                LEFT JOIN questions q ON q.category_id = c.id AND q.is_active = 1
+                GROUP BY c.id, c.name, c.color, c.icono
+                ORDER BY c.name";
+
+        return $this->database->queryAll($sql);
+    }
+
+    public function obtenerCategoria($id){
+
+        $sql = "SELECT id, name, color, icono FROM category WHERE id = ? LIMIT 1";
+
+        return $this->database->queryOne($sql, [(int) $id]);
+    }
+
+    public function existeNombreCategoria($nombre, $excluirId = 0){
+
+        $sql = "SELECT id FROM category WHERE name = ? AND id <> ? LIMIT 1";
+
+        return $this->database->queryOne($sql, [$nombre, (int) $excluirId]) !== null;
+    }
+
+    public function crearCategoria($nombre, $color, $icono){
+
+        $sql = "INSERT INTO category (name, color, icono) VALUES (?, ?, ?)";
+        $this->database->execute($sql, [$nombre, $color, $icono]);
+
+        return (int) $this->database->lastInsertId();
+    }
+
+    public function actualizarCategoria($id, $nombre, $color, $icono){
+
+        $sql = "UPDATE category SET name = ?, color = ?, icono = ? WHERE id = ?";
+
+        return $this->database->execute($sql, [$nombre, $color, $icono, (int) $id]);
     }
 
     public function obtenerCategorias(){
