@@ -78,10 +78,18 @@
     color: #172011;
 }
 
+.admin-panel .admin-tab-imprimir {
+    margin-left: auto;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 9px;
+    font-size: .75rem;
+}
+
 .admin-panel .admin-tabs {
     display: flex;
     gap: 6px;
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
     padding: 6px;
     border: 1px solid var(--borde);
@@ -164,6 +172,43 @@
     font-weight: 800;
     letter-spacing: .1em;
     text-transform: uppercase;
+}
+
+.admin-panel .admin-periodo {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 11px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--superficie);
+}
+
+.admin-panel .admin-periodo label {
+    color: #F3EEE6 !important;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.admin-panel .admin-periodo select {
+    min-width: 160px;
+    padding: 8px 10px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 9px;
+    background: var(--hundido);
+    color: #F3EEE6 !important;
+    font: 600 12px 'Sora', sans-serif;
+    cursor: pointer;
+}
+
+.admin-panel .admin-periodo-desde {
+    color: #D7DEE8 !important;
+    font-size: .72rem;
+    font-weight: 600;
 }
 
 .admin-panel .admin-metrics {
@@ -304,6 +349,11 @@
 .admin-panel .admin-card-paises { --admin-bar: var(--geografia); }
 .admin-panel .admin-card-edades { --admin-bar: var(--arte); }
 .admin-panel .admin-card-sexos { --admin-bar: var(--ciencia); }
+.admin-panel .admin-card-categoria {
+    --admin-bar: var(--geografia);
+    grid-column: 1 / -1;
+}
+.admin-panel .admin-card-categoria .admin-chart { height: 240px; }
 
 .admin-panel .admin-card-head {
     display: flex;
@@ -880,6 +930,8 @@
     .admin-panel .admin-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .admin-panel .admin-split,
     .admin-panel .admin-profile-grid { grid-template-columns: 1fr; }
+    .admin-panel .admin-card-categoria { grid-column: auto; }
+    .admin-panel .admin-card-categoria .admin-chart { height: 220px; }
     .admin-panel .admin-filtros-usuarios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .admin-panel .admin-chart { height: 200px; }
     .admin-panel .admin-chart--alto { height: 240px; }
@@ -911,4 +963,108 @@
 @media (max-width: 380px) {
     .admin-panel .admin-hero h1 { font-size: 1.35rem; }
     .admin-panel .admin-tab { padding-inline: 6px; }
+}
+
+.admin-panel .admin-print { display: none; }
+
+@media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body.admin-panel { background: #fff !important; color: #111 !important; }
+    .admin-panel .site-header, .admin-panel .site-footer,
+    .admin-panel .home-sidenav, .admin-panel .admin-hero,
+    .admin-panel .admin-tabs, .admin-panel .admin-periodo,
+    .admin-panel .admin-tab-imprimir, .admin-panel .admin-section,
+    .admin-panel .admin-footer, .admin-panel .moderador-mensaje,
+    .admin-panel .admin-chart, .admin-panel .admin-chart-fallback { display: none !important; }
+    .admin-panel .moderador-shell, .admin-panel .admin-wrap {
+        display: block !important; width: 100% !important; max-width: none !important;
+        margin: 0 !important; padding: 0 !important; background: #fff !important;
+    }
+    .admin-panel .admin-print {
+        display: block !important; width: 165mm; max-width: 100%; margin: 0 auto;
+        font-family: 'Sora', sans-serif; color: #14213D;
+    }
+    .admin-panel .admin-print-cabecera {
+        display: flex !important; align-items: center; justify-content: space-between;
+        gap: 12px; padding: 13px 16px; border-radius: 10px;
+        background: #14213D !important; color: #fff; break-inside: avoid;
+    }
+    .admin-panel .admin-print-marca { display: flex !important; align-items: center; gap: 9px; min-width: 120px; }
+    .admin-panel .admin-print-logo {
+        display: grid; place-items: center; width: 32px; height: 32px;
+        border-radius: 9px; background: #7CC243 !important; color: #14213D;
+        font-size: 16px; font-weight: 800;
+    }
+    .admin-panel .admin-print-marca strong { display: block; font-size: 12px; color: #fff !important; }
+    .admin-panel .admin-print-marca small {
+        display: block; font-size: 7px; letter-spacing: .13em;
+        text-transform: uppercase; color: #9FB3CC !important;
+    }
+    .admin-panel .admin-print-titulo { flex: 1; text-align: center; }
+    .admin-panel .admin-print-titulo h1 { margin: 0; font-size: 17px; color: #fff !important; }
+    .admin-panel .admin-print-titulo p { margin: 3px 0 0; font-size: 9px; color: #BFD0E6 !important; }
+    .admin-panel .admin-print-fecha { font-size: 9px; color: #BFD0E6 !important; white-space: nowrap; }
+    .admin-panel .admin-print-resumen {
+        display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px; margin: 12px 0; break-inside: avoid;
+    }
+    .admin-panel .admin-print-resumen article {
+        padding: 9px 11px; border: 1px solid #D9E2EE; border-top: 3px solid #3B9EEA;
+        border-radius: 8px; background: #F8FAFD !important;
+    }
+    .admin-panel .admin-print-resumen article:nth-child(2) { border-top-color: #7CC243; }
+    .admin-panel .admin-print-resumen article:nth-child(3) { border-top-color: #9A6BF2; }
+    .admin-panel .admin-print-resumen article:nth-child(4) { border-top-color: #F2C230; }
+    .admin-panel .admin-print-resumen span {
+        display: block; font-size: 7px; font-weight: 800; letter-spacing: .08em;
+        text-transform: uppercase; color: #52627A !important;
+    }
+    .admin-panel .admin-print-resumen strong {
+        display: block; margin: 3px 0 1px; font-size: 19px; color: #14213D !important;
+    }
+    .admin-panel .admin-print-valor-texto { font-size: 12px !important; }
+    .admin-panel .admin-print-resumen small { font-size: 8px; color: #7A8BA3 !important; }
+    .admin-panel .admin-print-tabla { display: block !important; }
+    .admin-panel .admin-print-tabla section { margin-bottom: 12px; break-inside: avoid; }
+    .admin-panel .admin-print-tabla h2 {
+        margin: 0 0 7px; padding-left: 8px; border-left: 4px solid #7CC243;
+        font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+        color: #14213D !important;
+    }
+    .admin-panel .admin-print-nota {
+        margin: 0 0 7px; font-size: 8px; color: #6B7C94 !important;
+    }
+    .admin-panel .admin-print-tabla table {
+        width: 100%; border: 1px solid #D9E2EE; border-radius: 8px;
+        border-collapse: separate; border-spacing: 0; overflow: hidden; font-size: 9px;
+    }
+    .admin-panel .admin-print-tabla th {
+        padding: 6px 9px; background: #EDF3FA !important; color: #14213D !important;
+        font-size: 8px; letter-spacing: .06em; text-transform: uppercase; text-align: left;
+    }
+    .admin-panel .admin-print-tabla td {
+        padding: 6px 9px; border-top: 1px solid #E6ECF4; color: #263445 !important;
+    }
+    .admin-panel .admin-print-tabla tbody tr:nth-child(even) td { background: #FAFCFE !important; }
+    .admin-panel .admin-print-tabla th:last-child,
+    .admin-panel .admin-print-tabla td:last-child { text-align: right; font-weight: 700; }
+    .admin-panel .admin-print-barra {
+        width: 45%; padding-right: 14px !important;
+        display: flex !important; align-items: center; gap: 7px;
+    }
+    .admin-panel .admin-print-barra-numero {
+        width: 40px; flex: none; text-align: right; font-weight: 700; color: #14213D !important;
+    }
+    .admin-panel .admin-print-barra-pista {
+        display: block; flex: 1; height: 6px; border-radius: 99px;
+        background: #E6ECF4 !important; overflow: hidden;
+    }
+    .admin-panel .admin-print-barra-pista i {
+        display: block; height: 100%; border-radius: 99px; background: #3B9EEA !important;
+    }
+    .admin-panel .admin-print-pie {
+        border-top: 1px solid #D9E2EE; padding-top: 7px;
+        font-size: 8px; text-align: center; color: #7A8BA3 !important; break-inside: avoid;
+    }
 }

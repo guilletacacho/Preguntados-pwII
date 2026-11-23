@@ -8,6 +8,14 @@ class AdminModel
 
     private const ROLES = ['JUGADOR', 'MODERADOR', 'ADMIN'];
 
+    private const PERIODOS = [
+        'dia' => ['etiqueta' => 'Hoy', 'inicio' => 'today'],
+        'semana' => ['etiqueta' => 'Última semana', 'inicio' => '-7 days'],
+        'mes' => ['etiqueta' => 'Último mes', 'inicio' => '-1 month'],
+        'anio' => ['etiqueta' => 'Último año', 'inicio' => '-1 year'],
+        'historico' => ['etiqueta' => 'Histórico', 'inicio' => null],
+    ];
+
     public function __construct($database)
     {
         $this->database = $database;
@@ -23,22 +31,59 @@ class AdminModel
         return $fila !== null && $fila['rol'] === 'ADMIN';
     }
 
+    public function normalizarPeriodo($periodo)
+    {
+        return is_string($periodo) && isset(self::PERIODOS[$periodo]) ? $periodo : 'historico';
+    }
+
+    public function opcionesPeriodo($actual)
+    {
+        $opciones = [];
+        foreach (self::PERIODOS as $clave => $periodo) {
+            $opciones[] = [
+                'value' => $clave,
+                'label' => $periodo['etiqueta'],
+                'seleccionado' => $clave === $actual,
+            ];
+        }
+        return $opciones;
+    }
+
+    private function inicioPeriodo($periodo)
+    {
+        $expresion = self::PERIODOS[$periodo]['inicio'];
+        if ($expresion === null) {
+            return null;
+        }
+        try {
+            return (new \DateTimeImmutable($expresion))->format('Y-m-d H:i:s');
+        } catch (\Exception $error) {
+            return null;
+        }
+    }
+
     /**
      * Estadísticas reales. El usuario logueado queda fuera de los cálculos
-     * para que el panel no se cuente a sí mismo como "jugando ahora".
+     * y el período se aplica a todo lo que tiene fecha.
      */
-    public function obtenerEstadisticas($usuarioActual = 0)
+    public function obtenerEstadisticas($usuarioActual = 0, $periodo = 'historico')
     {
         $usuarioActual = (int) $usuarioActual;
+        $periodo = $this->normalizarPeriodo($periodo);
+        $inicio = $this->inicioPeriodo($periodo);
 
-        $usuarios = $this->database->queryOne(
-            "SELECT COUNT(*) AS total,
-                    COALESCE(SUM(CAST(Verificado AS UNSIGNED)), 0) AS verificados,
-                    COALESCE(SUM(rol = 'JUGADOR'), 0) AS jugadores,
-                    COALESCE(SUM(rol = 'MODERADOR'), 0) AS moderadores,
-                    COALESCE(SUM(rol = 'ADMIN'), 0) AS administradores
-             FROM usuarios"
-        );
+        $sqlUsuarios = "SELECT COUNT(*) AS total,
+                               COALESCE(SUM(CAST(Verificado AS UNSIGNED)), 0) AS verificados,
+                               COALESCE(SUM(rol = 'JUGADOR'), 0) AS jugadores,
+                               COALESCE(SUM(rol = 'MODERADOR'), 0) AS moderadores,
+                               COALESCE(SUM(rol = 'ADMIN'), 0) AS administradores
+                        FROM usuarios";
+        $paramsUsuarios = [];
+        if ($inicio !== null) {
+            $sqlUsuarios .= " WHERE creado_en >= ?";
+            $paramsUsuarios[] = $inicio;
+        }
+        $usuarios = $this->database->queryOne($sqlUsuarios, $paramsUsuarios);
 
         $conectados = $this->database->queryOne(
             "SELECT COUNT(DISTINCT user_id) AS total
@@ -48,29 +93,51 @@ class AdminModel
             [$usuarioActual]
         );
 
-        $partidas = $this->database->queryOne(
-            "SELECT COALESCE(SUM(status = 'FINALIZADA'), 0) AS finalizadas,
-                    COALESCE(SUM(DATE(started_at) = CURDATE()), 0) AS hoy
-             FROM game"
+        $sqlPartidas = "SELECT COALESCE(SUM(status = 'FINALIZADA'), 0) AS finalizadas FROM game";
+        $paramsPartidas = [];
+        if ($inicio !== null) {
+            $sqlPartidas .= " WHERE started_at >= ?";
+            $paramsPartidas[] = $inicio;
+        }
+        $partidas = $this->database->queryOne($sqlPartidas, $paramsPartidas);
+        $hoy = $this->database->queryOne(
+            "SELECT COUNT(*) AS total FROM game WHERE DATE(started_at) = CURDATE()"
         );
 
-        $reportes = $this->database->queryOne(
+        $reportesAbiertos = $this->database->queryOne(
             "SELECT COUNT(*) AS total
              FROM question_reports
              WHERE status IN ('PENDIENTE', 'EN_REVISION')"
         );
+        $sqlReportes = "SELECT COUNT(*) AS total, COUNT(DISTINCT question_id) AS preguntas FROM question_reports";
+        $paramsReportes = [];
+        if ($inicio !== null) {
+            $sqlReportes .= " WHERE created_at >= ?";
+            $paramsReportes[] = $inicio;
+        }
+        $reportes = $this->database->queryOne($sqlReportes, $paramsReportes);
 
-        // Población real: usuarios con al menos una respuesta registrada.
-        $jugadoresFila = $this->database->queryOne(
-            "SELECT COUNT(DISTINCT g.user_id) AS total
-             FROM game g
-             INNER JOIN game_answers ga ON ga.game_id = g.id
-             WHERE g.user_id <> ?",
-            [$usuarioActual]
-        );
+        $sqlJugadores = "SELECT COUNT(DISTINCT g.user_id) AS total
+                         FROM game g
+                         INNER JOIN game_answers ga ON ga.game_id = g.id
+                         WHERE g.user_id <> ?";
+        $paramsJugadores = [$usuarioActual];
+        if ($inicio !== null) {
+            $sqlJugadores .= " AND g.started_at >= ?";
+            $paramsJugadores[] = $inicio;
+        }
+        $jugadoresFila = $this->database->queryOne($sqlJugadores, $paramsJugadores);
         $totalJugadores = (int) ($jugadoresFila['total'] ?? 0);
 
-        $niveles = $this->calcularNiveles($usuarioActual, $totalJugadores);
+        $niveles = $this->calcularNiveles($usuarioActual, $totalJugadores, $inicio);
+        $categorias = $this->calcularCategorias($usuarioActual, $inicio);
+        $masAcertada = isset($categorias[0])
+            ? $categorias[0]
+            : ['etiqueta' => 'Sin datos', 'cantidad' => 0, 'sinDatos' => true];
+
+        $extraPaises = $inicio !== null ? " AND g.started_at >= ?" : "";
+        $paramsPerfil = $inicio !== null ? [$usuarioActual, $inicio] : [$usuarioActual];
+
         $paises = $this->calcularDistribucion(
             "SELECT COALESCE(NULLIF(TRIM(u.Pais), ''), 'Sin dato') AS etiqueta,
                     COUNT(DISTINCT u.Id) AS cantidad
@@ -79,11 +146,11 @@ class AdminModel
                AND EXISTS (
                    SELECT 1 FROM game g
                    INNER JOIN game_answers ga ON ga.game_id = g.id
-                   WHERE g.user_id = u.Id
+                   WHERE g.user_id = u.Id $extraPaises
                )
              GROUP BY etiqueta
              ORDER BY cantidad DESC, etiqueta ASC",
-            [$usuarioActual],
+            $paramsPerfil,
             $totalJugadores
         );
 
@@ -95,15 +162,15 @@ class AdminModel
                AND EXISTS (
                    SELECT 1 FROM game g
                    INNER JOIN game_answers ga ON ga.game_id = g.id
-                   WHERE g.user_id = u.Id
+                   WHERE g.user_id = u.Id $extraPaises
                )
              GROUP BY etiqueta
              ORDER BY cantidad DESC, etiqueta ASC",
-            [$usuarioActual],
+            $paramsPerfil,
             $totalJugadores
         );
 
-        $edades = $this->calcularEdades($usuarioActual);
+        $edades = $this->calcularEdades($usuarioActual, $inicio);
 
         return [
             'totalUsuarios' => (int) ($usuarios['total'] ?? 0),
@@ -114,33 +181,44 @@ class AdminModel
             'usuariosOnline' => (int) ($conectados['total'] ?? 0),
             'jugadoresReales' => $totalJugadores,
             'partidasFinalizadas' => (int) ($partidas['finalizadas'] ?? 0),
-            'partidasHoy' => (int) ($partidas['hoy'] ?? 0),
-            'reportesPendientes' => (int) ($reportes['total'] ?? 0),
+            'partidasHoy' => (int) ($hoy['total'] ?? 0),
+            'reportesPendientes' => (int) ($reportesAbiertos['total'] ?? 0),
+            'reportesPeriodo' => (int) ($reportes['total'] ?? 0),
+            'preguntasReportadas' => (int) ($reportes['preguntas'] ?? 0),
             'niveles' => $niveles,
+            'categorias' => $categorias,
+            'categoriaMasCorrecta' => $masAcertada,
             'paises' => $paises,
             'sexos' => $sexos,
             'edades' => $edades['rangos'],
             'edadPromedio' => $edades['promedio'],
             'anioActual' => (int) date('Y'),
+            'periodo' => $periodo,
+            'etiquetaPeriodo' => self::PERIODOS[$periodo]['etiqueta'],
+            'periodoDesde' => $inicio !== null ? date('d/m/Y', strtotime($inicio)) : '',
+            'esHistorico' => $periodo === 'historico',
         ];
     }
 
     /**
      * Usa exactamente la misma regla que Dificultad::nivelJugador() del juego.
      */
-    private function calcularNiveles($usuarioActual, $totalJugadores)
+    private function calcularNiveles($usuarioActual, $totalJugadores, $inicio = null)
     {
-        $filas = $this->database->queryAll(
-            "SELECT g.user_id,
-                    COUNT(*) AS respondidas,
-                    COALESCE(SUM(r.is_correct = 1), 0) AS correctas
-             FROM game_answers ga
-             INNER JOIN game g ON g.id = ga.game_id
-             INNER JOIN response r ON r.id = ga.response_id
-             WHERE g.user_id <> ?
-             GROUP BY g.user_id",
-            [$usuarioActual]
-        );
+        $sql = "SELECT g.user_id,
+                       COUNT(*) AS respondidas,
+                       COALESCE(SUM(r.is_correct = 1), 0) AS correctas
+                FROM game_answers ga
+                INNER JOIN game g ON g.id = ga.game_id
+                INNER JOIN response r ON r.id = ga.response_id
+                WHERE g.user_id <> ?";
+        $params = [$usuarioActual];
+        if ($inicio !== null) {
+            $sql .= " AND g.started_at >= ?";
+            $params[] = $inicio;
+        }
+        $sql .= " GROUP BY g.user_id";
+        $filas = $this->database->queryAll($sql, $params);
 
         $conteo = [1 => 0, 2 => 0, 3 => 0];
         foreach ($filas as $fila) {
@@ -187,10 +265,58 @@ class AdminModel
     }
 
     /**
+     * Todas las categorías existentes, con sus aciertos reales en el período.
+     * Si crean una categoría nueva aparece enseguida, y si responden bien una
+     * pregunta de Deporte se suma a esa fila sin tocar nada a mano.
+     */
+    private function calcularCategorias($usuarioActual, $inicio = null)
+    {
+        $condicionFecha = $inicio !== null ? 'g.started_at >= ?' : '1 = 1';
+        $params = [$usuarioActual];
+        if ($inicio !== null) {
+            $params[] = $inicio;
+        }
+
+        $sql = "SELECT c.id, c.name AS etiqueta,
+                       COALESCE(SUM(
+                           CASE WHEN g.user_id <> ? AND r.is_correct = 1 AND $condicionFecha
+                                THEN 1 ELSE 0 END
+                       ), 0) AS cantidad
+                FROM category c
+                LEFT JOIN questions q ON q.category_id = c.id
+                LEFT JOIN game_answers ga ON ga.question_id = q.id
+                LEFT JOIN game g ON g.id = ga.game_id
+                LEFT JOIN response r ON r.id = ga.response_id
+                GROUP BY c.id, c.name
+                ORDER BY cantidad DESC, etiqueta ASC";
+
+        $filas = $this->database->queryAll($sql, $params);
+        $total = 0;
+        foreach ($filas as $fila) {
+            $total += (int) $fila['cantidad'];
+        }
+
+        $resultado = [];
+        foreach ($filas as $fila) {
+            $cantidad = (int) $fila['cantidad'];
+            $porcentaje = $total > 0 ? round($cantidad * 100 / $total, 1) : 0;
+            $resultado[] = [
+                'etiqueta' => (string) $fila['etiqueta'],
+                'cantidad' => $cantidad,
+                'porcentaje' => $porcentaje,
+                'porcentajeTexto' => number_format($porcentaje, 1, ',', '.'),
+            ];
+        }
+        return $resultado;
+    }
+
+    /**
      * Edad estimada: solo se guarda el año de nacimiento, no el día y mes.
      */
-    private function calcularEdades($usuarioActual)
+    private function calcularEdades($usuarioActual, $inicio = null)
     {
+        $extraFecha = $inicio !== null ? " AND g.started_at >= ?" : "";
+        $params = $inicio !== null ? [$usuarioActual, $inicio] : [$usuarioActual];
         $filas = $this->database->queryAll(
             "SELECT u.Anio_nacimiento AS anio
              FROM usuarios u
@@ -198,9 +324,9 @@ class AdminModel
                AND EXISTS (
                    SELECT 1 FROM game g
                    INNER JOIN game_answers ga ON ga.game_id = g.id
-                   WHERE g.user_id = u.Id
+                   WHERE g.user_id = u.Id $extraFecha
                )",
-            [$usuarioActual]
+            $params
         );
 
         $rangos = [

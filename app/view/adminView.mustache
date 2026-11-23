@@ -4,18 +4,80 @@
 
         {{> adminEncabezado}}
 
+        <form class="admin-periodo" method="get" action="{{basePath}}/admin">
+            <label for="admin-periodo">Mostrar estadísticas de</label>
+            <select id="admin-periodo" name="periodo" onchange="this.form.submit()">
+                {{#periodos}}<option value="{{value}}"{{#seleccionado}} selected{{/seleccionado}}>{{label}}</option>{{/periodos}}
+            </select>
+            {{#periodoDesde}}<span class="admin-periodo-desde">Desde el {{periodoDesde}}</span>{{/periodoDesde}}
+        </form>
+
+        <div class="admin-print">
+            <header class="admin-print-cabecera">
+                <div class="admin-print-marca">
+                    <span class="admin-print-logo">P</span>
+                    <span><strong>Preguntados</strong><small>Panel administrador</small></span>
+                </div>
+                <div class="admin-print-titulo">
+                    <h1>Reportes del panel</h1>
+                    <p>{{#esHistorico}}Histórico · todo lo registrado hasta hoy{{/esHistorico}}{{^esHistorico}}{{etiquetaPeriodo}} · desde {{periodoDesde}}{{/esHistorico}}</p>
+                </div>
+                <div class="admin-print-fecha">{{fechaImpresion}}</div>
+            </header>
+
+            <section class="admin-print-resumen">
+                <article><span>Reportes por revisar</span><strong>{{reportesPendientes}}</strong><small>En vivo</small></article>
+                <article><span>Reportes enviados</span><strong>{{reportesPeriodo}}</strong><small>{{etiquetaPeriodo}}</small></article>
+                <article><span>Preguntas distintas</span><strong>{{preguntasReportadas}}</strong><small>Sin repetir</small></article>
+                <article><span>Categoría más acertada</span><strong class="admin-print-valor-texto">{{categoriaMasCorrecta.etiqueta}}</strong><small>{{categoriaMasCorrecta.cantidad}} aciertos</small></article>
+            </section>
+
+            <div class="admin-print-tabla">
+                <section>
+                    <h2>Indicadores generales</h2>
+                    <table>
+                        <thead><tr><th>Dato</th><th>Valor · {{etiquetaPeriodo}}</th></tr></thead>
+                        <tbody>
+                            <tr><td>{{#esHistorico}}Usuarios registrados{{/esHistorico}}{{^esHistorico}}Altas del período{{/esHistorico}}</td><td>{{totalUsuarios}}</td></tr>
+                            <tr><td>Verificados</td><td>{{usuariosVerificados}}</td></tr>
+                            <tr><td>Jugadores reales</td><td>{{jugadoresReales}}</td></tr>
+                            <tr><td>Partidas finalizadas</td><td>{{partidasFinalizadas}}</td></tr>
+                            <tr><td>Reportes por revisar</td><td>{{reportesPendientes}}</td></tr>
+                            <tr><td>Reportes enviados</td><td>{{reportesPeriodo}}</td></tr>
+                            <tr><td>Preguntas distintas</td><td>{{preguntasReportadas}}</td></tr>
+                            <tr><td>Categoría más acertada</td><td>{{categoriaMasCorrecta.etiqueta}} · {{categoriaMasCorrecta.cantidad}}</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+                <section>
+                    <h2>Aciertos por categoría</h2>
+                    <p class="admin-print-nota">Participación = porcentaje sobre el total de aciertos de {{etiquetaPeriodo}}.</p>
+                    <table class="admin-print-categorias">
+                        <thead><tr><th>Categoría</th><th>Participación</th><th>Aciertos</th></tr></thead>
+                        <tbody>
+                            {{#categorias}}<tr><td>{{etiqueta}}</td><td class="admin-print-barra"><span class="admin-print-barra-numero">{{porcentajeTexto}}%</span><span class="admin-print-barra-pista"><i style="width:{{porcentaje}}%"></i></span></td><td>{{cantidad}}</td></tr>{{/categorias}}
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <footer class="admin-print-pie">
+                <span>Generado desde el panel /admin · Tu cuenta de ADMIN queda fuera de todos los cálculos.</span>
+            </footer>
+        </div>
+
         <section class="admin-section" aria-labelledby="admin-indicadores">
             <div class="admin-section-head">
                 <div>
                     <h2 id="admin-indicadores">Indicadores</h2>
-                    <p>Lo que pasó en el sitio hasta ahora, sin números estimados.</p>
+                    <p>Lo que pasó en el sitio en {{etiquetaPeriodo}}, sin números estimados.</p>
                 </div>
-                <span class="admin-section-tag">Histórico</span>
+                <span class="admin-section-tag">{{etiquetaPeriodo}}</span>
             </div>
 
             <div class="admin-metrics">
                 <article class="admin-metric admin-metric--usuarios">
-                    <span class="admin-metric-label">Usuarios registrados</span>
+                    <span class="admin-metric-label">{{#esHistorico}}Usuarios registrados{{/esHistorico}}{{^esHistorico}}Altas en el período{{/esHistorico}}</span>
                     <strong class="admin-metric-value">{{totalUsuarios}}</strong>
                     <div class="admin-metric-notas">
                         <span class="admin-chip"><strong>{{usuariosVerificados}}</strong> verificados</span>
@@ -40,10 +102,12 @@
                 </article>
 
                 <article class="admin-metric admin-metric--reportes">
-                    <span class="admin-metric-label">Reportes abiertos</span>
+                    <span class="admin-metric-label">Reportes por revisar</span>
                     <strong class="admin-metric-value">{{reportesPendientes}}</strong>
                     <div class="admin-metric-notas">
                         <span class="admin-chip admin-chip--vivo">En vivo · a revisar</span>
+                        <span class="admin-chip"><strong>{{reportesPeriodo}}</strong> enviados en {{etiquetaPeriodo}}</span>
+                        <span class="admin-chip"><strong>{{preguntasReportadas}}</strong> preguntas distintas</span>
                     </div>
                 </article>
             </div>
@@ -60,7 +124,7 @@
             <div class="admin-split">
                 <article class="admin-card">
                     <div class="admin-card-head">
-                        <h3>Usuarios por rol</h3>
+                        <h3>{{#esHistorico}}Usuarios por rol{{/esHistorico}}{{^esHistorico}}Altas por rol{{/esHistorico}}</h3>
                         <span>{{totalUsuarios}} en total</span>
                     </div>
                     <div class="admin-chart">
@@ -85,7 +149,7 @@
 
                 <article class="admin-card">
                     <div class="admin-card-head">
-                        <h3>Verificación de cuentas</h3>
+                        <h3>{{#esHistorico}}Verificación de cuentas{{/esHistorico}}{{^esHistorico}}Verificación de altas{{/esHistorico}}</h3>
                         <span>{{usuariosVerificados}} de {{totalUsuarios}}</span>
                     </div>
                     <div class="admin-chart">
@@ -110,7 +174,7 @@
             <div class="admin-section-head">
                 <div>
                     <h2 id="admin-perfil">Perfil de quienes juegan</h2>
-                    <p>{{jugadoresReales}} jugadores reales con al menos una respuesta registrada.</p>
+                    <p>{{jugadoresReales}} jugadores reales con al menos una respuesta en {{etiquetaPeriodo}}.</p>
                 </div>
                 <span class="admin-section-tag">Datos reales</span>
             </div>
@@ -208,11 +272,35 @@
                         {{/sexos}}
                     </div>
                 </article>
+
+                <article class="admin-card admin-card-categoria">
+                    <div class="admin-card-head">
+                        <h3>Aciertos por categoría</h3>
+                        <span>la más respondida bien: {{categoriaMasCorrecta.etiqueta}} ({{categoriaMasCorrecta.cantidad}})</span>
+                    </div>
+                    <div class="admin-chart">
+                        <canvas id="chartCategorias" role="img" aria-label="Barras con las respuestas correctas por categoría"></canvas>
+                    </div>
+                    <div class="admin-chart-fallback">
+                        {{#categorias}}
+                            <div class="admin-stat-row">
+                                <div class="admin-stat-label">
+                                    <strong>{{etiqueta}}</strong>
+                                    <span>{{cantidad}} aciertos</span>
+                                </div>
+                            </div>
+                        {{/categorias}}
+                        {{^categorias}}
+                            <p class="admin-empty">No hay categorías cargadas.</p>
+                        {{/categorias}}
+                    </div>
+                    <p class="admin-role-note">Se suma cada respuesta correcta. Si agregás una categoría nueva aparece sola en la lista, aunque todavía tenga 0.</p>
+                </article>
             </div>
         </section>
 
         <footer class="admin-footer">
-            <p class="admin-footnote">Edad estimada con el año de nacimiento (no se guarda día ni mes). Porcentajes sobre {{jugadoresReales}} jugadores reales; tu cuenta no entra en el cálculo.</p>
+            <p class="admin-footnote">Edad estimada con el año de nacimiento (no se guarda día ni mes). Porcentajes sobre {{jugadoresReales}} jugadores de {{etiquetaPeriodo}}; tu cuenta no entra en el cálculo.</p>
             <a class="admin-btn" href="{{basePath}}/admin/usuarios">Ir al ABM de usuarios →</a>
         </footer>
 
@@ -221,6 +309,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+    var botonImprimirAdmin = document.querySelector('[data-imprimir-admin]');
+    if (botonImprimirAdmin) {
+        botonImprimirAdmin.addEventListener('click', function () { window.print(); });
+    }
     (function () {
         var datos = {{{graficosJson}}};
         if (typeof Chart === 'undefined') return;
@@ -239,7 +331,8 @@
             niveles: ['#9A6BF2', '#F2C230', '#38BDF8'],
             paises: ['#F97316', '#FB7185', '#14B8A6', '#EAB308', '#EC4899', '#0EA5E9', '#84CC16'],
             edades: ['#C084FC', '#FBBF24', '#34D399', '#60A5FA', '#FB923C', '#A1A1AA'],
-            sexos: ['#F472B6', '#22D3EE', '#A3E635', '#F59E0B']
+            sexos: ['#F472B6', '#22D3EE', '#A3E635', '#F59E0B'],
+            categorias: ['#F59E0B', '#38BDF8', '#A3E635', '#FB7185', '#A78BFA', '#2DD4BF', '#F97316']
         };
 
         function coloresDinamicos(cantidad, inicio) {
@@ -541,6 +634,10 @@
         var paises = datos.paises || [];
         var edades = datos.edades || [];
         var sexos = datos.sexos || [];
+        var categorias = datos.categorias || [];
+        var totalAciertos = categorias.reduce(function (suma, fila) {
+            return suma + Number(fila.cantidad || 0);
+        }, 0);
 
         // Sin max fijo: si llegan usuarios nuevos, Chart.js agranda la escala solo.
         columnas('chartRoles', roles, coloresPara(roles, paleta.roles, 210), 'usuarios', datos.totalUsuarios);
@@ -550,5 +647,7 @@
         barrasHorizontales('chartPaises', paises, coloresPara(paises, paleta.paises, 18), datos.jugadoresReales);
         columnas('chartEdades', edades, coloresPara(edades, paleta.edades, 260), 'jugadores', datos.jugadoresReales);
         torta('chartSexos', sexos, coloresPara(sexos, paleta.sexos, 330), datos.jugadoresReales, 'jugadores');
+        ajustarAltura('chartCategorias', categorias, 26, 200, 520);
+        barrasHorizontales('chartCategorias', categorias, coloresPara(categorias, paleta.categorias, 95), totalAciertos);
     })();
 </script>

@@ -57,8 +57,12 @@ class AdminController
         header('Cache-Control: no-store');
         $this->asegurarCsrfToken();
 
-        $datos = $this->model->obtenerEstadisticas((int) $_SESSION['usuario_id']);
+        $periodo = $this->model->normalizarPeriodo(Request::get('periodo'));
+        $datos = $this->model->obtenerEstadisticas((int) $_SESSION['usuario_id'], $periodo);
         $datos['esResumen'] = true;
+        $datos['periodos'] = $this->model->opcionesPeriodo($periodo);
+        $datos['totalUsuariosHistorico'] = $this->model->contarUsuarios();
+        $datos['fechaImpresion'] = date('d/m/Y H:i');
         $datos['mensaje'] = $this->consumirMensaje();
         $datos['sinVerificar'] = max(0, (int) $datos['totalUsuarios'] - (int) $datos['usuariosVerificados']);
         $datos['graficosJson'] = $this->prepararGraficos($datos);
@@ -525,9 +529,10 @@ class AdminController
             'paises' => [],
             'edades' => [],
             'sexos' => [],
+            'categorias' => [],
         ];
 
-        foreach (['niveles', 'paises', 'edades', 'sexos'] as $clave) {
+        foreach (['niveles', 'paises', 'edades', 'sexos', 'categorias'] as $clave) {
             foreach ($datos[$clave] as $fila) {
                 $graficos[$clave][] = [
                     'etiqueta' => (string) $fila['etiqueta'],

@@ -19,8 +19,11 @@
 
 <nav class="admin-tabs" aria-label="Secciones del panel">
     <a class="admin-tab{{#esResumen}} is-active{{/esResumen}}" href="{{basePath}}/admin"{{#esResumen}} aria-current="page"{{/esResumen}}>Resumen</a>
-    <a class="admin-tab{{#esUsuarios}} is-active{{/esUsuarios}}" href="{{basePath}}/admin/usuarios"{{#esUsuarios}} aria-current="page"{{/esUsuarios}}>Usuarios <span class="admin-badge">{{totalUsuarios}}</span></a>
+    <a class="admin-tab{{#esUsuarios}} is-active{{/esUsuarios}}" href="{{basePath}}/admin/usuarios"{{#esUsuarios}} aria-current="page"{{/esUsuarios}}>Usuarios <span class="admin-badge">{{#totalUsuariosHistorico}}{{totalUsuariosHistorico}}{{/totalUsuariosHistorico}}{{^totalUsuariosHistorico}}{{totalUsuarios}}{{/totalUsuariosHistorico}}</span></a>
     <a class="admin-tab{{#esHistorial}} is-active{{/esHistorial}}" href="{{basePath}}/admin/historial"{{#esHistorial}} aria-current="page"{{/esHistorial}}>Historial</a>
+    {{#esResumen}}
+        <button class="admin-btn admin-btn-primary admin-tab-imprimir" type="button" data-imprimir-admin>Imprimir reportes</button>
+    {{/esResumen}}
 </nav>
 
 {{#mensaje}}
