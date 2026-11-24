@@ -11,7 +11,9 @@ class AdminAccess
         $userId = (int) $_SESSION['usuario_id'];
         if (!$model->esAdmin($userId)) {
             http_response_code(403);
-            exit('No tenés permisos para acceder al panel administrable.');
+            $renderer = new MustacheRender(null, $model);
+            $renderer->renderiza('errorRol', ['seccion' => 'Administración']);
+            exit;
         }
 
         $_SESSION['rol'] = 'ADMIN';

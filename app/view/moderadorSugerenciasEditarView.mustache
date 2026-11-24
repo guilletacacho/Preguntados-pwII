@@ -12,7 +12,7 @@
             .sug-edit-image{display:grid;gap:8px;margin:0 0 16px}.sug-edit-image img{display:block;width:min(100%,36rem);max-height:22rem;object-fit:contain;border:1px solid var(--borde);border-radius:10px;background:var(--hundido)}
             @media(max-width:520px){.sug-edit-head{align-items:flex-start;flex-direction:column}.sug-edit-answer{grid-template-columns:22px minmax(0,1fr)}.sug-edit-answer .sug-edit-correct{grid-column:2}}
         </style>
-        <header class="sug-edit-head"><div><span class="moderador-eyebrow">MODERACIÓN</span><h1>Revisar sugerencia</h1><p>Ajust&aacute; lo que haga falta y aprobala.</p></div><a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a></header>
+        <header class="sug-edit-head"><div><span class="moderador-eyebrow">Preguntados · Moderación</span><h1>Revisar sugerencia</h1><p>Ajust&aacute; lo que haga falta y aprobala.</p></div></header>
         {{#hayMensaje}}<p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="alert">{{mensaje.texto}}</p>{{/hayMensaje}}
         {{> moderadorNavegacion}}
         <section class="sug-edit-form" aria-label="Formulario para revisar sugerencia">

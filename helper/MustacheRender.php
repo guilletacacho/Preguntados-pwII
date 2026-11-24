@@ -41,7 +41,7 @@ class MustacheRender
             'enInicio' => $enInicio,
             'enRanking' => $enRanking,
             'tieneEnlacesAyuda' => $enInicio || $enRanking || $view === 'sugerencias',
-            'tieneNavegacionLateral' => $enInicio || $enRanking || $view === 'sugerencias' || $enAdministracion || $enModeracion,
+            'tieneNavegacionLateral' => $enInicio || $enRanking || $view === 'sugerencias' || $view === 'errorRol' || $enAdministracion || $enModeracion,
         ];
         if (isset($_SESSION['usuario_id'])) {
             $userId = (int) $_SESSION['usuario_id'];
