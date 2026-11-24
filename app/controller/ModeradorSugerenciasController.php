@@ -59,6 +59,10 @@ class ModeradorSugerenciasController
         $preguntas = $this->sugerenciaModel->mostrarPreguntasSugeridas($estado, $categoriaId);
         foreach ($preguntas as &$pregunta) {
             $pregunta['puedeRevisar'] = $estado === 'PENDIENTE';
+            $pregunta['mostrarMotivoRechazo'] = $estado === 'RECHAZADA';
+            if ($pregunta['mostrarMotivoRechazo'] && trim((string) ($pregunta['motivo_rechazo'] ?? '')) === '') {
+                $pregunta['motivo_rechazo'] = 'Sin motivo registrado.';
+            }
         }
         unset($pregunta);
 
@@ -173,7 +177,17 @@ class ModeradorSugerenciasController
         'difficulty_level' => $_POST['difficulty_level'] ?? 2,
         ];
 
+        $imagenSubida = null;
         try {
+        $archivo = $_FILES['image'] ?? null;
+        if ($archivo !== null && ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $imagenSubida = \ImageUploader::upload($archivo, 'app/img-preguntas');
+            if ($imagenSubida === null) {
+                throw new \DomainException('La imagen debe ser JPG o PNG y no superar los 5 MB.');
+            }
+        }
+        $datosFinales['image_url'] = $imagenSubida;
+
         $this->sugerenciaModel->publicarSugerencia(
             $id,
             (int) $_SESSION['usuario_id'],
@@ -182,8 +196,10 @@ class ModeradorSugerenciasController
 
         $this->guardarMensaje('La sugerencia fue aprobada y publicada.', 'exito');
         } catch (\DomainException $error) {
+            $this->eliminarImagenSubida($imagenSubida);
             $this->guardarMensaje($error->getMessage(), 'error');
         } catch (\Throwable $error) {
+            $this->eliminarImagenSubida($imagenSubida);
             $this->guardarMensaje('No se pudo publicar la sugerencia.', 'error');
         }
 
@@ -241,6 +257,19 @@ class ModeradorSugerenciasController
     }
 
     //METODOS PRIVADOS
+    private function eliminarImagenSubida($filename)
+    {
+        if (!is_string($filename) || !preg_match('/\\A[a-f0-9]{32}\\.(jpg|png)\\z/i', $filename)) {
+            return;
+        }
+
+        $ruta = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'img-preguntas'
+            . DIRECTORY_SEPARATOR . $filename;
+        if (is_file($ruta)) {
+            @unlink($ruta);
+        }
+    }
+
     private function csrfSugerenciasValido($tokenEnviado)
     {
         $tokenSesion = $_SESSION['csrf_moderador'] ?? '';

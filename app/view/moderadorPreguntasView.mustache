@@ -57,6 +57,7 @@
                             <th scope="col">Dificultad</th>
                             <th scope="col">Entregas</th>
                             <th scope="col">Acierto</th>
+                            <th scope="col">Imagen</th>
                             <th scope="col">Reportes</th>
                             <th scope="col"><span class="visually-hidden">Acciones</span></th>
                         </tr>
@@ -70,7 +71,8 @@
                             <td><span class="moderador-dificultad" data-dificultad="{{dificultad}}" aria-label="Dificultad nivel {{dificultad}} de 3"><i></i><i></i><i></i></span></td>
                             <td>{{entregas}}</td>
                             <td>{{acierto}}%</td>
-                            <td><span class="moderador-reporte-cantidad">⚑ 3</span></td>
+                            <td><span class="moderador-imagen-estado">{{#tiene_imagen}}{{tiene_imagen}}{{/tiene_imagen}}{{^tiene_imagen}}No{{/tiene_imagen}}</span></td>
+                            <td><span class="moderador-reporte-cantidad">&#9873; {{reportes}}</span></td>
                             <td class="moderador-acciones">
                                 <div class="moderador-acciones-contenido">
                                     {{#activa}}
@@ -84,6 +86,7 @@
                                     {{/activa}}
                                     {{^activa}}
                                     <span class="moderador-estado-baja">DADA DE BAJA</span>
+                                    <a class="moderador-accion-editar" href="{{basePath}}/moderador/editarPregunta?id={{id}}">Editar</a>
                                     <form method="post" action="{{basePath}}/moderador/reactivarPregunta">
                                         <input type="hidden" name="csrf_token" value="{{csrfToken}}">
                                         <input type="hidden" name="question_id" value="{{id}}">
@@ -96,7 +99,7 @@
                         {{/preguntas}}
                         {{^preguntas}}
                         <tr>
-                            <td colspan="8">No hay preguntas que coincidan con los filtros seleccionados.</td>
+                            <td colspan="9">No hay preguntas que coincidan con los filtros seleccionados.</td>
                         </tr>
                         {{/preguntas}}
                     </tbody>

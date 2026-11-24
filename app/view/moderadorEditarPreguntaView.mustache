@@ -15,66 +15,71 @@
         {{/hayMensaje}}
 
         {{#editorDisponible}}
-            <section class="moderador-correccion-formulario" aria-label="Formulario de edición de pregunta">
-                <form method="post" enctype="multipart/form-data" action="{{basePath}}/moderador/actualizarPregunta">
-                    <input type="hidden" name="question_id" value="{{editorQuestionId}}">
-                    <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+            <form class="moderador-alta-layout moderador-editor-layout" method="post" enctype="multipart/form-data" action="{{basePath}}/moderador/actualizarPregunta" aria-label="Formulario de edición de pregunta">
+                <input type="hidden" name="question_id" value="{{editorQuestionId}}">
+                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
 
-                    <fieldset class="moderador-imagen-pregunta">
-                        <legend>Imagen de la pregunta (opcional)</legend>
-                        <div class="moderador-imagen-controles">
-                            <label for="editar-imagen">Elegir una imagen nueva</label>
-                            <input id="editar-imagen" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="editar-imagen-ayuda">
-                            <small id="editar-imagen-ayuda">JPG o PNG, hasta 5 MB.</small>
-                            <p id="editar-imagen-nombre" aria-live="polite">Ninguna imagen nueva seleccionada.</p>
-                            {{#hayEditorImagen}}
-                                <label class="moderador-quitar-imagen"><input type="checkbox" name="remove_image" value="1" id="quitar-imagen-pregunta"> Quitar la imagen actual</label>
-                            {{/hayEditorImagen}}
+                <div class="moderador-alta-formulario">
+                    <div class="moderador-alta-columna">
+                        <div class="moderador-alta-campo">
+                            <label for="editar-categoria">Categoría</label>
+                            <select id="editar-categoria" name="category_id" required>
+                                {{#editorCategorias}}
+                                    <option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>
+                                {{/editorCategorias}}
+                            </select>
                         </div>
-                        <div class="moderador-imagen-vistas">
-                            {{#hayEditorImagen}}
-                                <div class="moderador-imagen-actual" id="imagen-pregunta-actual-wrap">
-                                    <img src="{{basePath}}/app/img-preguntas/{{editorImagen}}" alt="Imagen actual de la pregunta">
+
+                        <div class="moderador-alta-campo">
+                            <label for="editar-enunciado">Pregunta</label>
+                            <textarea id="editar-enunciado" name="question" maxlength="500" rows="2" required>{{editorPregunta}}</textarea>
+                        </div>
+
+                        <fieldset class="moderador-correccion-opciones">
+                            <legend>Respuestas <span>Elegí cuál es la correcta.</span></legend>
+                            {{#editorOpciones}}
+                                <div class="moderador-correccion-respuesta">
+                                    <label for="editar-respuesta-{{respuesta_id}}">{{letra}}</label>
+                                    <input type="hidden" name="responses[{{indice}}][id]" value="{{respuesta_id}}">
+                                    <input id="editar-respuesta-{{respuesta_id}}" class="moderador-correccion-texto" type="text" name="responses[{{indice}}][texto]" value="{{response}}" maxlength="255" required>
+                                    <label class="moderador-correccion-radio" for="editar-correcta-{{respuesta_id}}">
+                                        <input id="editar-correcta-{{respuesta_id}}" type="radio" name="correct_response_id" value="{{respuesta_id}}" {{#seleccionada}}checked{{/seleccionada}} required>
+                                        Correcta
+                                    </label>
                                 </div>
-                            {{/hayEditorImagen}}
-                            {{^hayEditorImagen}}<div id="imagen-pregunta-actual-wrap" hidden></div>{{/hayEditorImagen}}
-                            <div class="moderador-imagen-nueva" id="editar-imagen-preview-wrap" hidden>
-                                <img id="editar-imagen-preview" alt="Vista previa de la nueva imagen">
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <label for="editar-categoria">Categoría</label>
-                    <select id="editar-categoria" name="category_id" required>
-                        {{#editorCategorias}}
-                            <option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>
-                        {{/editorCategorias}}
-                    </select>
-
-                    <label for="editar-enunciado">Enunciado de la pregunta</label>
-                    <textarea id="editar-enunciado" name="question" maxlength="500" rows="3" required>{{editorPregunta}}</textarea>
-
-                    <fieldset class="moderador-correccion-opciones">
-                        <legend>Respuestas <span>Elegí cuál es la correcta.</span></legend>
-                        {{#editorOpciones}}
-                            <div class="moderador-correccion-respuesta">
-                                <label for="editar-respuesta-{{respuesta_id}}">{{letra}}</label>
-                                <input type="hidden" name="responses[{{indice}}][id]" value="{{respuesta_id}}">
-                                <input id="editar-respuesta-{{respuesta_id}}" class="moderador-correccion-texto" type="text" name="responses[{{indice}}][texto]" value="{{response}}" maxlength="255" required>
-                                <label class="moderador-correccion-radio" for="editar-correcta-{{respuesta_id}}">
-                                    <input id="editar-correcta-{{respuesta_id}}" type="radio" name="correct_response_id" value="{{respuesta_id}}" {{#seleccionada}}checked{{/seleccionada}} required>
-                                    Correcta
-                                </label>
-                            </div>
-                        {{/editorOpciones}}
-                    </fieldset>
-
-                    <div class="moderador-correccion-acciones">
-                        <button class="moderador-boton moderador-boton-resolver" type="submit">Confirmar cambios</button>
-                        <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/moderador/preguntas">Cancelar</a>
+                            {{/editorOpciones}}
+                        </fieldset>
                     </div>
-                </form>
-            </section>
+
+                    <div class="moderador-alta-acciones moderador-correccion-acciones">
+                        <button class="moderador-alta-guardar" type="submit">Confirmar cambios</button>
+                        <a href="{{basePath}}/moderador/preguntas">Cancelar</a>
+                    </div>
+                </div>
+
+                <fieldset class="moderador-alta-imagen moderador-editor-imagen">
+                    <legend>Imagen de la pregunta (opcional)</legend>
+                    <p class="moderador-ayuda">La imagen aparecerá junto al enunciado durante la partida. JPG o PNG, hasta 5 MB.</p>
+                    <label for="editar-imagen">Elegir imagen</label>
+                    <input id="editar-imagen" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="editar-imagen-ayuda">
+                    <small id="editar-imagen-ayuda">La vista previa se muestra aquí; la imagen se sube al guardar.</small>
+                    <p id="editar-imagen-nombre" class="moderador-alta-imagen-nombre" aria-live="polite">Ninguna imagen nueva seleccionada.</p>
+                    {{#hayEditorImagen}}
+                        <label class="moderador-quitar-imagen"><input type="checkbox" name="remove_image" value="1" id="quitar-imagen-pregunta"> Quitar la imagen actual</label>
+                    {{/hayEditorImagen}}
+                    <div class="moderador-imagen-vistas">
+                        {{#hayEditorImagen}}
+                            <div class="moderador-alta-imagen-preview moderador-imagen-actual" id="imagen-pregunta-actual-wrap">
+                                <img src="{{basePath}}/app/img-preguntas/{{editorImagen}}" alt="Imagen actual de la pregunta">
+                            </div>
+                        {{/hayEditorImagen}}
+                        {{^hayEditorImagen}}<div class="moderador-alta-imagen-preview moderador-imagen-actual" id="imagen-pregunta-actual-wrap" hidden></div>{{/hayEditorImagen}}
+                        <div class="moderador-alta-imagen-preview moderador-imagen-nueva" id="editar-imagen-preview-wrap" hidden>
+                            <img id="editar-imagen-preview" alt="Vista previa de la nueva imagen">
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
         {{/editorDisponible}}
         {{^editorDisponible}}
             <p class="moderador-mensaje moderador-mensaje-error" role="alert">
@@ -85,17 +90,14 @@
 </main>
 
 <style>
-    .moderador-imagen-pregunta{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,32%);gap:.55rem 1rem;margin:0 0 1.25rem;padding:1rem;border:1px solid var(--borde);border-radius:12px}
-    .moderador-imagen-pregunta legend{padding:0 .35rem;font-weight:700}
-    .moderador-imagen-pregunta input[type=file]{max-width:100%;color:var(--texto-sec)}
-    .moderador-imagen-controles{display:grid;gap:.55rem;align-content:start;min-width:0}
-    .moderador-imagen-vistas{grid-column:2;grid-row:1 / span 2;display:grid;gap:.5rem;align-content:start;min-width:0}
-    .moderador-imagen-actual,.moderador-imagen-nueva{width:100%;overflow:hidden;border:1px solid var(--borde);border-radius:10px;background:var(--hundido)}
-    .moderador-imagen-actual img,.moderador-imagen-nueva img{display:block;width:100%;max-width:100%;max-height:11rem;object-fit:contain}
-    .moderador-imagen-pregunta small,.moderador-imagen-pregunta p{margin:0;color:var(--texto-sec);font-size:.85rem}
-    .moderador-quitar-imagen{display:flex;align-items:center;gap:.5rem}
-    .moderador-imagen-pregunta [hidden]{display:none}
-    @media(max-width:700px){.moderador-imagen-pregunta{grid-template-columns:minmax(0,1fr)}.moderador-imagen-vistas{grid-column:1;grid-row:auto;max-width:320px}}
+    .moderador-editor-layout textarea { resize: none; }
+    .moderador-editor-imagen { align-content: start; }
+    .moderador-editor-imagen [hidden] { display: none; }
+    .moderador-editor-imagen .moderador-imagen-vistas { display: grid; gap: 10px; min-width: 0; }
+    .moderador-editor-imagen .moderador-alta-imagen-preview { height: 220px; }
+    .moderador-editor-imagen .moderador-alta-imagen-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .moderador-quitar-imagen { display: flex; align-items: center; gap: .5rem; color: var(--texto-sec); font-size: var(--moderador-texto-pequeno); }
+    @media(max-width:700px){.moderador-editor-layout{grid-template-columns:minmax(0,1fr)}}
 </style>
 <script>
 

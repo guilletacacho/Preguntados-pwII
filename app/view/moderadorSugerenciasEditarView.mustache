@@ -3,31 +3,128 @@
     <div class="moderador-content">
         <style>
             .sug-edit-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}.sug-edit-head h1{margin:4px 0 0;font-size:clamp(1.7rem,4vw,2.2rem)}.sug-edit-head p{margin:6px 0 0;color:var(--texto-sec)}
-            .sug-edit-form{width:min(100%,970px);padding:18px;border:1px solid var(--borde);border-radius:12px;background:var(--superficie)}.sug-edit-form label,.sug-edit-form legend{display:block;margin:0 0 7px;font-size:var(--moderador-texto-interfaz);font-weight:700}
-            .sug-edit-form select,.sug-edit-form textarea,.sug-edit-answer input[type=text]{box-sizing:border-box;width:100%;min-height:42px;margin-bottom:16px;padding:10px 12px;border:1px solid var(--borde-fuerte);border-radius:9px;background:var(--hundido);color:var(--texto);font:inherit}.sug-edit-form textarea{min-height:64px;resize:vertical}
-            .sug-edit-answers{margin:0 0 16px;padding:0;border:0}.sug-edit-help,.sug-edit-diff-help{display:block;margin:0 0 10px;color:var(--texto-tenue);font-size:var(--moderador-texto-secundario)}
-            .sug-edit-answer{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:10px;margin-bottom:8px;padding:0 10px;border:1px solid var(--borde-fuerte);border-radius:9px;background:var(--hundido)}.sug-edit-answer>label:first-child{margin:0;color:var(--texto-tenue)}.sug-edit-answer input[type=text]{min-width:0;margin:0;border:0;background:transparent}.sug-edit-answer .sug-edit-correct{display:flex;align-items:center;gap:6px;margin:0;color:var(--texto-sec);white-space:nowrap}
-            .sug-edit-diffs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 8px;padding:0;border:0}.sug-edit-diffs legend{width:100%}.sug-edit-diffs label{display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border:1px solid var(--borde-fuerte);border-radius:8px;color:var(--texto-sec)}
-            .sug-edit-actions{display:flex;gap:8px;margin-top:16px}.sug-edit-actions button,.sug-edit-actions a{display:inline-flex;min-height:40px;align-items:center;justify-content:center;padding:0 14px;border:1px solid var(--borde-fuerte);border-radius:9px;background:transparent;color:var(--texto);font:700 var(--moderador-texto-interfaz) var(--fuente);text-decoration:none}.sug-edit-actions button{border-color:var(--deporte);background:var(--deporte);color:#172011}
-            .sug-edit-image{display:grid;gap:8px;margin:0 0 16px}.sug-edit-image img{display:block;width:min(100%,36rem);max-height:22rem;object-fit:contain;border:1px solid var(--borde);border-radius:10px;background:var(--hundido)}
-            @media(max-width:520px){.sug-edit-head{align-items:flex-start;flex-direction:column}.sug-edit-answer{grid-template-columns:22px minmax(0,1fr)}.sug-edit-answer .sug-edit-correct{grid-column:2}}
+            .sug-edit-layout textarea{resize:none}
+            .sug-edit-answers{display:grid;gap:7px;margin:0 0 14px;padding:0;border:0}
+            .sug-edit-answers legend{margin-bottom:2px;padding:0;color:var(--texto);font-size:var(--moderador-texto-interfaz);font-weight:700}
+            .sug-edit-help,.sug-edit-diff-help{display:block;margin:0 0 10px;color:var(--texto-tenue);font-size:var(--moderador-texto-secundario)}
+            .sug-edit-answer{min-height:40px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:5px 10px;border:1px solid var(--borde);border-radius:8px;background:var(--hundido)}
+            .sug-edit-answer input[type=text]{box-sizing:border-box;width:100%;min-width:0;height:28px;padding:0;border:0;background:transparent;color:var(--texto);font:500 var(--moderador-texto-interfaz) var(--fuente)}
+            .sug-edit-answer .sug-edit-correct{display:inline-flex;align-items:center;gap:6px;margin:0;color:var(--texto-sec);font-size:var(--moderador-texto-interfaz);font-weight:600;white-space:nowrap}
+            .sug-edit-answer .sug-edit-correct input{accent-color:var(--deporte)}
+            .sug-edit-diffs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 8px;padding:0;border:0}.sug-edit-diffs legend{width:100%;margin-bottom:2px;color:var(--texto);font-weight:700}.sug-edit-diffs label{display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border:1px solid var(--borde);border-radius:8px;color:var(--texto-sec);font-size:var(--moderador-texto-interfaz)}
+            .sug-edit-diff-help{margin:7px 0 14px}
+            .sug-edit-image-preview{position:relative;height:280px;overflow:hidden;border:1px dashed var(--borde-fuerte);border-radius:9px;background:var(--superficie)}
+            .sug-edit-image-preview img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain}
+            .sug-edit-image-preview img[hidden]{display:none}
+            .sug-edit-image-placeholder{display:grid;height:100%;place-items:center;padding:12px;color:var(--texto-tenue);font-size:var(--moderador-texto-pequeno);text-align:center}
+            .sug-edit-image-placeholder[hidden]{display:none}
+            .sug-edit-image-name{margin:0;color:var(--texto-tenue);font-size:var(--moderador-texto-pequeno);overflow-wrap:anywhere}
+            .sug-edit-image-remove{justify-self:start;padding:7px 11px;border:1px solid var(--borde-fuerte);border-radius:7px;background:var(--superficie);color:var(--texto);font:600 var(--moderador-texto-pequeno) var(--fuente);cursor:pointer}
+            .sug-edit-image-remove[hidden]{display:none}
+            @media(max-width:760px){.sug-edit-layout{grid-template-columns:minmax(0,1fr)}.sug-edit-image-preview{height:220px}}
+            @media(max-width:520px){.sug-edit-head{align-items:flex-start;flex-direction:column}.sug-edit-answer{grid-template-columns:minmax(0,1fr)}.sug-edit-answer .sug-edit-correct{grid-column:1}}
         </style>
         <header class="sug-edit-head"><div><span class="moderador-eyebrow">Preguntados · Moderación</span><h1>Revisar sugerencia</h1><p>Ajust&aacute; lo que haga falta y aprobala.</p></div></header>
         {{#hayMensaje}}<p class="moderador-mensaje moderador-mensaje-{{mensaje.tipo}}" role="alert">{{mensaje.texto}}</p>{{/hayMensaje}}
         {{> moderadorNavegacion}}
-        <section class="sug-edit-form" aria-label="Formulario para revisar sugerencia">
-            <form method="post" action="{{basePath}}/moderador/publicarSugerencias">
-                <input type="hidden" name="suggestion_id" value="{{sugerenciaId}}"><input type="hidden" name="csrf_token" value="{{csrfToken}}">
-                {{#hayImagenSugerida}}<div class="sug-edit-image"><span class="sug-edit-help">Imagen enviada con la sugerencia</span><img src="{{basePath}}/app/img-preguntas/{{imagenSugerida}}" alt="Imagen propuesta para la pregunta"></div>{{/hayImagenSugerida}}
-                <label for="sug-category">Categor&iacute;a</label><select id="sug-category" name="category_id" required>{{#categorias}}<option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>{{/categorias}}</select>
-                <label for="sug-question">Pregunta</label><textarea id="sug-question" name="question" maxlength="500" required>{{pregunta}}</textarea>
-                <fieldset class="sug-edit-answers"><legend>Respuestas</legend><span class="sug-edit-help">Marc&aacute; cu&aacute;l es la correcta. Tienen que ser 4 y no se pueden repetir.</span>
-                    {{#respuestas}}<div class="sug-edit-answer"><label for="sug-answer-{{indice}}">{{letra}}</label><input id="sug-answer-{{indice}}" type="text" name="responses[{{indice}}]" value="{{texto}}" maxlength="255" required><label class="sug-edit-correct" for="sug-correct-{{indice}}"><input id="sug-correct-{{indice}}" type="radio" name="correct_response" value="{{indice}}" required> Correcta</label></div>{{/respuestas}}
-                </fieldset>
-                <fieldset class="sug-edit-diffs"><legend>Dificultad</legend><label><input type="radio" name="difficulty_level" value="1"> F&aacute;cil</label><label><input type="radio" name="difficulty_level" value="2" checked> Media</label><label><input type="radio" name="difficulty_level" value="3"> Dif&iacute;cil</label></fieldset>
-                <span class="sug-edit-diff-help">Es la dificultad inicial; despu&eacute;s se ajusta sola seg&uacute;n cu&aacute;ntos la aciertan.</span>
-                <div class="sug-edit-actions"><button type="submit">Finalizar</button><a href="{{basePath}}/moderador/sugerencias">Cancelar</a></div>
-            </form>
-        </section>
+        <form class="moderador-alta-layout sug-edit-layout" method="post" enctype="multipart/form-data" action="{{basePath}}/moderador/publicarSugerencias" aria-label="Formulario para revisar sugerencia">
+            <input type="hidden" name="suggestion_id" value="{{sugerenciaId}}"><input type="hidden" name="csrf_token" value="{{csrfToken}}">
+            <div class="moderador-alta-formulario">
+                <div class="moderador-alta-columna">
+                    <div class="moderador-alta-campo">
+                        <label for="sug-category">Categoría</label>
+                        <select id="sug-category" name="category_id" required>{{#categorias}}<option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{name}}</option>{{/categorias}}</select>
+                    </div>
+                    <div class="moderador-alta-campo">
+                        <label for="sug-question">Pregunta</label>
+                        <textarea id="sug-question" name="question" rows="2" maxlength="500" required>{{pregunta}}</textarea>
+                    </div>
+                    <fieldset class="sug-edit-answers">
+                        <legend>Respuestas</legend>
+                        <span class="sug-edit-help">Marcá cuál es la correcta. Tienen que ser 4 y no se pueden repetir.</span>
+                        {{#respuestas}}<div class="sug-edit-answer"><input id="sug-answer-{{indice}}" type="text" name="responses[{{indice}}]" value="{{texto}}" placeholder="{{letra}}" maxlength="255" required><label class="sug-edit-correct" for="sug-correct-{{indice}}"><input id="sug-correct-{{indice}}" type="radio" name="correct_response" value="{{indice}}" required> Correcta</label></div>{{/respuestas}}
+                    </fieldset>
+                    <fieldset class="sug-edit-diffs"><legend>Dificultad</legend><label><input type="radio" name="difficulty_level" value="1"> Fácil</label><label><input type="radio" name="difficulty_level" value="2" checked> Media</label><label><input type="radio" name="difficulty_level" value="3"> Difícil</label></fieldset>
+                    <span class="sug-edit-diff-help">Es la dificultad inicial; después se ajusta sola según cuántos la aciertan.</span>
+                </div>
+                <div class="moderador-alta-acciones sug-edit-actions"><button class="moderador-alta-guardar" type="submit">Finalizar</button><a href="{{basePath}}/moderador/sugerencias">Cancelar</a></div>
+            </div>
+            <fieldset class="moderador-alta-imagen sug-edit-image-panel">
+                <legend>Imagen de la pregunta (opcional)</legend>
+                <p class="moderador-ayuda">La imagen que cargues se adjuntará a la pregunta al aprobarla. JPG o PNG, hasta 5 MB.</p>
+                <label for="sug-image">Elegir imagen</label>
+                <input id="sug-image" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="sug-image-help">
+                <small id="sug-image-help">Si no cargás otra, se conserva la imagen de la sugerencia.</small>
+                <div class="sug-edit-image-preview">
+                    <img id="sug-image-preview" {{#hayImagenSugerida}}src="{{basePath}}/app/img-preguntas/{{imagenSugerida}}" data-original-src="{{basePath}}/app/img-preguntas/{{imagenSugerida}}"{{/hayImagenSugerida}} alt="Vista previa de la imagen de la pregunta" {{^hayImagenSugerida}}hidden{{/hayImagenSugerida}}>
+                    <span class="sug-edit-image-placeholder" id="sug-image-placeholder" {{#hayImagenSugerida}}hidden{{/hayImagenSugerida}}>La sugerencia no incluye imagen. Podés cargar una desde acá.</span>
+                </div>
+                <p class="sug-edit-image-name" id="sug-image-name" aria-live="polite">{{#hayImagenSugerida}}Se conservará la imagen de la sugerencia.{{/hayImagenSugerida}}{{^hayImagenSugerida}}Ninguna imagen seleccionada.{{/hayImagenSugerida}}</p>
+                <button class="sug-edit-image-remove" id="sug-image-remove" type="button" hidden>Quitar imagen</button>
+            </fieldset>
+        </form>
+        <script>
+            (function () {
+                var input = document.getElementById('sug-image');
+                var preview = document.getElementById('sug-image-preview');
+                var placeholder = document.getElementById('sug-image-placeholder');
+                var fileName = document.getElementById('sug-image-name');
+                var removeButton = document.getElementById('sug-image-remove');
+                if (!input || !preview || !placeholder || !fileName || !removeButton) return;
+
+                var originalSrc = preview.getAttribute('data-original-src') || '';
+                var previewUrl = null;
+
+                function releasePreview() {
+                    if (previewUrl) {
+                        URL.revokeObjectURL(previewUrl);
+                        previewUrl = null;
+                    }
+                }
+
+                function restoreOriginal(message) {
+                    if (originalSrc) {
+                        preview.src = originalSrc;
+                        preview.hidden = false;
+                        placeholder.hidden = true;
+                    } else {
+                        preview.removeAttribute('src');
+                        preview.hidden = true;
+                        placeholder.hidden = false;
+                    }
+                    fileName.textContent = message;
+                    removeButton.hidden = true;
+                }
+
+                removeButton.addEventListener('click', function () {
+                    releasePreview();
+                    input.value = '';
+                    restoreOriginal(originalSrc ? 'Se conservará la imagen de la sugerencia.' : 'Ninguna imagen seleccionada.');
+                });
+
+                input.addEventListener('change', function () {
+                    releasePreview();
+                    var file = input.files && input.files[0];
+                    if (!file) {
+                        restoreOriginal(originalSrc ? 'Se conservará la imagen de la sugerencia.' : 'Ninguna imagen seleccionada.');
+                        return;
+                    }
+                    if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                        input.value = '';
+                        restoreOriginal(file.size > 5 * 1024 * 1024 ? 'La imagen no puede superar los 5 MB.' : 'Elegí un archivo JPG o PNG.');
+                        return;
+                    }
+
+                    previewUrl = URL.createObjectURL(file);
+                    preview.src = previewUrl;
+                    preview.hidden = false;
+                    placeholder.hidden = true;
+                    fileName.textContent = file.name;
+                    removeButton.hidden = false;
+                });
+
+                window.addEventListener('beforeunload', releasePreview);
+            })();
+        </script>
     </div>
 </main>
