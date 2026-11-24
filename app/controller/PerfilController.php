@@ -55,6 +55,17 @@ class PerfilController
 
         $fotoArchivo = 'app/img-foto-perfil/' . basename((string) $fila['Foto_url']);
         $fotoVersion = ($fila['Foto_url'] && is_file($fotoArchivo)) ? filemtime($fotoArchivo) : '';
+        $edad = null;
+        $anioNacimiento = (int) ($fila['Anio_nacimiento'] ?? 0);
+        $mesNacimiento = (int) ($fila['Mes_nacimiento'] ?? 0);
+        $diaNacimiento = (int) ($fila['Dia_nacimiento'] ?? 0);
+        if (checkdate($mesNacimiento, $diaNacimiento, $anioNacimiento)) {
+            $fechaNacimiento = new \DateTimeImmutable(sprintf('%04d-%02d-%02d', $anioNacimiento, $mesNacimiento, $diaNacimiento));
+            $hoy = new \DateTimeImmutable('today');
+            if ($fechaNacimiento <= $hoy) {
+                $edad = $fechaNacimiento->diff($hoy)->y;
+            }
+        }
 
         $data = [
             'nombre' => $fila['Nombre'],
@@ -64,6 +75,8 @@ class PerfilController
             'pais' => $fila['Pais'],
             'provincia' => $fila['Provincia'],
             'ubicacion' => implode(', ', array_filter([$fila['Provincia'], $fila['Pais']])),
+            'edad' => $edad,
+            'hayEdad' => $edad !== null,
             'fotoUrl' => $fila['Foto_url'],
             'fotoVersion' => $fotoVersion,
             'esMiPerfil' => (int) $fila['Id'] === (int) $_SESSION['usuario_id'],

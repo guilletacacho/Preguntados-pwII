@@ -718,6 +718,10 @@ a:hover { color: var(--texto); }
 .moderador-correccion-formulario,
 .moderador-correccion-contexto { min-width: 0; padding: clamp(1rem, 2.5vw, 1.4rem); border: 1px solid var(--borde); border-radius: 16px; background: var(--superficie); }
 .moderador-correccion-formulario form { display: flex; flex-direction: column; gap: .65rem; }
+.admin-editar-usuario-columnas { grid-template-columns: minmax(0, 760px) 400px; justify-content: start; }
+.admin-foto-perfil { position: sticky; top: 20px; align-self: start; min-height: 440px; }
+.admin-foto-perfil img { display: block; width: 340px; height: 340px; max-width: 100%; margin: 0 auto; border: 1px solid var(--borde); border-radius: 12px; background: var(--hundido); object-fit: cover; }
+.admin-foto-perfil p { margin: 0; color: var(--texto-sec); font-size: var(--moderador-texto-interfaz); }
 .moderador-correccion-formulario label { color: var(--texto-sec); font-size: var(--moderador-texto-interfaz); font-weight: 700; }
 .moderador-correccion-formulario select,
 .moderador-correccion-formulario textarea,
@@ -746,6 +750,7 @@ a:hover { color: var(--texto); }
 .moderador-correccion-reporte .moderador-correccion-autor { margin: 0 0 .55rem; color: var(--texto-sec); font-size: var(--moderador-texto-secundario); }
 .moderador-correccion-reporte blockquote { margin: .55rem 0 0; padding: .65rem .8rem; border-left: 3px solid var(--geografia); border-radius: 0 8px 8px 0; background: var(--hundido); color: var(--texto-sec); font-size: var(--moderador-texto-interfaz); white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .moderador-columnas, .moderador-correccion-columnas { grid-template-columns: minmax(0, 1fr); } .moderador-correccion-contexto { position: static; } }
+@media (max-width: 900px) { .admin-foto-perfil { position: sticky; top: 20px; align-self: start; } }
 @media (max-width: 600px) {
     .moderador-shell { width: min(100% - 1rem, 1440px); }
     .moderador-encabezado { align-items: flex-start; }

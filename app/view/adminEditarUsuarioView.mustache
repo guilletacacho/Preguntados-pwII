@@ -13,8 +13,9 @@
             <p class="moderador-mensaje moderador-mensaje-{{tipo}}" role="alert">{{texto}}</p>
         {{/mensaje}}
 
-        <article class="moderador-correccion-formulario">
-            <form method="post" action="{{basePath}}/admin/actualizarUsuario">
+        <div class="moderador-correccion-columnas admin-editar-usuario-columnas">
+            <article class="moderador-correccion-formulario">
+                <form method="post" action="{{basePath}}/admin/actualizarUsuario">
                 <input type="hidden" name="id" value="{{id}}">
                 <input type="hidden" name="csrf_token" value="{{csrfToken}}">
 
@@ -88,7 +89,18 @@
                     <button class="moderador-boton moderador-boton-resolver" type="submit">Guardar cambios</button>
                     <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Cancelar</a>
                 </div>
-            </form>
-        </article>
+                </form>
+            </article>
+
+            <aside class="moderador-correccion-contexto admin-foto-perfil" aria-labelledby="admin-foto-perfil-titulo">
+                <h2 id="admin-foto-perfil-titulo">Imagen de perfil</h2>
+                {{#fotoUrl}}
+                    <img src="{{basePath}}/app/img-foto-perfil/{{fotoUrl}}" alt="Imagen de perfil de {{usuario}}">
+                {{/fotoUrl}}
+                {{^fotoUrl}}
+                    <p>Este usuario no tiene imagen de perfil.</p>
+                {{/fotoUrl}}
+            </aside>
+        </div>
     </div>
 </main>

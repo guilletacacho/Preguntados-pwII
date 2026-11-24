@@ -124,7 +124,7 @@
                         <label for="nota-resolucion">Nota (opcional)</label>
                         <textarea id="nota-resolucion" name="resolution_notes" maxlength="500" rows="3" placeholder="Dejá un comentario sobre la decisión."></textarea>
                         <div class="moderador-acciones">
-                            <button class="moderador-boton moderador-boton-resolver" type="submit" formaction="{{basePath}}/moderador/resolver">Resolver reportes</button>
+                            <button class="moderador-boton moderador-boton-resolver" type="submit" formaction="{{basePath}}/moderador/resolver">Confirmar reporte</button>
                             <button class="moderador-boton moderador-boton-descartar" type="submit" formaction="{{basePath}}/moderador/descartar">Descartar reportes</button>
                             <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/moderador/editar?id={{detalle.question_id}}">Corregir pregunta</a>
                         </div>
@@ -151,7 +151,7 @@
         {{> moderadorNavegacion}}
 
         <div class="moderador-correccion-banner">
-            Corregiendo por <strong>{{cantidadReportesCorreccion}}</strong>
+            Corrigiendo <strong>{{cantidadReportesCorreccion}}</strong>
             {{#pluralReportesCorreccion}}reportes{{/pluralReportesCorreccion}}{{^pluralReportesCorreccion}}reporte{{/pluralReportesCorreccion}}
         </div>
 
