@@ -2041,3 +2041,54 @@ body:has(.reporte-dialogo[open]) { overflow: hidden; }
 .faq-num { color: var(--deporte); font-size: .72rem; font-weight: 800; letter-spacing: .08em; }
 .faq-card p { margin: .85rem 0 0; color: var(--texto-sec); font-size: .86rem; line-height: 1.6; }
 @media (max-width: 767.98px) { .faq-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.partida-contenido { width: min(100%, 720px); display: grid; gap: 1.25rem; }
+.partida-contenido > * { margin-block: 0; }
+
+.partida-hud { border: 1px solid var(--borde); border-radius: var(--radio); background: var(--superficie); overflow: hidden; }
+.partida-hud-fila { display: flex; align-items: center; gap: .75rem; padding: .75rem .9rem; }
+.partida-hud-icono { width: 38px; height: 38px; flex: none; }
+.partida-hud-categoria { flex: 1; min-width: 0; display: grid; line-height: 1.25; }
+.partida-hud-categoria strong { font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.partida-hud-categoria span { color: var(--link); font-size: .8rem; font-weight: 600; }
+.partida-hud-tiempo { margin: 0; color: var(--texto-sec); font-size: .85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.partida-hud-tiempo strong { color: var(--texto); font-size: 1.15rem; }
+.partida-hud-puntos { display: flex; align-items: baseline; gap: .4rem; }
+.partida-hud-puntos span { color: var(--link); font-size: .8rem; font-weight: 700; }
+.partida-hud-puntos strong { font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.partida-hud .partida-audio { flex-wrap: nowrap; padding-left: .75rem; border-left: 1px solid var(--borde); }
+.partida-hud .partida-audio button { width: 38px; height: 38px; border-radius: 10px; }
+
+.partida-hud .partida-progreso { height: 4px; padding: 0; border-radius: 0; background: var(--hundido); }
+.partida-hud .partida-progreso span { height: 100%; border-radius: 0; }
+.partida-hud .partida-progreso:not([data-restante]) span { width: 0; }
+
+.partida-enunciado { display: grid; gap: 1rem; }
+.partida-enunciado-texto { display: grid; justify-items: start; gap: .6rem; min-width: 0; }
+.partida-enunciado h1 { margin: 0; font-size: clamp(1.3rem, 2.6vw, 1.75rem); line-height: 1.3; text-wrap: balance; overflow-wrap: anywhere; }
+.partida-enunciado .partida-imagen-pregunta { margin: 0; }
+@media (min-width: 768px) {
+    .partida-enunciado:has(.partida-imagen-pregunta) { grid-template-columns: minmax(0, 1fr) minmax(180px, 34%); align-items: center; }
+}
+
+.partida-reportar { display: inline-flex; align-items: center; gap: .4rem; padding: .25rem 0; border: 0; background: none; color: var(--texto-sec); font: 600 .8rem var(--fuente); cursor: pointer; }
+.partida-reportar:hover { color: var(--arte); }
+.partida-reportar:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 4px; }
+
+.partida-respuesta-etiqueta { margin-left: auto; flex: none; padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+.es-correcta .partida-respuesta-etiqueta { color: var(--deporte); background: rgba(124, 194, 67, .14); }
+.es-incorrecta .partida-respuesta-etiqueta { color: var(--error); background: rgba(255, 138, 128, .14); }
+
+.partida-resultado-texto { display: grid; gap: .15rem; min-width: 0; }
+.partida-resultado-texto strong { font-size: 1rem; }
+.partida-resultado .partida-ayuda { margin: 0; font-size: .85rem; }
+.partida-acciones { flex: none; }
+
+@media (max-width: 576px) {
+    .partida-contenido { gap: .9rem; }
+    .partida-hud-fila { gap: .5rem; padding: .6rem .7rem; }
+    .partida-hud-icono { width: 32px; height: 32px; }
+    .partida-hud-puntos span { display: none; }
+    .partida-hud .partida-audio { padding-left: .5rem; }
+    .partida-hud .partida-audio button { width: 34px; height: 34px; }
+}
