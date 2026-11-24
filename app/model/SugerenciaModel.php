@@ -175,7 +175,43 @@ class SugerenciaModel{
 
    }
 
-   public function obtenerUltimasPreguntasAprobadas($limite = 10){
+   public function contarPreguntasAprobadas()
+    {
+        $fila = $this->database->queryOne(
+            "SELECT COUNT(*) AS total
+             FROM question_suggestions
+             WHERE status = 'APROBADA' AND published_question_id IS NOT NULL"
+        );
+
+        return (int) ($fila['total'] ?? 0);
+    }
+
+    public function obtenerPreguntasAprobadasPaginadas($pagina, $porPagina)
+    {
+        $pagina = max(1, (int) $pagina);
+        $porPagina = max(1, min((int) $porPagina, 10));
+        $offset = ($pagina - 1) * $porPagina;
+
+        $sql = "SELECT
+                    q.question AS pregunta,
+                    c.name AS categoria,
+                    u.Usuario AS usuario
+                FROM question_suggestions qs
+                INNER JOIN questions q
+                    ON q.id = qs.published_question_id
+                INNER JOIN category c
+                    ON c.id = q.category_id
+                INNER JOIN usuarios u
+                    ON u.Id = qs.user_id
+                WHERE qs.status = 'APROBADA'
+                  AND qs.published_question_id IS NOT NULL
+                ORDER BY qs.reviewed_at DESC, qs.id DESC
+                LIMIT {$porPagina} OFFSET {$offset}";
+
+        return $this->database->queryAll($sql);
+    }
+
+    public function obtenerUltimasPreguntasAprobadas($limite = 10){
 
         $limite = max(1, min((int) $limite, 10));
    

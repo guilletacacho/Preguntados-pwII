@@ -16,6 +16,9 @@ $assetBase = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCR
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="<?= $assetBase ?>/public/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= $assetBase ?>/app/css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>" rel="stylesheet">
+    <?php if (!empty($layoutData['tieneEstilosSugerencias'])): ?>
+        <link href="<?= $assetBase ?>/public/css/sugerencias.css?v=<?= filemtime(__DIR__ . '/../../public/css/sugerencias.css') ?>" rel="stylesheet">
+    <?php endif; ?>
     <?php if (!empty($layoutData['enAdministracion'])): ?>
         <link href="<?= $assetBase ?>/app/css/admin-panel.css?v=<?= filemtime(__DIR__ . '/../css/admin-panel.css') ?>" rel="stylesheet">
     <?php endif; ?>
@@ -23,7 +26,13 @@ $assetBase = htmlspecialchars(rtrim(str_replace("\\", "/", dirname($_SERVER["SCR
         <script src="<?= $assetBase ?>/public/js/navegacion-lateral.js" defer></script>
     <?php endif; ?>
 </head>
-<body<?= !empty($layoutData['enAdministracion']) ? ' class="admin-panel"' : '' ?>>
+<?php
+$clasesCuerpo = [];
+if (!empty($layoutData['enAdministracion'])) {
+    $clasesCuerpo[] = 'admin-panel';
+}
+?>
+<body<?= $clasesCuerpo ? ' class="' . implode(' ', $clasesCuerpo) . '"' : '' ?>>
 <?php if (isset($_SESSION['usuario_id'])): ?>
 <?php
 if (!isset($_SESSION['presence_token'])) {

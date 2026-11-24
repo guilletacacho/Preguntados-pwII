@@ -31,11 +31,31 @@
                 <input id="contrasena" name="contrasena" type="password" minlength="8" autocomplete="new-password">
                 <span class="moderador-item-meta">Si la completás, debe tener al menos 8 caracteres.</span>
 
-                <label for="anioNacimiento">Año de nacimiento</label>
-                <input id="anioNacimiento" name="anioNacimiento" type="number" value="{{anioNacimiento}}" min="1900" max="{{anioActual}}" required>
+                <div class="admin-nacimiento-edicion">
+                    <div>
+                        <label for="anioNacimiento">Año de nacimiento</label>
+                        <input id="anioNacimiento" name="anioNacimiento" type="number" value="{{anioNacimiento}}" min="{{anioMinimoNacimiento}}" max="{{anioActual}}" required>
+                    </div>
+                    <div>
+                        <label for="mesNacimiento">Mes</label>
+                        <select id="mesNacimiento" name="mesNacimiento" required>
+                            <option value="" {{^mesNacimiento}}selected{{/mesNacimiento}} disabled>Elegí</option>
+                            {{#meses}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/meses}}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="diaNacimiento">Día</label>
+                        <select id="diaNacimiento" name="diaNacimiento" required>
+                            <option value="" {{^diaNacimiento}}selected{{/diaNacimiento}} disabled>Elegí</option>
+                            {{#dias}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/dias}}
+                        </select>
+                    </div>
+                </div>
 
                 <label for="sexo">Sexo</label>
-                <input id="sexo" name="sexo" type="text" value="{{sexo}}" maxlength="30">
+                <select id="sexo" name="sexo">
+                    {{#sexos}}<option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>{{/sexos}}
+                </select>
 
                 <label for="provincia">Provincia</label>
                 <input id="provincia" name="provincia" type="text" value="{{provincia}}" maxlength="150" required>

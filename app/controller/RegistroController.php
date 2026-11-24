@@ -23,7 +23,7 @@ class RegistroController{
             Redirect::to('/Preguntados/home/show');
         }
 
-        $data = ["anioActual" => date('Y')];
+        $data = $this->datosNacimiento([]);
         $this->render->renderiza("registro",$data);
     }
 
@@ -70,17 +70,23 @@ class RegistroController{
     }
 
      public function registrar() {
-        $data = ["anioActual" => date('Y'), "pais" => '', "provincia" => '', "ubicacion" => ''];
+        $data = ["pais" => '', "provincia" => '', "ubicacion" => ''];
         $errores = [];
-        foreach (['nombre', 'anioNacimiento', 'sexo', 'usuario', 'email'] as $campo) {
+        foreach (['nombre', 'anioNacimiento', 'mesNacimiento', 'diaNacimiento', 'sexo', 'usuario', 'email'] as $campo) {
             $valor = Request::post($campo, '');
             $data[$campo] = is_string($valor) ? trim($valor) : '';
             if ($data[$campo] === '') {
                 $errores[$campo] = 'Completa este campo.';
             }
         }
-        if ($data['anioNacimiento'] !== '' && (!ctype_digit($data['anioNacimiento']) || (int)$data['anioNacimiento'] < 1900 || (int)$data['anioNacimiento'] > (int)date('Y'))) {
-            $errores['anioNacimiento'] = 'Ingresa un año entre 1900 y ' . date('Y') . '.';
+        $data = $this->datosNacimiento($data);
+        if (
+            $data['anioNacimiento'] !== '' &&
+            $data['mesNacimiento'] !== '' &&
+            $data['diaNacimiento'] !== '' &&
+            !$this->edadValida($data['anioNacimiento'], $data['mesNacimiento'], $data['diaNacimiento'])
+        ) {
+            $errores['anioNacimiento'] = 'Tenés que tener entre 16 y 100 años para jugar.';
         }
         if (!in_array($data['sexo'], ['Femenino', 'Masculino', 'Otro'], true)) {
             $errores['sexo'] = 'Selecciona una opción válida.';
@@ -151,6 +157,8 @@ class RegistroController{
         if (!$errores && $this->model->insertar(
         $data['nombre'],
         $data['anioNacimiento'],
+        $data['mesNacimiento'],
+        $data['diaNacimiento'],
         $data['sexo'],
         $data['provincia'],
         $data['pais'],
@@ -198,6 +206,64 @@ class RegistroController{
         }
         $this->render->renderiza('registro', $data);
 
+    }
+
+    private function datosNacimiento(array $data): array
+    {
+        $anioActual = (int) date('Y');
+        $data['anioActual'] = $anioActual;
+        $data['anioMinimoNacimiento'] = $anioActual - 100;
+
+        $mesSeleccionado = (string) ($data['mesNacimiento'] ?? '');
+        $diaSeleccionado = (string) ($data['diaNacimiento'] ?? '');
+
+        $meses = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre',
+        ];
+        $data['meses'] = [];
+        foreach ($meses as $valor => $etiqueta) {
+            $data['meses'][] = [
+                'valor' => (string) $valor,
+                'etiqueta' => $etiqueta,
+                'selected' => $mesSeleccionado === (string) $valor,
+            ];
+        }
+
+        $data['dias'] = [];
+        for ($dia = 1; $dia <= 31; $dia++) {
+            $data['dias'][] = [
+                'valor' => (string) $dia,
+                'etiqueta' => str_pad((string) $dia, 2, '0', STR_PAD_LEFT),
+                'selected' => $diaSeleccionado === (string) $dia,
+            ];
+        }
+
+        return $data;
+    }
+
+    private function edadValida($anio, $mes, $dia): bool
+    {
+        if (!ctype_digit((string) $anio) || !ctype_digit((string) $mes) || !ctype_digit((string) $dia)) {
+            return false;
+        }
+
+        $anio = (int) $anio;
+        $mes = (int) $mes;
+        $dia = (int) $dia;
+        if (!checkdate($mes, $dia, $anio)) {
+            return false;
+        }
+
+        $nacimiento = new \DateTime(sprintf('%04d-%02d-%02d', $anio, $mes, $dia));
+        $hoy = new \DateTime('today');
+        if ($nacimiento > $hoy) {
+            return false;
+        }
+
+        $edad = $hoy->diff($nacimiento)->y;
+        return $edad >= 16 && $edad <= 100;
     }
 
     private function geocodificar(float $latitud, float $longitud): array

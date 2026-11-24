@@ -551,11 +551,11 @@
 .admin-panel .admin-tabla-usuarios th:nth-child(1),
 .admin-panel .admin-tabla-usuarios td:nth-child(1) { width: 12%; }
 .admin-panel .admin-tabla-usuarios th:nth-child(2) { width: 21%; }
-.admin-panel .admin-tabla-usuarios th:nth-child(3) { width: 10%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(3) { width: 14%; }
 .admin-panel .admin-tabla-usuarios th:nth-child(4) { width: 11%; }
 .admin-panel .admin-tabla-usuarios th:nth-child(5) { width: 8%; }
 .admin-panel .admin-tabla-usuarios th:nth-child(6) { width: 12%; }
-.admin-panel .admin-tabla-usuarios th:nth-child(7) { width: 26%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(7) { width: 24%; }
 
 .admin-panel .admin-tabla-usuarios th,
 .admin-panel .admin-tabla-usuarios td {
@@ -565,6 +565,14 @@
 .admin-panel .admin-tabla-usuarios th:nth-child(5),
 .admin-panel .admin-tabla-usuarios th:nth-child(6) {
     text-align: center;
+}
+
+.admin-panel .admin-tabla-usuarios td:nth-child(3) .moderador-badge {
+    display: inline-flex;
+    white-space: nowrap;
+    padding-inline: 8px;
+    font-size: .62rem;
+    letter-spacing: .01em;
 }
 
 .admin-panel .admin-tabla-usuarios td:first-child {
@@ -792,6 +800,31 @@
     grid-column: 1 / -1;
 }
 
+.admin-panel .admin-form-nacimiento {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 16px;
+}
+
+.admin-panel .admin-nacimiento-edicion {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 16px;
+}
+
+.admin-panel .admin-nacimiento-edicion > div {
+    display: grid;
+    align-content: start;
+    gap: 5px;
+    min-width: 0;
+}
+
+.admin-panel .admin-nacimiento-edicion :is(input, select) {
+    width: 100%;
+    min-width: 0;
+}
+
 .admin-panel .admin-form-acciones {
     display: flex;
     flex-wrap: wrap;
@@ -911,7 +944,9 @@
     .admin-panel .admin-filtro-busqueda { grid-column: auto; }
     .admin-panel .admin-filtros-historial { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .admin-panel .admin-filtros-historial label { grid-column: 1 / -1; }
-    .admin-panel .admin-form-campos { grid-template-columns: minmax(0, 1fr); }
+    .admin-panel .admin-form-campos,
+    .admin-panel .admin-form-nacimiento,
+    .admin-panel .admin-nacimiento-edicion { grid-template-columns: minmax(0, 1fr); }
     .admin-panel .admin-chart { height: 190px; }
     .admin-panel .admin-chart--alto { height: 220px; }
 }

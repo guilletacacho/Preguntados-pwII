@@ -38,22 +38,38 @@
                         <input class="form-control {{#errores.nombre}}is-invalid{{/errores.nombre}}" id="nombre" aria-describedby="nombre-error" name="nombre" value="{{nombre}}" type="text" placeholder="Sofía Martínez" autocomplete="name" required>
                         <div id="nombre-error" class="invalid-feedback" aria-live="polite">{{errores.nombre}}</div>
                     </div>
-                    <div class="register-row">
+                    <div class="register-row register-row-nacimiento">
                         <div>
-                            <label for="anioNacimiento" class="form-label">Año de nacimiento</label>
-                            <input class="form-control {{#errores.anioNacimiento}}is-invalid{{/errores.anioNacimiento}}" id="anioNacimiento" aria-describedby="anioNacimiento-error" name="anioNacimiento" value="{{anioNacimiento}}" type="number" min="1900" max="{{anioActual}}" placeholder="2002" required>
+                            <label for="anioNacimiento" class="form-label">Año</label>
+                            <input class="form-control {{#errores.anioNacimiento}}is-invalid{{/errores.anioNacimiento}}" id="anioNacimiento" aria-describedby="anioNacimiento-error" name="anioNacimiento" value="{{anioNacimiento}}" type="number" min="{{anioMinimoNacimiento}}" max="{{anioActual}}" placeholder="2002" required>
                             <div id="anioNacimiento-error" class="invalid-feedback" aria-live="polite">{{errores.anioNacimiento}}</div>
                         </div>
                         <div>
-                            <label for="sexo" class="form-label">Sexo</label>
-                            <select class="form-select {{#errores.sexo}}is-invalid{{/errores.sexo}}" id="sexo" aria-describedby="sexo-error" name="sexo" required>
-                                <option value="" {{^sexo}}selected{{/sexo}} disabled>Elegí una opción</option>
-                                <option value="Femenino" {{#sexoFemenino}}selected{{/sexoFemenino}}>Femenino</option>
-                                <option value="Masculino" {{#sexoMasculino}}selected{{/sexoMasculino}}>Masculino</option>
-                                <option value="Otro" {{#sexoOtro}}selected{{/sexoOtro}}>Otro</option>
+                            <label for="mesNacimiento" class="form-label">Mes</label>
+                            <select class="form-select {{#errores.mesNacimiento}}is-invalid{{/errores.mesNacimiento}}" id="mesNacimiento" aria-describedby="mesNacimiento-error" name="mesNacimiento" required>
+                                <option value="" {{^mesNacimiento}}selected{{/mesNacimiento}} disabled>Elegí</option>
+                                {{#meses}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/meses}}
                             </select>
-                            <div id="sexo-error" class="invalid-feedback" aria-live="polite">{{errores.sexo}}</div>
+                            <div id="mesNacimiento-error" class="invalid-feedback" aria-live="polite">{{errores.mesNacimiento}}</div>
                         </div>
+                        <div>
+                            <label for="diaNacimiento" class="form-label">Día</label>
+                            <select class="form-select {{#errores.diaNacimiento}}is-invalid{{/errores.diaNacimiento}}" id="diaNacimiento" aria-describedby="diaNacimiento-error" name="diaNacimiento" required>
+                                <option value="" {{^diaNacimiento}}selected{{/diaNacimiento}} disabled>Elegí</option>
+                                {{#dias}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/dias}}
+                            </select>
+                            <div id="diaNacimiento-error" class="invalid-feedback" aria-live="polite">{{errores.diaNacimiento}}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="sexo" class="form-label">Sexo</label>
+                        <select class="form-select {{#errores.sexo}}is-invalid{{/errores.sexo}}" id="sexo" aria-describedby="sexo-error" name="sexo" required>
+                            <option value="" {{^sexo}}selected{{/sexo}} disabled>Elegí una opción</option>
+                            <option value="Femenino" {{#sexoFemenino}}selected{{/sexoFemenino}}>Femenino</option>
+                            <option value="Masculino" {{#sexoMasculino}}selected{{/sexoMasculino}}>Masculino</option>
+                            <option value="Otro" {{#sexoOtro}}selected{{/sexoOtro}}>Otro</option>
+                        </select>
+                        <div id="sexo-error" class="invalid-feedback" aria-live="polite">{{errores.sexo}}</div>
                     </div>
 
                     <h2 class="register-subtitulo">Tu cuenta</h2>

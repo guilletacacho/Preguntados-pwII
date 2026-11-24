@@ -63,13 +63,31 @@
                                 <label for="nombre">Nombre</label>
                                 <input id="nombre" name="nombre" type="text" value="{{nombre}}" maxlength="50" autocomplete="name" required>
                             </div>
-                            <div class="admin-form-campo">
-                                <label for="anioNacimiento">Año de nacimiento</label>
-                                <input id="anioNacimiento" name="anioNacimiento" type="number" value="{{anioNacimiento}}" min="1900" max="{{anioActual}}" autocomplete="bday-year" required>
+                            <div class="admin-form-nacimiento">
+                                <div class="admin-form-campo">
+                                    <label for="anioNacimiento">Año de nacimiento</label>
+                                    <input id="anioNacimiento" name="anioNacimiento" type="number" value="{{anioNacimiento}}" min="{{anioMinimoNacimiento}}" max="{{anioActual}}" autocomplete="bday-year" required>
+                                </div>
+                                <div class="admin-form-campo">
+                                    <label for="mesNacimiento">Mes</label>
+                                    <select id="mesNacimiento" name="mesNacimiento" required>
+                                        <option value="" {{^mesNacimiento}}selected{{/mesNacimiento}} disabled>Elegí</option>
+                                        {{#meses}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/meses}}
+                                    </select>
+                                </div>
+                                <div class="admin-form-campo">
+                                    <label for="diaNacimiento">Día</label>
+                                    <select id="diaNacimiento" name="diaNacimiento" required>
+                                        <option value="" {{^diaNacimiento}}selected{{/diaNacimiento}} disabled>Elegí</option>
+                                        {{#dias}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/dias}}
+                                    </select>
+                                </div>
                             </div>
                             <div class="admin-form-campo">
                                 <label for="sexo">Sexo (opcional)</label>
-                                <input id="sexo" name="sexo" type="text" value="{{sexo}}" maxlength="30" placeholder="No especificado">
+                                <select id="sexo" name="sexo">
+                                    {{#sexos}}<option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>{{/sexos}}
+                                </select>
                             </div>
                             <div class="admin-form-campo">
                                 <label for="pais">País</label>

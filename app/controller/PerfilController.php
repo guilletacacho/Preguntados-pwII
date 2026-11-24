@@ -105,6 +105,8 @@ class PerfilController
         $this->renderizarEditar([
             'nombre' => $fila['Nombre'],
             'anioNacimiento' => $fila['Anio_nacimiento'],
+            'mesNacimiento' => $fila['Mes_nacimiento'],
+            'diaNacimiento' => $fila['Dia_nacimiento'],
             'sexo' => $fila['Sexo'],
             'provincia' => $fila['Provincia'],
             'pais' => $fila['Pais'],
@@ -135,7 +137,7 @@ class PerfilController
         ];
         $errores = [];
 
-        foreach (['nombre', 'anioNacimiento', 'sexo', 'provincia', 'pais', 'email'] as $campo) {
+        foreach (['nombre', 'anioNacimiento', 'mesNacimiento', 'diaNacimiento', 'sexo', 'provincia', 'pais', 'email'] as $campo) {
             $data[$campo] = trim($this->textoPost($campo));
             if ($data[$campo] === '') {
                 $errores[$campo] = 'Completá este campo.';
@@ -151,8 +153,13 @@ class PerfilController
         if (mb_strlen($data['pais']) > 150) {
             $errores['pais'] = 'Este campo puede tener hasta 150 caracteres.';
         }
-        if ($data['anioNacimiento'] !== '' && (!ctype_digit($data['anioNacimiento']) || (int) $data['anioNacimiento'] < 1900 || (int) $data['anioNacimiento'] > (int) date('Y'))) {
-            $errores['anioNacimiento'] = 'Ingresá un año entre 1900 y ' . date('Y') . '.';
+        if (
+            $data['anioNacimiento'] === ''
+            || $data['mesNacimiento'] === ''
+            || $data['diaNacimiento'] === ''
+            || !$this->edadValida($data['anioNacimiento'], $data['mesNacimiento'], $data['diaNacimiento'])
+        ) {
+            $errores['anioNacimiento'] = 'Tenés que tener entre 16 y 100 años para jugar.';
         }
         if (!in_array($data['sexo'], ['Femenino', 'Masculino', 'Otro'], true)) {
             $errores['sexo'] = 'Seleccioná una opción válida.';
@@ -198,7 +205,7 @@ class PerfilController
             return;
         }
 
-        $this->model->actualizar($id, $data['nombre'], $data['anioNacimiento'], $data['sexo'], $data['provincia'], $data['pais'], $data['email'], $fotoNueva);
+        $this->model->actualizar($id, $data['nombre'], $data['anioNacimiento'], $data['mesNacimiento'], $data['diaNacimiento'], $data['sexo'], $data['provincia'], $data['pais'], $data['email'], $fotoNueva);
         $_SESSION['foto_url'] = $fotoNueva !== null ? $fotoNueva : ($actual['Foto_url'] ?? null);
 
         if ($cambiaContrasena) {
@@ -259,11 +266,69 @@ class PerfilController
         return is_string($valor) ? $valor : '';
     }
 
+    private function datosNacimiento(array $data): array
+    {
+        $anioActual = (int) date('Y');
+        $data['anioActual'] = $anioActual;
+        $data['anioMinimoNacimiento'] = $anioActual - 100;
+
+        $mesSeleccionado = (string) ($data['mesNacimiento'] ?? '');
+        $diaSeleccionado = (string) ($data['diaNacimiento'] ?? '');
+
+        $meses = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre',
+        ];
+        $data['meses'] = [];
+        foreach ($meses as $valor => $etiqueta) {
+            $data['meses'][] = [
+                'valor' => (string) $valor,
+                'etiqueta' => $etiqueta,
+                'selected' => $mesSeleccionado === (string) $valor,
+            ];
+        }
+
+        $data['dias'] = [];
+        for ($dia = 1; $dia <= 31; $dia++) {
+            $data['dias'][] = [
+                'valor' => (string) $dia,
+                'etiqueta' => str_pad((string) $dia, 2, '0', STR_PAD_LEFT),
+                'selected' => $diaSeleccionado === (string) $dia,
+            ];
+        }
+
+        return $data;
+    }
+
+    private function edadValida($anio, $mes, $dia): bool
+    {
+        if (!ctype_digit((string) $anio) || !ctype_digit((string) $mes) || !ctype_digit((string) $dia)) {
+            return false;
+        }
+
+        $anio = (int) $anio;
+        $mes = (int) $mes;
+        $dia = (int) $dia;
+        if (!checkdate($mes, $dia, $anio)) {
+            return false;
+        }
+
+        $nacimiento = new \DateTime(sprintf('%04d-%02d-%02d', $anio, $mes, $dia));
+        $hoy = new \DateTime('today');
+        if ($nacimiento > $hoy) {
+            return false;
+        }
+
+        $edad = $hoy->diff($nacimiento)->y;
+        return $edad >= 16 && $edad <= 100;
+    }
+
     private function renderizarEditar($data)
     {
         $_SESSION['csrf_perfil'] ??= bin2hex(random_bytes(32));
         $data['csrfToken'] = $_SESSION['csrf_perfil'];
-        $data['anioActual'] = date('Y');
+        $data = $this->datosNacimiento($data);
         foreach (['Femenino', 'Masculino', 'Otro'] as $sexo) {
             $data['sexo' . $sexo] = ($data['sexo'] ?? '') === $sexo;
         }
