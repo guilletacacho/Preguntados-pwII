@@ -1,6 +1,6 @@
 .roulette-shell { width: 100%; min-width: 0; padding: clamp(20px, 5vw, 70px) 16px; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; }
 .roulette-panel { width: min(100%, 1000px); min-width: 0; text-align: center; overflow-wrap: anywhere; }
-.roulette-top { display: flex; justify-content: space-between; gap: 16px; color: var(--texto-sec); font-size: .8rem; margin-bottom: 36px; }
+.roulette-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; color: var(--texto-sec); font-size: .8rem; margin-bottom: 36px; }
 .roulette-panel h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; letter-spacing: -.05em; }
 .roulette-description { color: var(--texto-sec); margin: 16px 0 40px; }
 .roulette-window { position: relative; overflow: hidden; padding: 24px 0; border: 1px solid var(--borde); border-radius: 16px; background: var(--hundido); isolation: isolate; }
@@ -212,10 +212,32 @@ a:hover { color: var(--texto); }
 
 .partida-meta {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     gap: .5rem;
     margin: .25rem 0 .75rem;
 }
+
+.partida-audio { display: flex; flex-wrap: wrap; gap: .35rem; }
+.partida-audio[hidden] { display: none; }
+.partida-meta .partida-audio { margin-inline-start: auto; }
+.partida-audio button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 12px;
+    background: var(--hundido);
+    color: var(--texto-sec);
+    cursor: pointer;
+}
+.partida-audio button:hover { background: var(--superficie); }
+.partida-audio button[aria-pressed="true"] { background: var(--superficie); color: var(--link); }
+.partida-audio button[aria-pressed="true"] .partida-audio-silencio,
+.partida-audio button[aria-pressed="false"] .partida-audio-ondas { display: none; }
+.partida-audio button:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 
 .partida-chip {
     padding: .3rem .65rem;

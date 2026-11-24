@@ -42,6 +42,7 @@
             activeCard?.classList.remove('is-passing');
             activeCard = current;
             current.classList.add('is-passing');
+            window.audioPartida?.efecto('rueda');
             viewport.style.setProperty('--roulette-accent', getComputedStyle(current).getPropertyValue('--category-color'));
             if (marker && !reducedMotion.matches) {
                 markerAnimation?.cancel();
@@ -89,7 +90,11 @@
         finished = true;
         root.classList.add('ganadora');
         selected.classList.add('is-winner');
-        if (conCelebracion) celebrate();
+        if (conCelebracion) {
+            celebrate();
+            window.audioPartida?.efecto('categoria');
+        }
+        window.audioPartida?.cambiarCategoria?.(winner.dataset.name);
         root.classList.remove('is-spinning');
         status.textContent = `¡Te tocó ${winner.dataset.name}!`;
         spin.hidden = true;

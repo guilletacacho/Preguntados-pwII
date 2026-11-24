@@ -18,6 +18,7 @@
     var relleno = barra.querySelector('span');
     var detenido = false;
     var intervalo = null;
+    var ultimoSegundo = restante;
 
     function pintar(segundos) {
         var porcentaje = Math.max(0, Math.min(100, (segundos / limite) * 100));
@@ -52,6 +53,10 @@
         }
 
         var segundos = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+        if (segundos > 0 && segundos <= 3 && segundos < ultimoSegundo) {
+            window.audioPartida?.efecto('aviso');
+        }
+        ultimoSegundo = segundos;
         pintar(segundos);
 
         if (segundos <= 0) {
