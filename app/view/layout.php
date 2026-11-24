@@ -36,6 +36,18 @@ if (!isset($_SESSION['presence_token'])) {
 <?php endif; ?>
 <?php require __DIR__ . '/header.php'; ?>
 <?= $content ?>
+<?php if (!empty($layoutData['partidaSalida'])): ?>
+<dialog class="partida-salida-dialogo" data-partida-salida="<?= $assetBase ?>/partida/avisoSalida"
+        data-token="<?= htmlspecialchars($layoutData['partidaSalida'], ENT_QUOTES, 'UTF-8') ?>"
+        aria-labelledby="partida-salida-titulo" aria-describedby="partida-salida-detalle">
+    <h2 id="partida-salida-titulo">¿Abandonar la partida?</h2>
+    <p id="partida-salida-detalle">Si salís, la partida quedará abandonada. Los puntos que ganaste en esta partida quedarán fuera del ranking.</p>
+    <div class="partida-salida-acciones">
+        <button type="button" data-partida-quedarse autofocus>Seguir jugando</button>
+        <button type="button" data-partida-abandonar>Abandonar partida</button>
+    </div>
+</dialog>
+<?php endif; ?>
 <?php require __DIR__ . '/footer.php'; ?>
 </body>
 </html>

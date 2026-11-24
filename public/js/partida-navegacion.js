@@ -1,16 +1,13 @@
 (function () {
+    var continuando = false;
+
     // Las páginas de partida no deben volver desde la caché del navegador
     // ni desde el bfcache: el estado real vive en el servidor.
     window.addEventListener('pageshow', function (event) {
         if (event.persisted) {
+            continuando = true;
             window.location.reload();
         }
-    });
-
-    // "Atrás" no debe mostrar una pregunta ya respondida. Recargamos para
-    // que el servidor decida qué corresponde mostrar.
-    window.addEventListener('popstate', function () {
-        window.location.reload();
     });
 
     // Sello de ESTA pestaña. El servidor lo usa para que solo una pestaña
@@ -62,29 +59,89 @@
 
     window.pestanaDePartida = { sello: sello, conSello: conSello };
 
-    // Latido de la sesión: mantiene vivo el bloqueo por cuenta y detecta si
-    // otra sesión tomó el control. Los carteles no laten para no quedar en
-    // un loop de recargas.
-    var cartel = document.querySelector('[data-sesion-cerrada], [data-sesion-activa]');
-    if (!cartel) {
+    marcarVinculos();
+
+    var dialogo = document.querySelector('[data-partida-salida]');
+    if (dialogo) {
+        var urlAviso = new URL(dialogo.dataset.partidaSalida, window.location.href);
+        var rutaPartida = urlAviso.pathname.slice(0, urlAviso.pathname.lastIndexOf('/') + 1);
+        var destinoSalida;
+        var salidaConfirmada = false;
+
+        // El token limita los latidos a la partida que abrió esta vista.
         var latir = function () {
-            var destino = window.location.pathname.replace(/\/[^/]*$/, '/latido');
-            fetch(conSello(destino), {
+            fetch(conSello(rutaPartida + 'latido'), {
                 method: 'POST',
+                body: new URLSearchParams({ token: dialogo.dataset.token }),
                 credentials: 'same-origin',
                 cache: 'no-store',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             }).then(function (respuesta) {
                 if (respuesta.status === 403) {
-                    var cartelUrl = window.location.pathname.replace(/\/[^/]*$/, '/show');
-                    window.location.href = conSello(cartelUrl);
+                    continuando = true;
+                    window.location.href = conSello(rutaPartida + 'show');
                 }
             }).catch(function () { /* sin red: el servidor decide en el próximo clic */ });
         };
         window.setInterval(latir, 15000);
-    }
 
-    marcarVinculos();
+        function siguePartida(url, acciones) {
+            return url.origin === window.location.origin
+                && acciones.some(function (accion) { return url.pathname === rutaPartida + accion; });
+        }
+
+        document.addEventListener('click', function (event) {
+            var enlace = event.target.closest('a[href]');
+            if (!enlace || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey
+                || event.shiftKey || event.altKey || (enlace.target && enlace.target !== '_self')
+                || enlace.hasAttribute('download')) return;
+
+            var url = new URL(enlace.href);
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+            if (url.hash && url.origin === location.origin && url.pathname === location.pathname
+                && url.search === location.search) return;
+            if (siguePartida(url, ['pregunta', 'continuar'])) {
+                continuando = true;
+                return;
+            }
+
+            event.preventDefault();
+            destinoSalida = url.href;
+            dialogo.showModal();
+        });
+
+        document.addEventListener('submit', function (event) {
+            if (!event.defaultPrevented && siguePartida(new URL(event.target.action),
+                ['responderPregunta', 'tiempoAgotado', 'reportar', 'girar'])) {
+                continuando = true;
+            }
+        });
+
+        dialogo.querySelector('[data-partida-quedarse]').addEventListener('click', function () {
+            dialogo.close();
+        });
+        dialogo.querySelector('[data-partida-abandonar]').addEventListener('click', function () {
+            salidaConfirmada = true;
+            window.location.assign(destinoSalida);
+        });
+
+        window.addEventListener('beforeunload', function (event) {
+            if (!continuando && !salidaConfirmada) {
+                event.preventDefault();
+                event.returnValue = true;
+            }
+        });
+
+        window.addEventListener('pagehide', function () {
+            if (continuando) return;
+
+            var destino = conSello(urlAviso.href);
+            var datos = new URLSearchParams({ token: dialogo.dataset.token });
+            if (!navigator.sendBeacon || !navigator.sendBeacon(destino, datos)) {
+                fetch(destino, { method: 'POST', body: datos, keepalive: true }).catch(function () {});
+            }
+        });
+    }
 
     if (window.history && window.history.replaceState) {
         window.history.replaceState({ partida: true }, '', conSello(window.location.pathname + window.location.search));

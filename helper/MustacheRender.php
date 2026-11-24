@@ -26,12 +26,16 @@ class MustacheRender
         $basePath = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"] ?? "/index.php")), "/");
         $data["basePath"] = $basePath;
         $data['ruletaVersion'] = filemtime(__DIR__ . '/../public/js/ruleta.js');
+        $data['partidaNavegacionVersion'] = filemtime(__DIR__ . '/../public/js/partida-navegacion.js');
+        $data['partidaTemporizadorVersion'] = filemtime(__DIR__ . '/../public/js/partida-temporizador.js');
+        $data['partidaAudioVersion'] = filemtime(__DIR__ . '/../public/js/partida-audio.js');
 
         $enAdministracion = strpos($view, 'admin') === 0;
         $enModeracion = stripos($view, 'moderador') === 0;
         $enInicio = $view === 'home';
         $enRanking = $view === 'ranking';
         $layoutData = [
+            'partidaSalida' => $data['partidaSalida'] ?? '',
             'esModerador' => false,
             'esAdmin' => false,
             'puedeModerar' => false,

@@ -1,4 +1,4 @@
-<main class="partida-shell">
+<main class="partida-shell" data-audio-escena="{{#resultadoMostrado}}resultado{{/resultadoMostrado}}{{^resultadoMostrado}}pregunta{{/resultadoMostrado}}" data-audio-categoria="{{categoria}}">
     <section class="partida-contenido" aria-label="Pregunta de {{categoria}}">
         <header class="partida-header">
             <div class="partida-categoria">
@@ -15,6 +15,7 @@
         <div class="partida-meta" aria-label="Nivel">
             <span class="partida-chip">Dificultad: {{dificultad}}</span>
             <span class="partida-chip">Tu nivel: {{nivelJugador}}</span>
+            {{> partidaAudio}}
         </div>
 
         <div class="partida-progreso"{{^resultadoMostrado}} data-restante="{{tiempoRestante}}" data-limite="{{tiempoLimite}}"{{/resultadoMostrado}} aria-hidden="true">
@@ -68,7 +69,7 @@
 
         {{#resultadoMostrado}}
             {{#esCorrecta}}
-                <div class="partida-resultado partida-resultado-correcto">
+                <div class="partida-resultado partida-resultado-correcto"{{^finalizadaPorReporte}} data-audio-resultado="acierto"{{/finalizadaPorReporte}}>
                     <span>¡Respuesta correcta! +{{puntosGanados}} puntos</span>
                     {{#volverRuleta}}
                         <a href="{{basePath}}/partida/continuar" class="partida-siguiente">Volver a la ruleta</a>
@@ -83,7 +84,7 @@
             {{/esCorrecta}}
 
             {{^esCorrecta}}
-                <div class="partida-resultado partida-resultado-incorrecto">
+                <div class="partida-resultado partida-resultado-incorrecto" data-audio-resultado="{{#tiempoAgotado}}tiempo{{/tiempoAgotado}}{{^tiempoAgotado}}error{{/tiempoAgotado}}">
                     <div>
                         <span>{{#tiempoAgotado}}¡Se acabó el tiempo!{{/tiempoAgotado}}{{^tiempoAgotado}}Respuesta incorrecta{{/tiempoAgotado}}</span>
                         <p class="partida-ayuda">La respuesta correcta está marcada en verde.</p>
@@ -133,8 +134,8 @@
         {{/resultadoMostrado}}
     </section>
 </main>
-<script src="{{basePath}}/public/js/partida-navegacion.js" defer></script>
+<script src="{{basePath}}/public/js/partida-navegacion.js?v={{partidaNavegacionVersion}}" defer></script>
 {{#resultadoMostrado}}<script src="{{basePath}}/public/js/partida-reportes.js" defer></script>{{/resultadoMostrado}}
 {{^resultadoMostrado}}
-<script src="{{basePath}}/public/js/partida-temporizador.js" defer></script>
+<script src="{{basePath}}/public/js/partida-temporizador.js?v={{partidaTemporizadorVersion}}" defer></script>
 {{/resultadoMostrado}}

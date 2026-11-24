@@ -18,6 +18,7 @@
     var relleno = barra.querySelector('span');
     var detenido = false;
     var intervalo = null;
+    var ultimoSegundo = restante;
 
     function pintar(segundos) {
         var porcentaje = Math.max(0, Math.min(100, (segundos / limite) * 100));
@@ -43,7 +44,7 @@
             return;
         }
         detener();
-        form.submit();
+        form.requestSubmit();
     }
 
     function tick() {
@@ -52,6 +53,10 @@
         }
 
         var segundos = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+        if (segundos > 0 && segundos <= 3 && segundos < ultimoSegundo) {
+            window.audioPartida?.efecto('aviso');
+        }
+        ultimoSegundo = segundos;
         pintar(segundos);
 
         if (segundos <= 0) {
@@ -64,14 +69,6 @@
             detener();
         });
     }
-
-    // Si la página vuelve desde el bfcache, el reloj siguió corriendo:
-    // recargamos para que el servidor recalcule el tiempo real.
-    window.addEventListener('pageshow', function (event) {
-        if (event.persisted) {
-            window.location.reload();
-        }
-    });
 
     pintar(restante);
     intervalo = window.setInterval(tick, 250);
