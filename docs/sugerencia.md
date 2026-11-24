@@ -20,6 +20,8 @@ Archivo: `app/model/SugerenciaModel.php`.
 - `mostrarPreguntasSugeridas($estado, $categoriaId = null)`: arma la bandeja filtrada por estado y, opcionalmente, categoría. Usa consultas parametrizadas.
 - `obtenerSugerenciaPorId($id)`: carga una sugerencia pendiente para el editor.
 - `obtenerCategorias()`: obtiene las categorías disponibles.
+- `contarPreguntasAprobadas()`: devuelve el total de sugerencias aprobadas y publicadas.
+- `obtenerPreguntasAprobadasPaginadas($pagina, $porPagina)`: devuelve una página de aprobadas recientes para el panel del jugador.
 - `obtenerUltimasPreguntasAprobadas($limite = 10)`: devuelve las aprobadas más recientes para la página del jugador.
 - `rechazarSugerencia($id, $moderadorId, $nota)`: cambia a `RECHAZADA` únicamente si todavía está pendiente y registra quién la revisó, cuándo y la nota.
 - `publicarSugerencia($id, $moderadorId, $datos)`: valida los datos finales, crea la pregunta y respuestas, y actualiza la sugerencia como aprobada.
@@ -42,7 +44,7 @@ La transacción evita dejar una pregunta sin sus cuatro respuestas o una sugeren
 
 Archivo: `app/controller/HomeController.php`.
 
-- `mostrarSugerencias()` requiere una sesión y llama a `obtenerUltimasPreguntasAprobadas(10)`. Pasa el resultado a la vista como `preguntasAprobadas`.
+- `mostrarSugerencias()` requiere una sesión, cuenta las aprobadas y llama a `obtenerPreguntasAprobadasPaginadas($pagina, 2)`. Pasa a la vista `preguntasAprobadas`, `paginaAprobadas`, `totalPaginasAprobadas` y los datos de la paginación.
 - `enviarSugerencia()` requiere una sesión, recibe `category` y `question` del formulario y llama a `crearSugerencia()` con el ID del usuario autenticado.
 
 ### 3. Controller del moderador

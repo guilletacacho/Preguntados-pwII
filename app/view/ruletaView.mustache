@@ -1,6 +1,7 @@
 <main class="roulette-shell">
     <section class="roulette-panel" aria-labelledby="roulette-title" data-roulette data-base-path="{{basePath}}" data-spun="{{#ruletaGirada}}true{{/ruletaGirada}}">
         <div class="roulette-top">
+            <a class="roulette-volver" href="{{basePath}}/home/show">← Volver</a>
             <span class="eyebrow">EL AZAR ELIGE. VOS RESPONDÉS.</span>
             <span class="roulette-metricas">
                 <span class="roulette-ronda"><span>Ronda</span><strong>{{rondaNumero}}</strong></span>
@@ -8,7 +9,12 @@
             </span>
         </div>
         <h1 id="roulette-title">Tu próxima categoría</h1>
-        <p class="roulette-description">Una categoría, cuatro preguntas. Girá y descubrí cuál te toca.</p>
+        <p class="roulette-description">Una categoría, una pregunta. Girá y descubrí cuál te toca.</p>
+
+        <div class="roulette-winner" data-roulette-winner hidden aria-live="polite">
+            <span class="roulette-winner-label">La categoría elegida es</span>
+            <strong data-roulette-winner-name></strong>
+        </div>
 
         {{#partidaReanudada}}
             <p class="roulette-notice" role="status">Retomamos tu partida: vas por la ronda {{rondaNumero}}.</p>

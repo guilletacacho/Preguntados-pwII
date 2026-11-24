@@ -1,13 +1,13 @@
 <nav class="home-sidenav" aria-label="Secciones del sitio">
-    <div class="home-side-menu{{#enRanking}} is-expanded{{/enRanking}}">
-        <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="{{#enRanking}}true{{/enRanking}}{{^enRanking}}false{{/enRanking}}" aria-controls="home-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
+    <div class="home-side-menu{{#navegacionExpandida}} is-expanded{{/navegacionExpandida}}">
+        <button type="button" class="home-side-toggle" aria-label="Abrir o cerrar navegación" aria-expanded="{{#navegacionExpandida}}true{{/navegacionExpandida}}{{^navegacionExpandida}}false{{/navegacionExpandida}}" aria-controls="home-side-links"><span aria-hidden="true">☰</span><span class="side-label">Secciones</span></button>
         <div class="home-side-links" id="home-side-links">
             <a href="{{basePath}}/home/show" aria-label="Inicio"{{#enInicio}} aria-current="page"{{/enInicio}}><span aria-hidden="true">⌂</span><span class="side-label">Inicio</span></a>
             <a href="{{basePath}}/partida/iniciar" aria-label="Jugar"><span aria-hidden="true">▷</span><span class="side-label">Jugar</span></a>
             <a href="{{basePath}}/ranking" aria-label="Rankings"{{#enRanking}} aria-current="page"{{/enRanking}}><span aria-hidden="true">☆</span><span class="side-label">Rankings</span></a>
             {{#tieneEnlacesAyuda}}
-            <a href="{{^enInicio}}{{basePath}}/home/show{{/enInicio}}#preguntas-frecuentes" aria-label="Preguntas frecuentes"><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
-            <a href="{{^enInicio}}{{basePath}}/home/show{{/enInicio}}#terminos" aria-label="Términos y condiciones"><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
+            <a href="{{basePath}}/home/preguntasFrecuentes" aria-label="Preguntas frecuentes"{{#enFaq}} aria-current="page"{{/enFaq}}><span aria-hidden="true">?</span><span class="side-label">Preguntas frecuentes</span></a>
+            <a href="{{basePath}}/home/terminos" aria-label="Términos y condiciones"{{#enTerminos}} aria-current="page"{{/enTerminos}}><span aria-hidden="true">§</span><span class="side-label">Términos y condiciones</span></a>
             {{/tieneEnlacesAyuda}}
             {{#puedeModerar}}<a href="{{basePath}}/moderador" aria-label="Moderación"{{#enModeracion}} aria-current="location"{{/enModeracion}}><span aria-hidden="true"><svg class="side-flag-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4m0 1c5-4 9 4 14 0v11c-5 4-9-4-14 0"></path></svg></span><span class="side-label">Moderación</span></a>{{/puedeModerar}}
             {{#esAdmin}}<a href="{{basePath}}/admin" aria-label="Administración"{{#enAdministracion}} aria-current="location"{{/enAdministracion}}><span aria-hidden="true">⚙</span><span class="side-label">Administración</span></a>{{/esAdmin}}

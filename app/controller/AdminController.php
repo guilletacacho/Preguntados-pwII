@@ -21,6 +21,13 @@ class AdminController
         'MODERADOR' => 'Moderador',
     ];
 
+    private const SEXOS = [
+        'No especificado' => 'Sin especificar',
+        'Masculino' => 'Masculino',
+        'Femenino' => 'Femenino',
+        'Otro' => 'Otro',
+    ];
+
     private const ESTADOS = [
         '' => 'Todas las cuentas',
         'activas' => 'Sin bloqueo',
@@ -138,13 +145,13 @@ class AdminController
         AdminAccess::exigir($this->model);
         $this->asegurarCsrfToken();
 
-        $this->render->renderiza('adminAltaUsuario', [
+        $this->render->renderiza('adminAltaUsuario', $this->datosNacimiento([
             'esAlta' => true,
             'roles' => $this->rolesConSeleccion('JUGADOR'),
-            'anioActual' => (int) date('Y'),
+            'sexos' => $this->sexosConSeleccion('No especificado'),
             'csrfToken' => $_SESSION['csrf_admin'],
             'mensaje' => $this->consumirMensaje(),
-        ]);
+        ]));
     }
 
     public function crearUsuario()
@@ -206,12 +213,12 @@ class AdminController
         $usuario['contrasena'] = '';
         $usuario['esEdicion'] = true;
         $usuario['roles'] = $this->rolesConSeleccion($usuario['rol']);
+        $usuario['sexos'] = $this->sexosConSeleccion($usuario['sexo']);
         $usuario['rolFijoAdmin'] = $usuario['rol'] === 'ADMIN';
-        $usuario['anioActual'] = (int) date('Y');
         $usuario['csrfToken'] = $_SESSION['csrf_admin'];
         $usuario['mensaje'] = $this->consumirMensaje();
 
-        $this->render->renderiza('adminEditarUsuario', $usuario);
+        $this->render->renderiza('adminEditarUsuario', $this->datosNacimiento($usuario));
     }
 
     public function actualizarUsuario()
@@ -380,21 +387,20 @@ class AdminController
         $formulario['esAlta'] = true;
         $formulario['tieneErrores'] = true;
         $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
-        $formulario['anioActual'] = (int) date('Y');
+        $formulario['sexos'] = $this->sexosConSeleccion($formulario['sexo']);
         $formulario['csrfToken'] = $_SESSION['csrf_admin'];
 
-        $this->render->renderiza('adminAltaUsuario', $formulario);
+        $this->render->renderiza('adminAltaUsuario', $this->datosNacimiento($formulario));
     }
 
     private function mostrarEdicionConError(array $formulario, $texto)
     {
         $formulario['esEdicion'] = true;
         $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
-        $formulario['anioActual'] = (int) date('Y');
         $formulario['csrfToken'] = $_SESSION['csrf_admin'];
         $formulario['mensaje'] = ['texto' => $texto, 'tipo' => 'error'];
 
-        $this->render->renderiza('adminEditarUsuario', $formulario);
+        $this->render->renderiza('adminEditarUsuario', $this->datosNacimiento($formulario));
     }
 
     private function prepararEdicion(array &$formulario, array $actual)
@@ -403,15 +409,85 @@ class AdminController
             $formulario['anioNacimiento'] = $actual['anioNacimiento'];
         }
         $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
+        $formulario['sexos'] = $this->sexosConSeleccion($formulario['sexo']);
         $formulario['rolFijoAdmin'] = $actual['rol'] === 'ADMIN';
+    }
+
+    private function datosNacimiento(array $data): array
+    {
+        $anioActual = (int) date('Y');
+        $data['anioActual'] = $anioActual;
+        $data['anioMinimoNacimiento'] = $anioActual - 100;
+
+        $mesSeleccionado = (string) ($data['mesNacimiento'] ?? '');
+        $diaSeleccionado = (string) ($data['diaNacimiento'] ?? '');
+
+        $meses = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre',
+        ];
+        $data['meses'] = [];
+        foreach ($meses as $valor => $etiqueta) {
+            $data['meses'][] = [
+                'valor' => (string) $valor,
+                'etiqueta' => $etiqueta,
+                'selected' => $mesSeleccionado === (string) $valor,
+            ];
+        }
+
+        $data['dias'] = [];
+        for ($dia = 1; $dia <= 31; $dia++) {
+            $data['dias'][] = [
+                'valor' => (string) $dia,
+                'etiqueta' => str_pad((string) $dia, 2, '0', STR_PAD_LEFT),
+                'selected' => $diaSeleccionado === (string) $dia,
+            ];
+        }
+
+        return $data;
+    }
+
+    private function edadValida($anio, $mes, $dia): bool
+    {
+        if (!ctype_digit((string) $anio) || !ctype_digit((string) $mes) || !ctype_digit((string) $dia)) {
+            return false;
+        }
+
+        $anio = (int) $anio;
+        $mes = (int) $mes;
+        $dia = (int) $dia;
+        if (!checkdate($mes, $dia, $anio)) {
+            return false;
+        }
+
+        $nacimiento = new \DateTime(sprintf('%04d-%02d-%02d', $anio, $mes, $dia));
+        $hoy = new \DateTime('today');
+        if ($nacimiento > $hoy) {
+            return false;
+        }
+
+        $edad = $hoy->diff($nacimiento)->y;
+        return $edad >= 16 && $edad <= 100;
     }
 
     private function leerFormulario()
     {
+        $anioActual = (int) date('Y');
         $anio = filter_var(
             Request::post('anioNacimiento', ''),
             FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 1900, 'max_range' => (int) date('Y') + 5]]
+            ['options' => ['min_range' => $anioActual - 100, 'max_range' => $anioActual]]
+        );
+        $mes = filter_var(
+            Request::post('mesNacimiento', ''),
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1, 'max_range' => 12]]
+        );
+        $dia = filter_var(
+            Request::post('diaNacimiento', ''),
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1, 'max_range' => 31]]
         );
 
         $rol = (string) Request::post('rol', 'JUGADOR');
@@ -422,7 +498,9 @@ class AdminController
         return [
             'nombre' => trim((string) Request::post('nombre', '')),
             'anioNacimiento' => $anio === false ? '' : (string) $anio,
-            'sexo' => trim((string) Request::post('sexo', 'No especificado')),
+            'mesNacimiento' => $mes === false ? '' : (string) $mes,
+            'diaNacimiento' => $dia === false ? '' : (string) $dia,
+            'sexo' => $this->normalizarSexo(Request::post('sexo', 'No especificado')),
             'provincia' => trim((string) Request::post('provincia', '')),
             'pais' => trim((string) Request::post('pais', '')),
             'usuario' => trim((string) Request::post('usuario', '')),
@@ -441,15 +519,21 @@ class AdminController
             $errores[] = 'El nombre es obligatorio y no puede superar los 50 caracteres.';
         }
 
-        if ($formulario['anioNacimiento'] === '') {
-            $errores[] = 'Ingresá un año de nacimiento válido.';
+        if (
+            $formulario['anioNacimiento'] === ''
+            || $formulario['mesNacimiento'] === ''
+            || $formulario['diaNacimiento'] === ''
+            || !$this->edadValida(
+                $formulario['anioNacimiento'],
+                $formulario['mesNacimiento'],
+                $formulario['diaNacimiento']
+            )
+        ) {
+            $errores[] = 'La fecha de nacimiento debe dar una edad entre 16 y 100 años.';
         }
 
-        if ($this->longitud($formulario['sexo']) > 30) {
-            $errores[] = 'El sexo no puede superar los 30 caracteres.';
-        }
-        if ($formulario['sexo'] === '') {
-            $formulario['sexo'] = 'No especificado';
+        if (!array_key_exists($formulario['sexo'], self::SEXOS)) {
+            $errores[] = 'Elegí un sexo válido.';
         }
 
         if ($this->longitud($formulario['provincia']) > 150 || $this->longitud($formulario['pais']) > 150) {
@@ -496,6 +580,40 @@ class AdminController
     private function rolesConSeleccion($seleccionado)
     {
         return $this->opcionesConSeleccion(self::ROLES_SELECCIONABLES, $seleccionado);
+    }
+
+    private function sexosConSeleccion($seleccionado)
+    {
+        $actual = $this->normalizarSexo($seleccionado);
+        $opciones = [];
+        foreach (self::SEXOS as $valor => $etiqueta) {
+            $opciones[] = [
+                'value' => $valor,
+                'label' => $etiqueta,
+                'seleccionado' => $valor === $actual,
+            ];
+        }
+
+        return $opciones;
+    }
+
+    private function normalizarSexo($valor)
+    {
+        $valor = trim((string) $valor);
+        if ($valor === '') {
+            return 'No especificado';
+        }
+
+        $mapa = [
+            'sin especificar' => 'No especificado',
+            'no especificado' => 'No especificado',
+            'masculino' => 'Masculino',
+            'femenino' => 'Femenino',
+            'otro' => 'Otro',
+        ];
+        $clave = mb_strtolower($valor, 'UTF-8');
+
+        return $mapa[$clave] ?? $valor;
     }
 
     private function opcionesConSeleccion(array $opciones, $seleccionado)

@@ -13,6 +13,10 @@
     });
 
     const fields = [...form.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([readonly]), select')];
+    const anioNacimiento = form.elements.anioNacimiento;
+    const mesNacimiento = form.elements.mesNacimiento;
+    const diaNacimiento = form.elements.diaNacimiento;
+    const camposNacimiento = [anioNacimiento, mesNacimiento, diaNacimiento];
     const username = form.elements.usuario;
     const password = form.elements.contrasena;
     const repeat = form.elements.repetirContrasena;
@@ -117,12 +121,43 @@
         return !message;
     }
 
+    function esBisiesto(anio) {
+        return (anio % 4 === 0 && anio % 100 !== 0) || anio % 400 === 0;
+    }
+
+    function diasDelMes(anio, mes) {
+        if (mes < 1 || mes > 12) return 0;
+        if (mes === 2) return esBisiesto(anio) ? 29 : 28;
+        return [31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mes - 1];
+    }
+
+    function validarNacimiento(field) {
+        if (!anioNacimiento.value.trim() || !mesNacimiento.value || !diaNacimiento.value) {
+            return field.value.trim() ? '' : 'Completá tu fecha de nacimiento.';
+        }
+        const anio = Number(anioNacimiento.value);
+        const mes = Number(mesNacimiento.value);
+        const dia = Number(diaNacimiento.value);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - anio;
+        if (hoy.getMonth() + 1 < mes || (hoy.getMonth() + 1 === mes && hoy.getDate() < dia)) edad--;
+        const invalida = !Number.isInteger(anio) || !Number.isInteger(mes) || !Number.isInteger(dia)
+            || dia < 1 || dia > diasDelMes(anio, mes)
+            || anio > hoy.getFullYear() || edad < 16 || edad > 100;
+        return invalida && field === anioNacimiento ? 'Tenés que tener entre 16 y 100 años para jugar.' : '';
+    }
+
+    function validarConGrupo(field) {
+        if (camposNacimiento.includes(field)) camposNacimiento.forEach(validate);
+        else validate(field);
+    }
+
     function validate(field) {
         let message = '';
-        if (!field.value.trim()) message = 'Completa este campo.';
-        else if (field.name === 'anioNacimiento' && (!/^\d+$/.test(field.value) || Number(field.value) < 1900 || Number(field.value) > Number(field.max))) {
-            message = `Ingresa un año entre 1900 y ${field.max}.`;
-        } else if (field === password && [...field.value].length < 8) {
+        if (camposNacimiento.includes(field)) {
+            message = validarNacimiento(field);
+        } else if (!field.value.trim()) message = 'Completa este campo.';
+        else if (field === password && [...field.value].length < 8) {
             message = 'La contraseña debe tener al menos 8 caracteres.';
         } else if (field === repeat && field.value !== password.value) {
             message = 'Las contraseñas no coinciden.';
@@ -169,11 +204,11 @@
                 available = null;
                 if (field.value.trim()) timer = setTimeout(checkUsername, 400);
             }
-            validate(field);
+            validarConGrupo(field);
             if (field === password && repeat.value) validate(repeat);
         });
-        field.addEventListener('blur', () => validate(field));
-        field.addEventListener('change', () => validate(field));
+        field.addEventListener('blur', () => validarConGrupo(field));
+        field.addEventListener('change', () => validarConGrupo(field));
     });
 
     form.noValidate = true;

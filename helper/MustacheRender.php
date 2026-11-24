@@ -31,6 +31,9 @@ class MustacheRender
         $enModeracion = stripos($view, 'moderador') === 0;
         $enInicio = $view === 'home';
         $enRanking = $view === 'ranking';
+        $enFaq = $view === 'ayudaPreguntasFrecuentes';
+        $enTerminos = $view === 'ayudaTerminos';
+        $esSugerencias = $view === 'sugerencias';
         $layoutData = [
             'esModerador' => false,
             'esAdmin' => false,
@@ -40,8 +43,12 @@ class MustacheRender
             'enModeracion' => $enModeracion,
             'enInicio' => $enInicio,
             'enRanking' => $enRanking,
-            'tieneEnlacesAyuda' => $enInicio || $enRanking || $view === 'sugerencias',
-            'tieneNavegacionLateral' => $enInicio || $enRanking || $view === 'sugerencias' || $enAdministracion || $enModeracion,
+            'enFaq' => $enFaq,
+            'enTerminos' => $enTerminos,
+            'tieneEstilosSugerencias' => $esSugerencias,
+            'navegacionExpandida' => $enRanking || $enFaq || $enTerminos,
+            'tieneEnlacesAyuda' => $enInicio || $enRanking || $view === 'sugerencias' || $enFaq || $enTerminos,
+            'tieneNavegacionLateral' => $enInicio || $enRanking || $view === 'sugerencias' || $enAdministracion || $enModeracion || $enFaq || $enTerminos,
         ];
         if (isset($_SESSION['usuario_id'])) {
             $userId = (int) $_SESSION['usuario_id'];

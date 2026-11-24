@@ -1,4 +1,3 @@
-﻿<link rel="stylesheet" href="{{basePath}}/public/css/sugerencias.css?v=5">
 <main class="home-shell sugerencias-shell" id="sugerencias">
     {{> navegacionLateral}}
 
@@ -51,18 +50,37 @@
 
             <aside class="sugerencias-aprobadas" aria-labelledby="sugerencias-aprobadas-title">
                 <h2 id="sugerencias-aprobadas-title">Últimas preguntas sugeridas aprobadas</h2>
-                <div class="sugerencias-aprobadas-scroll" tabindex="0" aria-label="Lista desplazable de preguntas aprobadas">
-                    {{#preguntasAprobadas}}
-                    <article class="home-card sugerencia-aprobada" data-categoria="{{categoria}}">
-                        <span class="eyebrow">PREGUNTA</span>
-                        <h3>{{pregunta}}</h3>
-                        <p class="sugerencia-categoria" data-categoria="{{categoria}}">Categoría: <strong>{{categoria}}</strong></p>
-                        <p>Sugerida por: <strong>{{usuario}}</strong></p>
-                    </article>
-                    {{/preguntasAprobadas}}
-                    {{^preguntasAprobadas}}
-                    <p class="sugerencias-sin-aprobadas">Todavía no hay preguntas sugeridas aprobadas.</p>
-                    {{/preguntasAprobadas}}
+                <div class="sugerencias-aprobadas-scroll">
+                    <div class="sugerencias-aprobadas-lista">
+                        {{#preguntasAprobadas}}
+                        <article class="home-card sugerencia-aprobada" data-categoria="{{categoria}}">
+                            <span class="eyebrow">PREGUNTA</span>
+                            <h3>{{pregunta}}</h3>
+                            <p class="sugerencia-categoria" data-categoria="{{categoria}}">Categoría: <strong>{{categoria}}</strong></p>
+                            <p>Sugerida por: <strong>{{usuario}}</strong></p>
+                        </article>
+                        {{/preguntasAprobadas}}
+                        {{^preguntasAprobadas}}
+                        <p class="sugerencias-sin-aprobadas">Todavía no hay preguntas sugeridas aprobadas.</p>
+                        {{/preguntasAprobadas}}
+                    </div>
+                    {{#hayMasPaginasAprobadas}}
+                    <nav class="sugerencias-paginado" aria-label="Páginas de preguntas aprobadas">
+                        {{#hayPaginaAnterior}}
+                        <a class="sugerencias-pagina" href="{{basePath}}/home/mostrarSugerencias?pagina={{paginaAnterior}}" aria-label="Página anterior">←</a>
+                        {{/hayPaginaAnterior}}
+                        {{^hayPaginaAnterior}}
+                        <span class="sugerencias-pagina esta-deshabilitada" aria-hidden="true">←</span>
+                        {{/hayPaginaAnterior}}
+                        <span>Página {{paginaAprobadas}} de {{totalPaginasAprobadas}}</span>
+                        {{#hayPaginaSiguiente}}
+                        <a class="sugerencias-pagina" href="{{basePath}}/home/mostrarSugerencias?pagina={{paginaSiguiente}}" aria-label="Página siguiente">→</a>
+                        {{/hayPaginaSiguiente}}
+                        {{^hayPaginaSiguiente}}
+                        <span class="sugerencias-pagina esta-deshabilitada" aria-hidden="true">→</span>
+                        {{/hayPaginaSiguiente}}
+                    </nav>
+                    {{/hayMasPaginasAprobadas}}
                 </div>
             </aside>
         </div>

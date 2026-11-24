@@ -192,6 +192,8 @@ class AdminModel
             'sexos' => $sexos,
             'edades' => $edades['rangos'],
             'edadPromedio' => $edades['promedio'],
+            'edadesConFechaCompleta' => $edades['conFechaCompleta'],
+            'edadesSinFechaCompleta' => $edades['sinFechaCompleta'],
             'anioActual' => (int) date('Y'),
             'periodo' => $periodo,
             'etiquetaPeriodo' => self::PERIODOS[$periodo]['etiqueta'],
@@ -310,14 +312,15 @@ class AdminModel
     }
 
     /**
-     * Edad estimada: solo se guarda el año de nacimiento, no el día y mes.
+     * Edad exacta cuando hay día y mes guardados. Las cuentas anteriores a la migración
+     * no tienen esos datos y se estiman solo con el año.
      */
     private function calcularEdades($usuarioActual, $inicio = null)
     {
         $extraFecha = $inicio !== null ? " AND g.started_at >= ?" : "";
         $params = $inicio !== null ? [$usuarioActual, $inicio] : [$usuarioActual];
         $filas = $this->database->queryAll(
-            "SELECT u.Anio_nacimiento AS anio
+            "SELECT u.Anio_nacimiento AS anio, u.Mes_nacimiento AS mes, u.Dia_nacimiento AS dia
              FROM usuarios u
              WHERE u.Id <> ?
                AND EXISTS (
@@ -338,8 +341,11 @@ class AdminModel
         ];
 
         $anioActual = (int) date('Y');
+        $hoy = new \DateTime('today');
         $suma = 0;
         $cantidadConEdad = 0;
+        $conFechaCompleta = 0;
+        $sinFechaCompleta = 0;
 
         foreach ($filas as $fila) {
             $anio = (int) $fila['anio'];
@@ -348,7 +354,22 @@ class AdminModel
                 continue;
             }
 
-            $edad = $anioActual - $anio;
+            $mes = $fila['mes'] === null ? null : (int) $fila['mes'];
+            $dia = $fila['dia'] === null ? null : (int) $fila['dia'];
+
+            if ($mes !== null && $dia !== null && checkdate($mes, $dia, $anio)) {
+                $nacimiento = new \DateTime(sprintf('%04d-%02d-%02d', $anio, $mes, $dia));
+                if ($nacimiento > $hoy) {
+                    $rangos['Sin dato']++;
+                    continue;
+                }
+                $edad = $hoy->diff($nacimiento)->y;
+                $conFechaCompleta++;
+            } else {
+                $edad = $anioActual - $anio;
+                $sinFechaCompleta++;
+            }
+
             $suma += $edad;
             $cantidadConEdad++;
 
@@ -380,6 +401,8 @@ class AdminModel
             'promedio' => $cantidadConEdad > 0
                 ? round($suma / $cantidadConEdad, 1)
                 : 0,
+            'conFechaCompleta' => $conFechaCompleta,
+            'sinFechaCompleta' => $sinFechaCompleta,
         ];
     }
 
@@ -591,13 +614,15 @@ class AdminModel
     public function crear($formulario, int $actorId)
     {
         $sql = "INSERT INTO usuarios
-                (Nombre, Anio_nacimiento, Sexo, Provincia, Pais, Usuario, Email,
+                (Nombre, Anio_nacimiento, Mes_nacimiento, Dia_nacimiento, Sexo, Provincia, Pais, Usuario, Email,
                  Contrasena, Verificado, Token, Foto_url, rol)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)";
 
         $params = [
             $formulario['nombre'],
             (int) $formulario['anioNacimiento'],
+            (int) $formulario['mesNacimiento'],
+            (int) $formulario['diaNacimiento'],
             $formulario['sexo'],
             $formulario['provincia'],
             $formulario['pais'],
@@ -621,12 +646,14 @@ class AdminModel
         $cambiaContrasena = isset($formulario['contrasena']) && $formulario['contrasena'] !== '';
 
         $sql = "UPDATE usuarios
-                SET Nombre = ?, Anio_nacimiento = ?, Sexo = ?, Provincia = ?, Pais = ?,
-                    Usuario = ?, Email = ?, Verificado = ?, rol = ?";
+                SET Nombre = ?, Anio_nacimiento = ?, Mes_nacimiento = ?, Dia_nacimiento = ?,
+                    Sexo = ?, Provincia = ?, Pais = ?, Usuario = ?, Email = ?, Verificado = ?, rol = ?";
 
         $params = [
             $formulario['nombre'],
             (int) $formulario['anioNacimiento'],
+            (int) $formulario['mesNacimiento'],
+            (int) $formulario['diaNacimiento'],
             $formulario['sexo'],
             $formulario['provincia'],
             $formulario['pais'],

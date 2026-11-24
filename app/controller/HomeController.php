@@ -36,6 +36,28 @@ class HomeController
         $this->render->renderiza("home", $data);
     }
 
+    public function preguntasFrecuentes()
+    {
+        if (!isset($_SESSION['usuario_id'])) {
+            Redirect::toIndex();
+        }
+
+        $this->render->renderiza('ayudaPreguntasFrecuentes', [
+            'usuario' => $_SESSION['usuario'] ?? '',
+        ]);
+    }
+
+    public function terminos()
+    {
+        if (!isset($_SESSION['usuario_id'])) {
+            Redirect::toIndex();
+        }
+
+        $this->render->renderiza('ayudaTerminos', [
+            'usuario' => $_SESSION['usuario'] ?? '',
+        ]);
+    }
+
     public function mostrarSugerencias(){
         if (!isset($_SESSION['usuario_id'])) {
             Redirect::toIndex();
@@ -44,13 +66,26 @@ class HomeController
         $sugerenciaError = $_SESSION['sugerencia_error'] ?? null;
         unset($_SESSION['sugerencia_error']);
 
+        $porPagina = 2;
+        $totalAprobadas = $this->sugerenciaModel->contarPreguntasAprobadas();
+        $totalPaginas = max(1, (int) ceil($totalAprobadas / $porPagina));
+        $pagina = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
+        $pagina = max(1, min($pagina, $totalPaginas));
+
         $datos = [
-        'categorias' => $this->sugerenciaModel->obtenerCategorias(),
-        'preguntasAprobadas' => $this->sugerenciaModel->obtenerUltimasPreguntasAprobadas(10),
-        'csrfToken' => $this->asegurarCsrfSugerencias(),
-        'sugerenciaError' => $sugerenciaError,
-        'haySugerenciaError' => is_string($sugerenciaError) && $sugerenciaError !== '',
-    ];
+            'categorias' => $this->sugerenciaModel->obtenerCategorias(),
+            'preguntasAprobadas' => $this->sugerenciaModel->obtenerPreguntasAprobadasPaginadas($pagina, $porPagina),
+            'paginaAprobadas' => $pagina,
+            'totalPaginasAprobadas' => $totalPaginas,
+            'paginaAnterior' => max(1, $pagina - 1),
+            'paginaSiguiente' => min($totalPaginas, $pagina + 1),
+            'hayMasPaginasAprobadas' => $totalPaginas > 1,
+            'hayPaginaAnterior' => $pagina > 1,
+            'hayPaginaSiguiente' => $pagina < $totalPaginas,
+            'csrfToken' => $this->asegurarCsrfSugerencias(),
+            'sugerenciaError' => $sugerenciaError,
+            'haySugerenciaError' => is_string($sugerenciaError) && $sugerenciaError !== '',
+        ];
 
         $this->render->renderiza("sugerencias", $datos);
     }

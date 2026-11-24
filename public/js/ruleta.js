@@ -9,6 +9,8 @@
     const spin = root.querySelector('.roulette-spin');
     const next = root.querySelector('.roulette-continue');
     const status = root.querySelector('.roulette-status');
+    const winnerBanner = root.querySelector('[data-roulette-winner]');
+    const winnerName = root.querySelector('[data-roulette-winner-name]');
 
     if (!winner || !cards.length) return;
 
@@ -91,6 +93,16 @@
         selected.classList.add('is-winner');
         if (conCelebracion) celebrate();
         root.classList.remove('is-spinning');
+
+        if (winnerBanner && winnerName) {
+            winnerName.textContent = winner.dataset.name;
+            const color = getComputedStyle(selected).getPropertyValue('--category-color').trim();
+            if (color) winnerBanner.style.setProperty('--roulette-accent', color);
+            winnerBanner.hidden = false;
+            winnerBanner.classList.add('is-visible');
+            if (!conCelebracion) winnerBanner.classList.add('sin-salto');
+        }
+
         status.textContent = `¡Te tocó ${winner.dataset.name}!`;
         spin.hidden = true;
         next.hidden = false;

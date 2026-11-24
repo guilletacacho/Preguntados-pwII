@@ -1,0 +1,61 @@
+<main class="home-shell" id="ayuda">
+    {{> navegacionLateral}}
+    <div class="home-content ayuda-contenido">
+        <header class="ayuda-encabezado">
+            <span class="eyebrow">CENTRO DE AYUDA</span>
+            <h1>Preguntas frecuentes</h1>
+            <p>Respuestas claras sobre el juego, tu cuenta y por qué pasan algunas cosas que parecen errores.</p>
+        </header>
+
+        <section class="faq-grid" aria-label="Preguntas frecuentes">
+            <details class="faq-card">
+                <summary><span class="faq-num">01</span>¿Por qué mi cuenta quedó bloqueada?</summary>
+                <p>Hay tres motivos principales: que el correo todavía no esté confirmado, que otra sesión haya tomado el control de tu usuario o que un administrador/moderador haya marcado la cuenta como bloqueada por uso indebido. Si fue por otra sesión, cerrá las pestañas abiertas y volvé a entrar.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">02</span>¿Por qué se cerró mi partida al abrir otra pestaña?</summary>
+                <p>Cada pestaña recibe un sello único y el servidor guarda cuál tiene el control. Si entra otra con la misma cuenta, la anterior deja de valer. Esto evita que dos pestañas respondan por vos y dupliquen puntos o respuestas.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">03</span>¿Qué significa “Sin verificar”?</summary>
+                <p>Tu usuario se creó pero todavía no confirmaste el correo. El inicio de sesión exige que la cuenta esté verificada. Revisá también la carpeta de spam o correo no deseado y buscá el mensaje de confirmación.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">04</span>¿Cómo se cuenta un acierto?</summary>
+                <p>Se cuenta como acierto cuando la respuesta guardó puntos ganados. Las incorrectas guardan 0. Por eso el gráfico suma 1 por respuesta correcta, aunque una pregunta difícil haya dado 3 puntos: el valor de la dificultad no cambia la cantidad de aciertos.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">05</span>¿Cómo se calculan los puntos?</summary>
+                <p>Cada respuesta correcta suma según su dificultad: una fácil vale menos que una difícil. El total se guarda en el servidor al terminar el turno, no en tu navegador, para que no se pueda cambiar desde la página.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">06</span>¿Qué es la dificultad adaptativa?</summary>
+                <p>El juego mira cuántas preguntas respondiste y cuántas acertaste para elegir tu nivel. Si venís bien, te tocan desafíos más difíciles; si fallás, baja un poco. Si no hay preguntas de ese nivel, usa la dificultad más cercana para que la partida no se trabe.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">07</span>¿Por qué aparece una pregunta repetida?</summary>
+                <p>Cuando se agotan las preguntas activas de una categoría y nivel, el sistema vuelve a mezclar las mismas. Siempre salen de la categoría que tocó en la ruleta: nunca se cambia a otra a mitad de ronda.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">08</span>¿Por qué una categoría nueva no sale en la ruleta?</summary>
+                <p>En el panel de administración aparece en cuanto se crea, incluso con 0 aciertos. Pero para entrar al sorteo necesita al menos 1 pregunta activa. Así evitamos que te toque una categoría sin nada para responder.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">09</span>¿Qué pasa cuando reporto una pregunta?</summary>
+                <p>El reporte queda en estado PENDIENTE y un moderador lo revisa. Por eso no cambia al instante. Mientras tanto, la partida sigue normal y conservás los puntos que ya ganaste.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">10</span>¿Por qué no me deja subir una imagen?</summary>
+                <p>Solo se aceptan archivos JPG o PNG de hasta 5 MB. Si pesa más o tiene otro formato, se rechaza. Las imágenes se guardan en el servidor y se muestran recortadas dentro de la pregunta.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">11</span>¿Qué datos míos se ven en el ranking?</summary>
+                <p>Se muestran tu usuario, tus puntos, tu país y tu puesto según el período. Nunca publicamos tu correo, tu contraseña ni los datos de tu sesión.</p>
+            </details>
+            <details class="faq-card">
+                <summary><span class="faq-num">12</span>¿Puedo recuperar una partida abandonada?</summary>
+                <p>No. La partida queda marcada como abandonada y no suma puntos. Si apretás F5 durante una ronda, el servidor mantiene el mismo turno; pero si ya la abandonaste, tenés que empezar una nueva.</p>
+            </details>
+        </section>
+    </div>
+</main>
