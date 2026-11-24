@@ -44,7 +44,7 @@
             return;
         }
         detener();
-        form.submit();
+        form.requestSubmit();
     }
 
     function tick() {
@@ -69,14 +69,6 @@
             detener();
         });
     }
-
-    // Si la página vuelve desde el bfcache, el reloj siguió corriendo:
-    // recargamos para que el servidor recalcule el tiempo real.
-    window.addEventListener('pageshow', function (event) {
-        if (event.persisted) {
-            window.location.reload();
-        }
-    });
 
     pintar(restante);
     intervalo = window.setInterval(tick, 250);

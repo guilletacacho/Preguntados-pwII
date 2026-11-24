@@ -36,53 +36,29 @@ class PartidaController{
     }
 
     // ─────────────────────────────────────────────────────────────
-    // INICIO / REANUDACIÓN
+    // INICIO
     // ─────────────────────────────────────────────────────────────
 
     /**
-     * Inicia una partida o reanuda la que ya está EN_CURSO en esta sesión.
-     * Si la partida activa quedó de una sesión anterior (sesión perdida),
-     * la marca ABANDONADA y crea una nueva. Nunca hay dos EN_CURSO para el
-     * mismo usuario: el índice uk_game_en_curso de la base lo impide.
+     * Jugar inicia una partida nueva. Los turnos de una partida en curso
+     * siguen por la ruleta y el resultado.
      */
     public function iniciar(){
 
         $userId = $this->requiereUsuario();
 
+        $enCurso = $this->model->obtenerPartidaEnCurso($userId);
+        if ($enCurso !== null) {
+            $this->model->abandonoPartida((int) $enCurso['id']);
+        }
+
         $partida = $this->model->iniciarPartida($userId);
         $gameId = (int) $partida['id'];
-
-        $mismoJuego = (int) ($_SESSION['game_id'] ?? 0) === $gameId;
-
-        // Si hay una partida EN_CURSO pero no pertenece a esta sesión,
-        // la sesión se perdió (o se abrió desde otro dispositivo).
-        // No se retoma con una pregunta nueva: se marca ABANDONADA y se
-        // empieza una partida limpia.
-        if (!$mismoJuego && empty($partida['nueva'])) {
-            $this->model->abandonoPartida($gameId);
-            $partida = $this->model->iniciarPartida($userId);
-            $gameId = (int) $partida['id'];
-            $mismoJuego = false;
-        }
-
-        // Si había un resultado sin leer, no lo pisamos.
-        if ($mismoJuego && !empty($_SESSION['resultado'])) {
-            \Redirect::to('/Preguntados/partida/resultado');
-        }
-
-        if (!$mismoJuego) {
-            unset($_SESSION['turno'], $_SESSION['resultado'], $_SESSION['preguntas_partida']);
-        }
-
+        unset($_SESSION['turno'], $_SESSION['resultado'], $_SESSION['preguntas_partida'], $_SESSION['partida_salida']);
         $_SESSION['game_id'] = $gameId;
         $_SESSION['puntos'] = (int) $partida['total_points'];
         $_SESSION['correctas'] = (int) $partida['correct_answers'];
-
-        if (!$mismoJuego || !isset($_SESSION['turno'])) {
-            $_SESSION['pregunta_numero'] = $this->model->ultimoTurno($gameId) + 1;
-        }
-
-        $_SESSION['partida_reanudada'] = empty($partida['nueva']);
+        $_SESSION['pregunta_numero'] = $this->model->ultimoTurno($gameId) + 1;
 
         //redirige a show() el que tiene preguntas y respuestas
         \Redirect::to('/Preguntados/partida/show');
@@ -96,7 +72,7 @@ class PartidaController{
 
         $this->requiereUsuario();
 
-        // Si quedó un resultado sin continuar, lo mostramos (F5 incluido).
+        // Si quedó un resultado sin continuar, lo mostramos primero.
         if (!empty($_SESSION['resultado'])) {
             \Redirect::to('/Preguntados/partida/resultado');
         }
@@ -119,8 +95,7 @@ class PartidaController{
             \Redirect::to('/Preguntados/home/show');
         }
 
-        // La categoría y la pregunta se eligen UNA sola vez por turno.
-        // Así, al apretar F5, no cambia ni la categoría ni la pregunta.
+        // La categoría y la pregunta se eligen una sola vez por turno.
         if (!isset($_SESSION['turno'])) {
             $pregunta = $this->elegirPregunta($disponibles, $gameId);
 
@@ -139,22 +114,18 @@ class PartidaController{
         }
         unset($categoria);
 
-        $this->render->renderiza('ruleta', [
+        $this->renderizarPartida('ruleta', [
             'categorias' => $categorias,
             'puntos' => (int) ($_SESSION['puntos'] ?? 0),
             'rondaNumero' => (int) $turno['numero'],
             'ruletaGirada' => !empty($turno['girada']),
-            'partidaReanudada' => !empty($_SESSION['partida_reanudada']),
             'categoria' => $turno['categoria'],
             'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
         ]);
-
-        // El aviso de partida reanudada se muestra una sola vez.
-        unset($_SESSION['partida_reanudada']);
     }
 
     /**
-     * Marca la ruleta como "ya girada" para que F5 no repita la animación.
+     * Marca la ruleta como "ya girada" para que no se repita la animación.
      * Lo llama el JS al terminar el giro. También sirve sin JS.
      */
     public function girar(){
@@ -191,10 +162,8 @@ class PartidaController{
 
         $turno = $_SESSION['turno'];
 
-        // El reloj arranca cuando el jugador ve la pregunta, no mientras
-        // gira la ruleta. Si recarga (F5), se mantiene el mismo inicio.
-        // Llegar a la pregunta implica que la ruleta ya salió: aunque el
-        // navegador recargue, el giro no se vuelve a mostrar.
+        // El reloj arranca al abrir la pregunta y conserva el inicio del turno.
+        // Llegar a la pregunta también da por completado el giro de la ruleta.
         if (empty($turno['girada'])) {
             $turno['girada'] = true;
             $_SESSION['turno']['girada'] = true;
@@ -213,7 +182,7 @@ class PartidaController{
         }
 
         $nivel = $this->nivelJugador();
-        $this->render->renderiza('partidaJuego', [
+        $this->renderizarPartida('partidaJuego', [
             'resultadoMostrado' => false,
             'categoria' => $turno['categoria'],
             'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
@@ -304,7 +273,7 @@ class PartidaController{
     }
 
     // ─────────────────────────────────────────────────────────────
-    // RESULTADO (GET: sobrevive F5 y al botón "atrás")
+    // RESULTADO
     // ─────────────────────────────────────────────────────────────
 
     private function datosReportes($todos){
@@ -393,7 +362,7 @@ class PartidaController{
 
         $datos = $_SESSION['resultado'];
         $datos['reportes'] = $this->datosReportes(!empty($datos['gameOver']));
-        $this->render->renderiza('partidaJuego', $datos);
+        $this->renderizarPartida('partidaJuego', $datos);
     }
 
     /**
@@ -413,8 +382,7 @@ class PartidaController{
         if (!empty($resultado['gameOver'])) {
             // La partida terminó: la cuenta queda libre para empezar otra,
             // incluso desde una sesión distinta.
-            $this->liberarSesionUnicaActual();
-            unset($_SESSION['game_id']);
+            $this->cerrarPartidaActual();
             \Redirect::to('/Preguntados/home/show');
         }
 
@@ -428,7 +396,9 @@ class PartidaController{
      */
     public function latido(){
 
-        $this->requiereUsuario();
+        if ($this->tokenPartidaValido()) {
+            $this->requiereUsuario();
+        }
         http_response_code(204);
     }
 
@@ -446,13 +416,7 @@ class PartidaController{
 
     public function abandonar(){
 
-        $this->liberarSesionUnicaActual();
-
-        if(isset($_SESSION['game_id']) && (int) $_SESSION['game_id'] > 0){
-            $this->model->abandonoPartida((int) $_SESSION['game_id']);
-        }
-
-        $this->limpiarSesionPartida();
+        $this->cerrarPartidaActual();
 
         $destino = \Request::get('destino','/home/show');
         \Redirect::to('/Preguntados' . $this->destinoSeguro($destino));
@@ -460,10 +424,47 @@ class PartidaController{
 
     public function salir(){
 
-        $this->liberarSesionUnicaActual();
-        $this->limpiarSesionPartida();
+        $this->cerrarPartidaActual();
 
         \Redirect::to('/Preguntados/home/show');
+    }
+
+    public function avisoSalida(){
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            return;
+        }
+
+        $duena = $_SESSION['pestana'] ?? '';
+        if ($this->tokenPartidaValido() && ($duena === '' || $duena === $this->selloPestana())) {
+            $this->cerrarPartidaActual();
+        }
+
+        http_response_code(204);
+    }
+
+    public function cerrarPartidaActual(){
+        $gameId = (int) ($_SESSION['game_id'] ?? 0);
+        if ($gameId > 0) {
+            $this->model->abandonoPartida($gameId);
+        }
+        $this->liberarSesionUnicaActual();
+        $this->limpiarSesionPartida();
+    }
+
+    private function renderizarPartida($vista, array $datos){
+        if (empty($datos['gameOver']) && !empty($_SESSION['game_id'])) {
+            $_SESSION['partida_salida'] ??= bin2hex(random_bytes(32));
+            $datos['partidaSalida'] = $_SESSION['partida_salida'];
+        }
+        $this->render->renderiza($vista, $datos);
+    }
+
+    private function tokenPartidaValido(){
+        $token = \Request::post('token');
+        return is_string($token) && isset($_SESSION['partida_salida'])
+            && hash_equals($_SESSION['partida_salida'], $token);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -711,7 +712,7 @@ class PartidaController{
 
         unset($_SESSION['resultado']);
 
-        // Una sola entrega por turno: F5 no infla las estadísticas.
+        // Registrar una sola entrega por turno mantiene las estadísticas correctas.
         $this->model->registrarEntrega((int) $pregunta['question_id']);
     }
 
@@ -942,6 +943,7 @@ class PartidaController{
             $_SESSION['pestana'],
             $_SESSION['pestana_previas'],
             $_SESSION['partida_reanudada'],
+            $_SESSION['partida_salida'],
             // claves del flujo viejo, por si quedaron dando vueltas
             $_SESSION['pregunta_pendiente'],
             $_SESSION['opciones_pendientes'],

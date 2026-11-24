@@ -134,7 +134,7 @@
         {{/resultadoMostrado}}
     </section>
 </main>
-<script src="{{basePath}}/public/js/partida-navegacion.js" defer></script>
+<script src="{{basePath}}/public/js/partida-navegacion.js?v={{partidaNavegacionVersion}}" defer></script>
 {{#resultadoMostrado}}<script src="{{basePath}}/public/js/partida-reportes.js" defer></script>{{/resultadoMostrado}}
 {{^resultadoMostrado}}
 <script src="{{basePath}}/public/js/partida-temporizador.js?v={{partidaTemporizadorVersion}}" defer></script>

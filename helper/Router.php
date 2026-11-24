@@ -15,6 +15,12 @@ class Router
 
     public function dispatch($controllerName, $method)
     {
+        $controllerName = strtolower($controllerName);
+        $esLatido = $controllerName === 'presence' && strtolower($method) === 'ping';
+        $esNavegacion = ($_SERVER['HTTP_SEC_FETCH_MODE'] ?? 'navigate') === 'navigate';
+        if ($controllerName !== 'partida' && !$esLatido && $esNavegacion && !empty($_SESSION['game_id'])) {
+            $this->config->getPartidaController()->cerrarPartidaActual();
+        }
 
         if ($controllerName === 'moderador' && $this->dispatchModerador($method)) {
         return;
