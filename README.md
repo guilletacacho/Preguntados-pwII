@@ -1,7 +1,22 @@
-﻿# Configurar la base de datos
+# <span style="color: #2e8b57">Preguntados</span>
 
-1. Importa `app/sql/preguntados.sql` desde phpMyAdmin. El script crea la base `preguntados`.
-2. Copia `config/config.example.ini` como `config/config.ini` y ajusta los datos de MySQL:
+Preguntados es un sitio de trivia en el que podés jugar partidas de preguntas y respuestas organizadas por categorías. Cada pregunta tiene un tiempo límite; tus aciertos suman puntos y podés revisar el resultado de la partida al terminar. También podés sugerir preguntas y reportar las que tengan errores.
+
+El sitio cuenta con tres roles:
+
+- **Jugador:** juega partidas, consulta sus resultados, sugiere preguntas y puede reportar preguntas problemáticas.
+- **Moderador:** revisa los reportes y las sugerencias, y gestiona las preguntas y categorías del juego.
+- **Administrador:** administra las cuentas y sus roles, puede bloquear usuarios y consultar el panel de estadísticas y el historial administrativo. También tiene acceso a las herramientas de moderación.
+
+# <span style="color: #2e8b57">A tener en cuenta</span>
+
+- Necesitas PHP, Composer y MySQL para instalar y ejecutar el sitio.
+- La configuración local de la base de datos y del correo se guarda en archivos excluidos de Git. Consulta las secciones siguientes para prepararlos.
+
+# <span style="color: #2e8b57">Configuración de la base de datos</span>
+
+1. En phpMyAdmin, importa `app/sql/preguntados.sql`. Este archivo crea la base de datos `preguntados` con la estructura y los datos iniciales necesarios para el proyecto.
+2. Copia `config/config.example.ini` como `config/config.ini` y ajusta la conexión a MySQL:
 
 ```ini
 db_host = localhost
@@ -9,39 +24,36 @@ db_user = root
 db_pass = ""
 db_name = preguntados
 db_port = 3306
+app_url = http://localhost/preguntados
 ```
 
-`db_port` debe coincidir con el puerto de MySQL de tu instalación. La contraseña vacía corresponde a una instalación local de XAMPP sin contraseña para `root`.
+El puerto debe coincidir con el de MySQL en tu instalación. En una instalación local de XAMPP, `root` suele tener la contraseña vacía.
 
-`config/config.ini` está excluido de Git para mantener las credenciales locales.
+# <span style="color: #2e8b57">Instalación</span>
 
-Si ya tenés una base instalada, importá `app/sql/migracion_gestion_usuarios.sql` sobre esa base para habilitar el bloqueo y las fechas de alta. Las cuentas anteriores a la migración conservan una fecha de alta desconocida.
-
-Importá también `app/sql/migracion_historial_admin.sql` para registrar las nuevas acciones administrativas. El historial comienza al habilitar esta función.
-
-Si la base instalada todavía no tiene sugerencias o categorías editables, importá `app/sql/migracion_categorias_sugerencias.sql`.
-
-Para habilitar Administración, configurá `@id_admin` en `app/sql/migracion_panel_admin.sql` con el ID de una cuenta propia ya verificada y ejecutá la consulta en la base del proyecto. El rol `ADMIN` puede entrar a Administración y Moderación. El rol `MODERADOR` tiene acceso a Moderación.
-
-# Instalación
-
-Necesitas PHP, Composer y MySQL (por ejemplo, con XAMPP). Desde la carpeta del proyecto ejecuta:
+Necesitas PHP, Composer y MySQL (por ejemplo, mediante XAMPP). Desde la carpeta del proyecto ejecuta:
 
 ```sh
 composer install
 ```
 
-Composer instala PHPMailer y genera `vendor/autoload.php`, necesario para iniciar la aplicación.
+Esto instala PHPMailer y genera `vendor/autoload.php`, que la aplicación necesita para funcionar.
 
-# Validación de correo
+# <span style="color: #2e8b57">Configuración del correo</span>
 
-El envío de emails usa PHPMailer y se probó en desarrollo con Mailtrap en modo sandbox. Los mensajes quedan capturados en Mailtrap y no se envían a destinatarios reales. Copia `config/mail.example.ini` como `config/mail.ini` y completa las credenciales de tu sandbox:
+El proyecto usa PHPMailer para enviar correos y Mailtrap como servidor SMTP de desarrollo. Crea una cuenta o sandbox en Mailtrap, copia `config/mail.example.ini` como `config/mail.ini` y completa los datos SMTP de tu bandeja:
 
 ```ini
 smtp_host = sandbox.smtp.mailtrap.io
 smtp_port = 587
 smtp_user = tu_usuario_mailtrap
 smtp_pass = tu_password_mailtrap
+from_email = no-reply@preguntados.com
+from_name = Preguntados
 ```
 
-`config/mail.ini` está excluido de Git: no subas credenciales SMTP al repositorio.
+Los mensajes enviados al sandbox quedan en Mailtrap y no llegan a destinatarios reales.
+
+# <span style="color: #2e8b57">Archivos de configuración</span>
+
+`config/config.ini` y `config/mail.ini` están excluidos de Git. Crea ambos a partir de sus archivos de ejemplo y no agregues credenciales locales al repositorio.
