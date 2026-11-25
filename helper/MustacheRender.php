@@ -45,6 +45,7 @@ class MustacheRender
             'enRanking' => $enRanking,
             'enFaq' => $enFaq,
             'enTerminos' => $enTerminos,
+            'partidaSalida' => $data['partidaSalida'] ?? '',
             'tieneEstilosSugerencias' => $esSugerencias,
             'navegacionExpandida' => $enRanking || $enFaq || $enTerminos,
             'tieneEnlacesAyuda' => $enInicio || $enRanking || $view === 'sugerencias' || $enFaq || $enTerminos,

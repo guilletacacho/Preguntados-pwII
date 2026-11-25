@@ -64,13 +64,7 @@
                     <li>
                         <div class="perfil-partida-texto">
                             <strong>Estado: {{estado}}</strong>
-                            <span>Fecha: {{fecha}}</span>
-                            {{#esFinalizada}}
-                            <span>Puntos: {{puntos}}</span>
-                            {{/esFinalizada}}
-                            {{#esAbandonada}}
-                            <span>Puntos perdidos: {{puntos}}</span>
-                            {{/esAbandonada}}
+                            <span>Fecha: {{fecha}}{{#esFinalizada}} · Puntos: {{puntos}}{{/esFinalizada}}{{#esAbandonada}} · Puntos perdidos: {{puntos}}{{/esAbandonada}}</span>
                         </div>
                     </li>
                     {{/partidas}}

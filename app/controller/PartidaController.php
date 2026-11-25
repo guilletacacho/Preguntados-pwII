@@ -139,7 +139,7 @@ class PartidaController{
         }
         unset($categoria);
 
-        $this->render->renderiza('ruleta', [
+        $this->renderizarPartida('ruleta', [
             'categorias' => $categorias,
             'puntos' => (int) ($_SESSION['puntos'] ?? 0),
             'rondaNumero' => (int) $turno['numero'],
@@ -213,7 +213,7 @@ class PartidaController{
         }
 
         $nivel = $this->nivelJugador();
-        $this->render->renderiza('partidaJuego', [
+        $this->renderizarPartida('partidaJuego', [
             'resultadoMostrado' => false,
             'categoria' => $turno['categoria'],
             'categoriaIcono' => $turno['icono'] ?? 'personajes/ciencia.svg',
@@ -393,7 +393,7 @@ class PartidaController{
 
         $datos = $_SESSION['resultado'];
         $datos['reportes'] = $this->datosReportes(!empty($datos['gameOver']));
-        $this->render->renderiza('partidaJuego', $datos);
+        $this->renderizarPartida('partidaJuego', $datos);
     }
 
     /**
@@ -413,8 +413,7 @@ class PartidaController{
         if (!empty($resultado['gameOver'])) {
             // La partida terminó: la cuenta queda libre para empezar otra,
             // incluso desde una sesión distinta.
-            $this->liberarSesionUnicaActual();
-            unset($_SESSION['game_id']);
+            $this->cerrarPartidaActual();
             \Redirect::to('/Preguntados/home/show');
         }
 
@@ -428,7 +427,9 @@ class PartidaController{
      */
     public function latido(){
 
-        $this->requiereUsuario();
+        if ($this->tokenPartidaValido()) {
+            $this->requiereUsuario();
+        }
         http_response_code(204);
     }
 
@@ -446,13 +447,7 @@ class PartidaController{
 
     public function abandonar(){
 
-        $this->liberarSesionUnicaActual();
-
-        if(isset($_SESSION['game_id']) && (int) $_SESSION['game_id'] > 0){
-            $this->model->abandonoPartida((int) $_SESSION['game_id']);
-        }
-
-        $this->limpiarSesionPartida();
+        $this->cerrarPartidaActual();
 
         $destino = \Request::get('destino','/home/show');
         \Redirect::to('/Preguntados' . $this->destinoSeguro($destino));
@@ -460,10 +455,47 @@ class PartidaController{
 
     public function salir(){
 
-        $this->liberarSesionUnicaActual();
-        $this->limpiarSesionPartida();
+        $this->cerrarPartidaActual();
 
         \Redirect::to('/Preguntados/home/show');
+    }
+
+    public function avisoSalida(){
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            return;
+        }
+
+        $duena = $_SESSION['pestana'] ?? '';
+        if ($this->tokenPartidaValido() && ($duena === '' || $duena === $this->selloPestana())) {
+            $this->cerrarPartidaActual();
+        }
+
+        http_response_code(204);
+    }
+
+    public function cerrarPartidaActual(){
+        $gameId = (int) ($_SESSION['game_id'] ?? 0);
+        if ($gameId > 0) {
+            $this->model->abandonoPartida($gameId);
+        }
+        $this->liberarSesionUnicaActual();
+        $this->limpiarSesionPartida();
+    }
+
+    private function renderizarPartida($vista, array $datos){
+        if (empty($datos['gameOver']) && !empty($_SESSION['game_id'])) {
+            $_SESSION['partida_salida'] ??= bin2hex(random_bytes(32));
+            $datos['partidaSalida'] = $_SESSION['partida_salida'];
+        }
+        $this->render->renderiza($vista, $datos);
+    }
+
+    private function tokenPartidaValido(){
+        $token = \Request::post('token');
+        return is_string($token) && isset($_SESSION['partida_salida'])
+            && hash_equals($_SESSION['partida_salida'], $token);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -942,6 +974,7 @@ class PartidaController{
             $_SESSION['pestana'],
             $_SESSION['pestana_previas'],
             $_SESSION['partida_reanudada'],
+            $_SESSION['partida_salida'],
             // claves del flujo viejo, por si quedaron dando vueltas
             $_SESSION['pregunta_pendiente'],
             $_SESSION['opciones_pendientes'],
