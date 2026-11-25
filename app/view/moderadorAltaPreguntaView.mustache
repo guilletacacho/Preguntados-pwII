@@ -4,7 +4,7 @@
     <div class="moderador-content">
         <header class="moderador-header">
             <div>
-                <span class="moderador-eyebrow">MODERACIÓN</span>
+                <span class="moderador-eyebrow">Preguntados · Moderación</span>
                 <h1>Nueva pregunta</h1>
                 <p>Se suma al juego apenas la guardás.</p>
             </div>
@@ -12,10 +12,10 @@
 
         {{> moderadorNavegacion}}
 
-        <form class="moderador-alta-formulario" method="post" enctype="multipart/form-data" action="{{basePath}}/moderador/crearPregunta">
+        <form class="moderador-alta-layout" method="post" enctype="multipart/form-data" action="{{basePath}}/moderador/crearPregunta">
             <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+            <div class="moderador-alta-formulario">
             {{#error}}<p class="moderador-ayuda" role="alert">{{error}}</p>{{/error}}
-            <div class="moderador-alta-grid">
                 <div class="moderador-alta-columna">
                     <div class="moderador-alta-campo">
                         <label for="nueva-categoria">Categoría</label>
@@ -58,26 +58,27 @@
                     </fieldset>
                 </div>
 
+                <p class="moderador-dificultad-nota">Todas las preguntas nuevas se crean con dificultad fácil.</p>
+
+                <div class="moderador-alta-acciones">
+                    <button class="moderador-alta-guardar" type="submit">Crear pregunta</button>
+                    <a href="{{basePath}}/moderador/preguntas">Cancelar</a>
+                </div>
+            </div>
+
                 <fieldset class="moderador-alta-imagen">
                     <legend>Imagen de la pregunta (opcional)</legend>
                     <p class="moderador-ayuda">La imagen aparecerá junto al enunciado durante la partida. JPG o PNG, hasta 5 MB.</p>
                     <label for="nueva-imagen">Elegir imagen</label>
                     <input id="nueva-imagen" name="image" type="file" accept="image/jpeg,image/png" aria-describedby="nueva-imagen-ayuda">
                     <small id="nueva-imagen-ayuda">La vista previa se muestra aquí; la imagen se sube al crear la pregunta.</small>
-                    <div class="moderador-alta-imagen-preview" id="nueva-imagen-preview-wrap" hidden>
+                    <div class="moderador-alta-imagen-preview is-empty" id="nueva-imagen-preview-wrap">
+                        <span class="moderador-alta-imagen-placeholder">La vista previa aparecerá aquí.</span>
                         <img id="nueva-imagen-preview" alt="Vista previa de la imagen seleccionada">
                     </div>
                     <p class="moderador-alta-imagen-nombre" id="nueva-imagen-nombre" aria-live="polite">Ninguna imagen seleccionada.</p>
                     <button class="moderador-alta-imagen-quitar" id="nueva-imagen-quitar" type="button" hidden>Quitar imagen</button>
                 </fieldset>
-            </div>
-
-            <p class="moderador-dificultad-nota">Todas las preguntas nuevas se crean con dificultad fácil.</p>
-
-            <div class="moderador-alta-acciones">
-                <button class="moderador-alta-guardar" type="submit">Crear pregunta</button>
-                <a href="{{basePath}}/moderador/preguntas">Cancelar</a>
-            </div>
         </form>
     </div>
 </main>
@@ -87,6 +88,7 @@
         var input = document.getElementById('nueva-imagen');
         var previewWrap = document.getElementById('nueva-imagen-preview-wrap');
         var preview = document.getElementById('nueva-imagen-preview');
+        var previewPlaceholder = previewWrap && previewWrap.querySelector('.moderador-alta-imagen-placeholder');
         var fileName = document.getElementById('nueva-imagen-nombre');
         var removeButton = document.getElementById('nueva-imagen-quitar');
         if (!input || !previewWrap || !preview || !fileName || !removeButton) return;
@@ -99,7 +101,8 @@
             }
             input.value = '';
             preview.removeAttribute('src');
-            previewWrap.hidden = true;
+            previewWrap.classList.add('is-empty');
+            if (previewPlaceholder) previewPlaceholder.hidden = false;
             removeButton.hidden = true;
             fileName.textContent = 'Ninguna imagen seleccionada.';
         }
@@ -114,7 +117,8 @@
             var file = this.files && this.files[0];
             if (!file) {
                 preview.removeAttribute('src');
-                previewWrap.hidden = true;
+                previewWrap.classList.add('is-empty');
+                if (previewPlaceholder) previewPlaceholder.hidden = false;
                 removeButton.hidden = true;
                 fileName.textContent = 'Ninguna imagen seleccionada.';
                 return;
@@ -123,7 +127,8 @@
             if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 5 * 1024 * 1024) {
                 this.value = '';
                 preview.removeAttribute('src');
-                previewWrap.hidden = true;
+                previewWrap.classList.add('is-empty');
+                if (previewPlaceholder) previewPlaceholder.hidden = false;
                 removeButton.hidden = true;
                 fileName.textContent = file.size > 5 * 1024 * 1024
                     ? 'La imagen no puede superar los 5 MB.'
@@ -133,7 +138,8 @@
 
             previewUrl = URL.createObjectURL(file);
             preview.src = previewUrl;
-            previewWrap.hidden = false;
+            previewWrap.classList.remove('is-empty');
+            if (previewPlaceholder) previewPlaceholder.hidden = true;
             removeButton.hidden = false;
             fileName.textContent = file.name;
         });

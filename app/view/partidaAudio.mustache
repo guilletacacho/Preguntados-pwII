@@ -1,0 +1,18 @@
+<div class="partida-audio" role="group" aria-label="Audio del juego" hidden>
+    <button type="button" data-audio-control="fx" aria-label="Efectos" title="Efectos" aria-pressed="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9v6h4l5 4V5L7 9H3z"/>
+            <path class="partida-audio-ondas" d="M16 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/>
+            <path class="partida-audio-silencio" d="M3 3l18 18"/>
+        </svg>
+    </button>
+    <button type="button" data-audio-control="musica" aria-label="Música" title="Música" aria-pressed="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18V5l11-2v13M9 8l11-2"/>
+            <ellipse cx="6" cy="18" rx="3" ry="2.25"/>
+            <ellipse cx="17" cy="16" rx="3" ry="2.25"/>
+            <path class="partida-audio-silencio" d="M3 3l18 18"/>
+        </svg>
+    </button>
+</div>
+<script src="{{basePath}}/public/js/partida-audio.js?v={{partidaAudioVersion}}" defer></script>

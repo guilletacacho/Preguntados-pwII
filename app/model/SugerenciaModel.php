@@ -72,7 +72,8 @@ class SugerenciaModel{
                 qs.created_at AS fecha,
                 c.name AS categoria,
                 qs.status AS estado,
-                qs.image_url AS imagen
+                qs.image_url AS imagen,
+                qs.resolution_notes AS motivo_rechazo
             FROM question_suggestions qs
             INNER JOIN usuarios u ON u.Id = qs.user_id
             LEFT JOIN questions q ON q.id = qs.published_question_id
@@ -130,7 +131,7 @@ class SugerenciaModel{
                 $datos['category_id'],
                 $datos['question'],
                 $datos['difficulty_level'],
-                $sugerencia['image_url'] ?? null
+                $datos['image_url'] ?? ($sugerencia['image_url'] ?? null)
             );
 
             $this->insertarRespuestas(
@@ -377,6 +378,12 @@ class SugerenciaModel{
         $datos['difficulty_level'] = $difficulty;
         $datos['responses'] = $responses;
         $datos['correct_response'] = $correctIndex;
+
+        $imageUrl = $datos['image_url'] ?? null;
+        if ($imageUrl !== null && (!is_string($imageUrl) || $imageUrl === '' || mb_strlen($imageUrl) > 255)) {
+            throw new \DomainException('La imagen seleccionada no es válida.');
+        }
+        $datos['image_url'] = $imageUrl;
 
         return $datos;
     }

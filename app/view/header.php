@@ -32,11 +32,11 @@ $currentPage = $_GET['controller'] ?? 'login';
                                 <span>Administración</span>
                             </a>
                         <?php endif; ?>
-                        <a href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/perfil') ?>">
+                        <a href="<?= $siteUrl ?>/perfil">
                         Mi perfil
                         </a>
                         <a class="logout-link"
-                        href="<?= $siteUrl ?>/partida/abandonar?destino=<?= urlencode('/login/logout') ?>">
+                        href="<?= $siteUrl ?>/login/logout">
                         Salir
                         </a>
                     </div>

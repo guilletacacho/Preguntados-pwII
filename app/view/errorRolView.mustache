@@ -1,0 +1,73 @@
+<main class="ranking-shell ranking-shell-with-characters con-barra-ranking error-rol-shell">
+    {{> navegacionLateral}}
+    <div class="ranking-characters ranking-characters-left" aria-hidden="true">
+        <ul class="personajes personajes-ranking personajes-ranking-left">
+            <li><img src="{{basePath}}/public/img/personajes/geografia.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/cine.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/ciencia.svg" alt="" width="204" height="206"></li>
+        </ul>
+    </div>
+    <section class="error-rol-content ranking-container" aria-labelledby="error-rol-titulo">
+        <div class="error-rol-mensaje">
+            <span class="eyebrow">ACCESO RESTRINGIDO</span>
+            <h1 id="error-rol-titulo">No tenés permisos para acceder a esta sección.</h1>
+            <p>Sección solicitada: <strong>{{seccion}}</strong>.</p>
+            <a class="submit-btn error-rol-boton" href="{{basePath}}/home/show">Volver al inicio</a>
+        </div>
+    </section>
+    <div class="ranking-characters ranking-characters-right" aria-hidden="true">
+        <ul class="personajes personajes-ranking personajes-ranking-right">
+            <li><img src="{{basePath}}/public/img/personajes/arte.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/historia.svg" alt="" width="204" height="206"></li>
+            <li><img src="{{basePath}}/public/img/personajes/deporte.svg" alt="" width="204" height="206"></li>
+        </ul>
+    </div>
+</main>
+
+<style>
+    .error-rol-content {
+        min-height: calc(100vh - 220px);
+        display: grid;
+        place-items: center;
+        z-index: 1;
+    }
+
+    .error-rol-shell .ranking-characters {
+        padding-top: 2rem;
+    }
+
+    .error-rol-shell .personajes-ranking {
+        gap: 1rem;
+    }
+
+    .error-rol-shell .personajes-ranking li {
+        width: clamp(100px, 10vw, 145px);
+    }
+
+    .error-rol-mensaje {
+        width: min(100%, 620px);
+        padding: clamp(1.5rem, 4vw, 3rem);
+        border: 1px solid var(--borde);
+        border-radius: 24px;
+        background: var(--superficie, #202a36);
+        text-align: center;
+        box-shadow: 0 20px 60px #0003;
+    }
+
+    .error-rol-mensaje h1 {
+        margin: 1rem 0 2rem;
+        font-size: clamp(1.6rem, 4vw, 2.5rem);
+    }
+
+    .error-rol-boton {
+        display: inline-flex;
+        min-width: 220px;
+        min-height: 54px;
+        align-items: center;
+        justify-content: center;
+        padding: .9rem 2rem;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+</style>

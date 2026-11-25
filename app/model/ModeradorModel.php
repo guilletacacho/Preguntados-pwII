@@ -553,6 +553,10 @@ class ModeradorModel
                     q.id,
                     q.is_active AS activa,
                     q.question,
+                    CASE
+                        WHEN q.image_url IS NULL OR TRIM(q.image_url) = '' THEN 'No'
+                        ELSE 'Sí'
+                    END AS tiene_imagen,
                     c.name AS categoria,
                     c.color AS categoria_color,
                     {$expresionDificultad} AS dificultad,
@@ -560,7 +564,12 @@ class ModeradorModel
                     CASE
                         WHEN COALESCE(qs.times_answered, 0) = 0 THEN 0
                         ELSE ROUND(100 * qs.times_correct / qs.times_answered)
-                    END AS acierto
+                    END AS acierto,
+                    (
+                        SELECT COUNT(*)
+                        FROM question_reports qr
+                        WHERE qr.question_id = q.id
+                    ) AS reportes
                 FROM questions q
                 INNER JOIN category c ON c.id = q.category_id
                 LEFT JOIN question_stats qs ON qs.question_id = q.id

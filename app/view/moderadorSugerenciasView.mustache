@@ -18,6 +18,8 @@
     .moderador-sugerencia-fecha { color: var(--texto-tenue); font-size: var(--moderador-texto-secundario); }
     .moderador-sugerencia-pregunta { margin: 0; color: var(--texto); font-size: var(--moderador-texto-base); font-weight: 800; line-height: 1.5; overflow-wrap: anywhere; }
     .moderador-sugerencia-pregunta span { color: var(--texto-sec); font-size: var(--moderador-texto-interfaz); font-weight: 600; }
+    .moderador-sugerencia-motivo-rechazo { margin: -4px 0 0; color: #ff9aa2; font-size: var(--moderador-texto-secundario); line-height: 1.5; overflow-wrap: anywhere; }
+    .moderador-sugerencia-motivo-rechazo strong { font-weight: 800; }
     .moderador-sugerencia-estado { display: inline-block; width: max-content; max-width: 100%; padding: 4px 8px; border-radius: 6px; background: rgb(232 72 85 / 15%); color: #ff9aa2; font-size: var(--moderador-texto-pequeno); font-weight: 800; letter-spacing: .04em; }
     .moderador-sugerencia-estado[data-estado="PENDIENTE"] { background: rgb(242 194 48 / 15%); color: var(--arte); }
     .moderador-sugerencia-estado[data-estado="APROBADA"] { background: rgb(124 194 67 / 15%); color: var(--deporte); }
@@ -54,11 +56,10 @@
     <div class="moderador-content">
         <header class="moderador-header">
             <div>
-                <span class="moderador-eyebrow">MODERACIÓN</span>
+                <span class="moderador-eyebrow">Preguntados · Moderación</span>
                 <h1>Preguntas sugeridas</h1>
                 <p>Preguntas que mandaron los jugadores desde el lobby. Si las aprobás, entran al juego.</p>
             </div>
-            <a class="moderador-nueva-pregunta" href="{{basePath}}/moderador/altaPregunta">+ Nueva pregunta</a>
         </header>
 
         {{#hayMensaje}}
@@ -104,6 +105,9 @@
                     </header>
                     <p class="moderador-sugerencia-pregunta"><span>Pregunta sugerida:</span></p>
                     <p class="moderador-sugerencia-pregunta">{{pregunta}}</p>
+                    {{#mostrarMotivoRechazo}}
+                    <p class="moderador-sugerencia-motivo-rechazo"><strong>Motivo rechazo:</strong> {{motivo_rechazo}}</p>
+                    {{/mostrarMotivoRechazo}}
                     {{#puedeRevisar}}
                     <div class="moderador-sugerencia-acciones">
                         <a class="editar-aprobar" href="{{basePath}}/moderador/editarSugerencia?id={{id}}">Editar y aprobar</a>

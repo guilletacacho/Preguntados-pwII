@@ -408,6 +408,8 @@ class AdminController
         if ($formulario['anioNacimiento'] === '') {
             $formulario['anioNacimiento'] = $actual['anioNacimiento'];
         }
+        $formulario['fotoUrl'] = $actual['fotoUrl'] ?? null;
+    
         $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
         $formulario['sexos'] = $this->sexosConSeleccion($formulario['sexo']);
         $formulario['rolFijoAdmin'] = $actual['rol'] === 'ADMIN';

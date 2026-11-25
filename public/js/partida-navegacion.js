@@ -130,9 +130,6 @@
             });
         }
 
-        dialogo.querySelector('[data-partida-quedarse]').addEventListener('click', function () {
-            dialogo.close();
-        });
         function avisarSalida() {
             var destino = conSello(urlAviso.href);
             var datos = new URLSearchParams({ token: dialogo.dataset.token });
@@ -141,6 +138,9 @@
             }
         }
 
+        dialogo.querySelector('[data-partida-quedarse]').addEventListener('click', function () {
+            dialogo.close();
+        });
         dialogo.querySelector('[data-partida-abandonar]').addEventListener('click', function () {
             salidaConfirmada = true;
             avisarSalida();

@@ -10,13 +10,13 @@ class PerfilModel {
     }
 
     public function obtenerPorId($id){
-        $sql = "SELECT Id, Nombre, Usuario, Provincia, Pais, Foto_url FROM usuarios WHERE Id = ?";
+        $sql = "SELECT Id, Nombre, Anio_nacimiento, Mes_nacimiento, Dia_nacimiento, Usuario, Provincia, Pais, Foto_url FROM usuarios WHERE Id = ?";
 
         return $this->database->queryOne($sql,[$id]);
     }
 
     public function obtenerPorUsuario($usuario){
-        $sql = "SELECT Id, Nombre, Usuario, Provincia, Pais, Foto_url FROM usuarios WHERE Usuario = ? AND Verificado = 1";
+        $sql = "SELECT Id, Nombre, Anio_nacimiento, Mes_nacimiento, Dia_nacimiento, Usuario, Provincia, Pais, Foto_url FROM usuarios WHERE Usuario = ? AND Verificado = 1";
 
         return $this->database->queryOne($sql,[$usuario]);
     }

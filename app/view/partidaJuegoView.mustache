@@ -1,100 +1,105 @@
-<main class="partida-shell">
-    <section class="partida-contenido" aria-label="Pregunta de {{categoria}}">
-        <header class="partida-header">
-            <div class="partida-categoria">
-                <img src="{{basePath}}/public/img/{{categoriaIcono}}" alt="" class="partida-categoria-icono">
+<main class="partida-shell" data-audio-escena="{{#resultadoMostrado}}resultado{{/resultadoMostrado}}{{^resultadoMostrado}}pregunta{{/resultadoMostrado}}" data-audio-categoria="{{categoria}}">
+<section class="partida-contenido" aria-label="Pregunta de {{categoria}}">
+    <header class="partida-hud">
+        <div class="partida-hud-fila">
+            <img src="{{basePath}}/public/img/{{categoriaIcono}}" alt="" class="partida-hud-icono">
+            <div class="partida-hud-categoria">
                 <strong>{{categoria}}</strong>
                 <span>Pregunta {{preguntaNumero}}</span>
             </div>
-            <div class="partida-puntos">
+            {{^resultadoMostrado}}
+                <p class="partida-hud-tiempo"><strong id="partida-segundos">{{tiempoRestante}}</strong> s</p>
+            {{/resultadoMostrado}}
+            <div class="partida-hud-puntos">
                 <span>Puntos</span>
                 <strong>{{puntos}}</strong>
             </div>
-        </header>
-
-        <div class="partida-meta" aria-label="Nivel">
-            <span class="partida-chip">Dificultad: {{dificultad}}</span>
-            <span class="partida-chip">Tu nivel: {{nivelJugador}}</span>
+            {{> partidaAudio}}
         </div>
-
         <div class="partida-progreso"{{^resultadoMostrado}} data-restante="{{tiempoRestante}}" data-limite="{{tiempoLimite}}"{{/resultadoMostrado}} aria-hidden="true">
             <span></span>
         </div>
-        {{^resultadoMostrado}}
-            <p class="partida-tiempo">Tiempo: <strong id="partida-segundos">{{tiempoRestante}}</strong> s</p>
-            <form id="partida-tiempo-form" method="post" action="{{basePath}}/partida/tiempoAgotado" hidden></form>
-        {{/resultadoMostrado}}
+    </header>
+{{^resultadoMostrado}}
+        <form id="partida-tiempo-form" method="post" action="{{basePath}}/partida/tiempoAgotado" hidden></form>
+{{/resultadoMostrado}}
 
-        <div class="partida-pregunta">
-            <img src="{{basePath}}/public/img/{{categoriaIcono}}" alt="" class="partida-pregunta-icono">
+    <div class="partida-enunciado">
+        <div class="partida-enunciado-texto">
             <h1>{{pregunta}}</h1>
             {{#resultadoMostrado}}{{#reportes}}{{#actual}}
-            <button type="button" class="reporte-disparador" data-reporte-abrir="reporte-{{id}}" aria-label="Reportar esta pregunta" title="Reportar esta pregunta" aria-haspopup="dialog">
-                <span aria-hidden="true">!</span>
-            </button>
+                <button type="button" class="partida-reportar" data-reporte-abrir="reporte-{{id}}" aria-haspopup="dialog">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+                    Reportar pregunta
+                </button>
             {{/actual}}{{/reportes}}{{/resultadoMostrado}}
-            {{#hayImagen}}
-                <figure class="partida-imagen-pregunta">
-                    <img src="{{basePath}}/app/img-preguntas/{{imagen}}" alt="Imagen relacionada con la pregunta">
-                </figure>
-            {{/hayImagen}}
         </div>
+        {{#hayImagen}}
+            <figure class="partida-imagen-pregunta">
+                <img src="{{basePath}}/app/img-preguntas/{{imagen}}" alt="Imagen relacionada con la pregunta">
+            </figure>
+        {{/hayImagen}}
+    </div>
 
-        <div class="partida-respuestas">
-            {{#resultadoMostrado}}
-                {{#respuestas}}
-                    <div class="partida-respuesta{{#correcta}} es-correcta{{/correcta}}{{#incorrecta}} es-incorrecta{{/incorrecta}}">
-                        <span class="partida-opcion">{{letra}}</span>
-                        <strong>{{texto}}</strong>
-                    </div>
-                {{/respuestas}}
-            {{/resultadoMostrado}}
-
-            {{^resultadoMostrado}}
-                <form method="post" action="{{basePath}}/partida/responderPregunta" id="partida-respuesta-form">
-                    {{#respuestas}}
-                        <button type="submit" name="opcion" value="{{token}}" class="partida-respuesta partida-respuesta-boton">
-                            <span class="partida-opcion">{{letra}}</span>
-                            <strong>{{texto}}</strong>
-                        </button>
-                    {{/respuestas}}
-                </form>
-            {{/resultadoMostrado}}
-        </div>
-
-        {{^resultadoMostrado}}
-            <p class="partida-ayuda">Elegí una respuesta antes de que se acabe el tiempo.</p>
+    <div class="partida-respuestas">
+        {{#resultadoMostrado}}
+            {{#respuestas}}
+                <div class="partida-respuesta{{#correcta}} es-correcta{{/correcta}}{{#incorrecta}} es-incorrecta{{/incorrecta}}">
+                    <span class="partida-opcion">{{letra}}</span>
+                    <strong>{{texto}}</strong>
+                    {{#correcta}}<span class="partida-respuesta-etiqueta">Correcta</span>{{/correcta}}
+                    {{#incorrecta}}<span class="partida-respuesta-etiqueta">Tu respuesta</span>{{/incorrecta}}
+                </div>
+            {{/respuestas}}
         {{/resultadoMostrado}}
 
-        {{#resultadoMostrado}}
-            {{#esCorrecta}}
-                <div class="partida-resultado partida-resultado-correcto">
-                    <span>¡Respuesta correcta! +{{puntosGanados}} puntos</span>
-                    {{#volverRuleta}}
-                        <a href="{{basePath}}/partida/continuar" class="partida-siguiente">Volver a la ruleta</a>
-                    {{/volverRuleta}}
-                    {{#finalizadaPorReporte}}
+        {{^resultadoMostrado}}
+            <form method="post" action="{{basePath}}/partida/responderPregunta" id="partida-respuesta-form">
+                {{#respuestas}}
+                    <button type="submit" name="opcion" value="{{token}}" class="partida-respuesta partida-respuesta-boton">
+                        <span class="partida-opcion">{{letra}}</span>
+                        <strong>{{texto}}</strong>
+                    </button>
+                {{/respuestas}}
+            </form>
+        {{/resultadoMostrado}}
+    </div>
+
+{{^resultadoMostrado}}
+        <p class="partida-ayuda">Elegí una respuesta antes de que se acabe el tiempo.</p>
+{{/resultadoMostrado}}
+
+{{#resultadoMostrado}}
+    {{#esCorrecta}}
+            <div class="partida-resultado partida-resultado-correcto"{{^finalizadaPorReporte}} data-audio-resultado="acierto"{{/finalizadaPorReporte}}>
+                <div class="partida-resultado-texto">
+                    <strong>¡Respuesta correcta! +{{puntosGanados}} puntos</strong>
+                </div>
+                {{#volverRuleta}}
+                    <a href="{{basePath}}/partida/continuar" class="partida-siguiente">Volver a la ruleta</a>
+                {{/volverRuleta}}
+                {{#finalizadaPorReporte}}
                     <div class="partida-acciones">
                         <a href="{{basePath}}/partida/continuar" class="partida-boton-secundario">Volver al lobby</a>
                         <a href="{{basePath}}/partida/iniciar" class="partida-boton-principal">Jugar de nuevo</a>
                     </div>
-                    {{/finalizadaPorReporte}}
-                </div>
-            {{/esCorrecta}}
+                {{/finalizadaPorReporte}}
+            </div>
+    {{/esCorrecta}}
 
-            {{^esCorrecta}}
-                <div class="partida-resultado partida-resultado-incorrecto">
-                    <div>
-                        <span>{{#tiempoAgotado}}¡Se acabó el tiempo!{{/tiempoAgotado}}{{^tiempoAgotado}}Respuesta incorrecta{{/tiempoAgotado}}</span>
-                        <p class="partida-ayuda">La respuesta correcta está marcada en verde.</p>
-                    </div>
-                    <div class="partida-acciones">
-                        <a href="{{basePath}}/partida/salir" class="partida-boton-secundario">Volver al lobby</a>
-                        <a href="{{basePath}}/partida/iniciar" class="partida-boton-principal">Jugar de nuevo</a>
-                    </div>
+    {{^esCorrecta}}
+            <div class="partida-resultado partida-resultado-incorrecto" data-audio-resultado="{{#tiempoAgotado}}tiempo{{/tiempoAgotado}}{{^tiempoAgotado}}error{{/tiempoAgotado}}">
+                <div class="partida-resultado-texto">
+                    <strong>{{#tiempoAgotado}}¡Se acabó el tiempo!{{/tiempoAgotado}}{{^tiempoAgotado}}Respuesta incorrecta{{/tiempoAgotado}}</strong>
+                    <p class="partida-ayuda">La respuesta correcta está marcada en verde.</p>
                 </div>
-            {{/esCorrecta}}
-        {{/resultadoMostrado}}
+                <div class="partida-acciones">
+                    <a href="{{basePath}}/partida/salir" class="partida-boton-secundario">Volver al lobby</a>
+                    <a href="{{basePath}}/partida/iniciar" class="partida-boton-principal">Jugar de nuevo</a>
+                </div>
+            </div>
+    {{/esCorrecta}}
+{{/resultadoMostrado}}
         {{#resultadoMostrado}}
         <section class="partida-reportes" aria-label="Reportar preguntas">
             {{#reporteMensaje}}<p class="reporte-aviso reporte-aviso-exito" role="status"><span aria-hidden="true">✓</span> {{reporteMensaje}}</p>{{/reporteMensaje}}
@@ -122,7 +127,7 @@
                     <label class="reporte-comentario" for="reporte-comentario-{{id}}">Contanos un poco más <span data-reporte-opcional>Opcional</span></label>
                         <textarea id="reporte-comentario-{{id}}" name="comentario" maxlength="2000" rows="3" placeholder="Por ejemplo: la opción correcta debería ser…" aria-describedby="reporte-ayuda-{{id}}"></textarea>
                     <div class="reporte-textarea-pie"><span id="reporte-ayuda-{{id}}">Obligatorio si elegís «Otro motivo».</span><span data-reporte-contador>0 / 2000</span></div>
-                    <p class="reporte-nota"><span aria-hidden="true">ⓘ</span> Al enviar el reporte, la partida quedará finalizada. Conservarás todos los puntos ganados. Revisaremos el contenido.</p>
+                    <p class="reporte-nota"><span aria-hidden="true">ⓘ</span> Al enviar el reporte, la partida quedará finalizada. Conservás todos los puntos ganados. Revisaremos el contenido.</p>
                     <label class="reporte-motivo"><input type="checkbox" name="confirmar_finalizacion" value="1" required><span>Confirmo que quiero enviar el reporte y finalizar la partida conservando mis puntos.</span></label>
                     <div class="reporte-pie"><button type="button" class="reporte-cancelar" data-reporte-cerrar>Cancelar</button><button type="submit" class="reporte-enviar">Reportar y finalizar <span aria-hidden="true">↗</span></button></div>
                 </form>
@@ -133,8 +138,8 @@
         {{/resultadoMostrado}}
     </section>
 </main>
-<script src="{{basePath}}/public/js/partida-navegacion.js" defer></script>
+<script src="{{basePath}}/public/js/partida-navegacion.js?v={{partidaNavegacionVersion}}" defer></script>
 {{#resultadoMostrado}}<script src="{{basePath}}/public/js/partida-reportes.js" defer></script>{{/resultadoMostrado}}
 {{^resultadoMostrado}}
-<script src="{{basePath}}/public/js/partida-temporizador.js" defer></script>
+<script src="{{basePath}}/public/js/partida-temporizador.js?v={{partidaTemporizadorVersion}}" defer></script>
 {{/resultadoMostrado}}

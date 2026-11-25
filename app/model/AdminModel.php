@@ -523,6 +523,7 @@ class AdminModel
                     Pais AS pais,
                     Usuario AS usuario,
                     Email AS email,
+                    Foto_url AS fotoUrl,
                     CAST(Verificado AS UNSIGNED) AS verificado,
                     rol
              FROM usuarios
