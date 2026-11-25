@@ -169,6 +169,7 @@ class PartidaModel{
                     FROM game_answers
                     WHERE game_id = ?
                 ) ga ON ga.question_id = q.id
+                WHERE c.is_active = 1
                 GROUP BY c.id, c.name, c.icono, c.color
                 ORDER BY c.id";
 
@@ -210,6 +211,7 @@ class PartidaModel{
                 WHERE q.category_id = ?
                     AND ({$expresion}) = ?
                     AND q.is_active = 1
+                    AND c.is_active = 1
                 ORDER BY COALESCE(usos.veces, 0) ASC, RAND()
                 LIMIT 1";
 

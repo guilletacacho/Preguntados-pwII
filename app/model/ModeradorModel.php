@@ -158,7 +158,7 @@ class ModeradorModel
     public function listarCategorias()
     {
         return $this->database->queryAll(
-            "SELECT id, name FROM category ORDER BY name"
+            "SELECT id, name FROM category WHERE is_active = 1 ORDER BY name"
         );
     }
 
@@ -551,7 +551,7 @@ class ModeradorModel
 
         $sql = "SELECT
                     q.id,
-                    q.is_active AS activa,
+                    CASE WHEN q.is_active = 1 AND c.is_active = 1 THEN 1 ELSE 0 END AS activa,
                     q.question,
                     CASE
                         WHEN q.image_url IS NULL OR TRIM(q.image_url) = '' THEN 'No'
@@ -593,6 +593,7 @@ class ModeradorModel
 
     $sql = "SELECT COUNT(q.id) AS total
             FROM questions q
+            INNER JOIN category c ON c.id = q.category_id
             LEFT JOIN question_stats qs ON qs.question_id = q.id
             {$filtros['where']}";
 
@@ -603,10 +604,11 @@ class ModeradorModel
 
     public function listarCategoriasConDetalle(){
 
-        $sql = "SELECT c.id, c.name, c.color, c.icono, COUNT(q.id) AS preguntas
+        $sql = "SELECT c.id, c.name, c.color, c.icono, c.is_active,
+                       SUM(CASE WHEN q.id IS NOT NULL AND q.is_active = 1 AND c.is_active = 1 THEN 1 ELSE 0 END) AS preguntas
                 FROM category c
-                LEFT JOIN questions q ON q.category_id = c.id AND q.is_active = 1
-                GROUP BY c.id, c.name, c.color, c.icono
+                LEFT JOIN questions q ON q.category_id = c.id
+                GROUP BY c.id, c.name, c.color, c.icono, c.is_active
                 ORDER BY c.name";
 
         return $this->database->queryAll($sql);
@@ -614,7 +616,7 @@ class ModeradorModel
 
     public function obtenerCategoria($id){
 
-        $sql = "SELECT id, name, color, icono FROM category WHERE id = ? LIMIT 1";
+        $sql = "SELECT id, name, color, icono, is_active FROM category WHERE id = ? LIMIT 1";
 
         return $this->database->queryOne($sql, [(int) $id]);
     }
@@ -641,9 +643,23 @@ class ModeradorModel
         return $this->database->execute($sql, [$nombre, $color, $icono, (int) $id]);
     }
 
+    public function desactivarCategoria($id){
+
+        $sql = "UPDATE category SET is_active = 0 WHERE id = ? AND is_active = 1";
+
+        return $this->database->execute($sql, [(int) $id]);
+    }
+
+    public function reactivarCategoria($id){
+
+        $sql = "UPDATE category SET is_active = 1 WHERE id = ? AND is_active = 0";
+
+        return $this->database->execute($sql, [(int) $id]);
+    }
+
     public function obtenerCategorias(){
 
-        $sql = "SELECT id, name FROM category ORDER BY name";
+        $sql = "SELECT id, name FROM category WHERE is_active = 1 ORDER BY name";
 
         return $this->database->queryAll($sql);
     }
@@ -697,9 +713,9 @@ class ModeradorModel
         }
 
         if ($estado === 'activa') {
-            $condiciones[] = "q.is_active = 1";
+            $condiciones[] = "q.is_active = 1 AND c.is_active = 1";
         } elseif ($estado === 'inactiva') {
-            $condiciones[] = "q.is_active = 0";
+            $condiciones[] = "(q.is_active = 0 OR c.is_active = 0)";
         }
 
         if ($texto !== '') {

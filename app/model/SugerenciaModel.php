@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace app\model;
 
@@ -12,7 +12,7 @@ class SugerenciaModel{
 
     public function categoriaExiste($categoryId){
 
-        $sql = "SELECT id FROM category WHERE id = ?";
+        $sql = "SELECT id FROM category WHERE id = ? AND is_active = 1";
 
         return $this->database->queryOne($sql,[$categoryId]) !== null;
     }
@@ -23,19 +23,19 @@ class SugerenciaModel{
         $categoryId = filter_var($categoryId, FILTER_VALIDATE_INT);
 
         if ($userId === false || $userId < 1) {
-            throw new \DomainException('La sesi├│n de usuario no es v├ílida.');
+            throw new \DomainException('La sesión de usuario no es válida.');
         }
 
         if ($categoryId === false || $categoryId < 1) {
-            throw new \DomainException('Seleccion├í una categor├¡a v├ílida.');
+            throw new \DomainException('Seleccioná una categoría válida.');
         }
 
         if (!$this->categoriaExiste($categoryId)) {
-            throw new \DomainException('La categor├¡a seleccionada no existe.');
+            throw new \DomainException('La categoría seleccionada no existe.');
         }
 
         if (!is_string($questionText)) {
-            throw new \DomainException('La pregunta no es v├ílida.');
+            throw new \DomainException('La pregunta no es válida.');
         }
 
         $questionText = trim($questionText);
@@ -47,7 +47,7 @@ class SugerenciaModel{
         }
 
         if ($imageUrl !== null && (!is_string($imageUrl) || $imageUrl === '' || mb_strlen($imageUrl) > 255)) {
-            throw new \DomainException('La referencia de imagen no es v├ílida.');
+            throw new \DomainException('La referencia de imagen no es válida.');
         }
 
         $sql = "INSERT INTO question_suggestions (user_id, category_id, question_text, image_url, status)
@@ -113,7 +113,7 @@ class SugerenciaModel{
 
    public function obtenerCategorias(){
 
-        $sql = "SELECT id, name, color FROM category ORDER BY name";
+        $sql = "SELECT id, name, color FROM category WHERE is_active = 1 ORDER BY name";
 
         return $this->database->queryAll($sql);
    }
@@ -160,7 +160,7 @@ class SugerenciaModel{
 
         if ($nota === '' || mb_strlen($nota) > 500) {
             throw new \DomainException(
-                'Escrib├¡ un motivo de rechazo de hasta 500 caracteres.'
+                'Escribí un motivo de rechazo de hasta 500 caracteres.'
             );
         } 
 
@@ -276,7 +276,7 @@ class SugerenciaModel{
         );
 
         if ($actualizadas !== 1){
-            throw new \DomainException('La sugerencia ya no est├í pendiente.');
+            throw new \DomainException('La sugerencia ya no está pendiente.');
         }
     }
 
@@ -304,10 +304,8 @@ class SugerenciaModel{
             FILTER_VALIDATE_INT
         );
 
-        $difficulty = filter_var(
-            $datos['difficulty_level'] ?? null,
-            FILTER_VALIDATE_INT
-        );
+        // Las sugerencias aprobadas arrancan en media y se recalculan solas.
+        $difficulty = 2;
 
         $correctIndex = filter_var(
             $datos['correct_response'] ?? null,
@@ -318,18 +316,14 @@ class SugerenciaModel{
         $responses = $datos['responses'] ?? null;
 
         if ($categoryId === false || $categoryId < 1) {
-            throw new \DomainException('Seleccion├í una categor├¡a v├ílida.');
+            throw new \DomainException('Seleccioná una categoría válida.');
         }
         if (!$this->categoriaExiste($categoryId)) {
-            throw new \DomainException('La categor├¡a seleccionada no existe.');
-        }
-
-        if (!in_array($difficulty, [1, 2, 3], true)) {
-            throw new \DomainException('Seleccion├í una dificultad v├ílida.');
+            throw new \DomainException('La categoría seleccionada no existe.');
         }
 
         if (!is_string($question)) {
-            throw new \DomainException('La pregunta no es v├ílida.');
+            throw new \DomainException('La pregunta no es válida.');
         }
 
         $question = trim($question);
@@ -339,14 +333,14 @@ class SugerenciaModel{
         }
 
         if (!is_array($responses) || count($responses) !== 4) {
-            throw new \DomainException('Complet├í las cuatro respuestas.');
+            throw new \DomainException('Completá las cuatro respuestas.');
         }
 
         $responses = array_values($responses);
 
         foreach ($responses as &$response) {
             if (!is_string($response)) {
-                throw new \DomainException('Las respuestas no son v├ílidas.');
+                throw new \DomainException('Las respuestas no son válidas.');
             }
 
             $response = trim($response);
@@ -370,7 +364,7 @@ class SugerenciaModel{
         }
 
         if ($correctIndex === false || $correctIndex < 0 || $correctIndex > 3) {
-            throw new \DomainException('Marc├í una respuesta correcta.');
+            throw new \DomainException('Marcá una respuesta correcta.');
         }
 
         $datos['category_id'] = $categoryId;
@@ -381,7 +375,7 @@ class SugerenciaModel{
 
         $imageUrl = $datos['image_url'] ?? null;
         if ($imageUrl !== null && (!is_string($imageUrl) || $imageUrl === '' || mb_strlen($imageUrl) > 255)) {
-            throw new \DomainException('La imagen seleccionada no es v├ílida.');
+            throw new \DomainException('La imagen seleccionada no es válida.');
         }
         $datos['image_url'] = $imageUrl;
 

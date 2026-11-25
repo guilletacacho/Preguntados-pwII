@@ -2041,15 +2041,29 @@ body:has(.reporte-dialogo[open]) { overflow: hidden; }
 .moderador-categoria-item strong { display: block; color: var(--texto); overflow-wrap: anywhere; }
 .moderador-categoria-item span { color: var(--texto-tenue); font-size: var(--moderador-texto-pequeno); font-variant-numeric: tabular-nums; }
 .moderador-categoria-item a { color: var(--link); font-weight: 700; text-decoration: none; }
+.moderador-categoria-acciones { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.moderador-categoria-accion-form { margin: 0; }
+.moderador-categoria-editar,
+.moderador-categoria-baja,
+.moderador-categoria-reactivar { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 7px 14px; border-radius: 9px; font-size: .88rem; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer; }
+.moderador-categoria-editar { border: 1px solid var(--borde-fuerte); background: var(--superficie-2); color: var(--link); }
+.moderador-categoria-baja { border: 1px solid rgba(255,138,128,.35); background: rgba(255,138,128,.12); color: #ff8a80; }
+.moderador-categoria-reactivar { border: 1px solid rgba(124,194,67,.35); background: rgba(124,194,67,.12); color: #7cc243; }
+.moderador-categoria-baja:hover,
+.moderador-categoria-reactivar:hover,
+.moderador-categoria-editar:hover { filter: brightness(1.08); }
+.moderador-categoria-item.is-inactiva { opacity: .72; }
+.moderador-categoria-baja-etiqueta { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(255,138,128,.14); color: #ff8a80; font-size: .72rem; font-weight: 700; vertical-align: middle; }
 .moderador-categoria-formulario { width: 100%; }
 .moderador-categoria-formulario h2 { margin: 0 0 14px; font-size: 1.05rem; font-weight: 800; }
 .moderador-categoria-formulario input[type="text"] { box-sizing: border-box; width: 100%; height: 38px; padding: 0 11px; border: 1px solid var(--borde); border-radius: 9px; background: var(--hundido); color: var(--texto); }
+.moderador-categoria-formulario input[type="file"] { display: block; width: 100%; max-width: 100%; font-size: .85rem; color: var(--texto-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .moderador-color { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; }
 .moderador-color input[type="color"] { width: 52px; height: 38px; padding: 2px; border: 1px solid var(--borde); border-radius: 9px; background: var(--hundido); cursor: pointer; }
 .moderador-categoria-actual { width: 72px; height: 72px; object-fit: contain; }
 .moderador-categoria-mensaje { margin: 0 0 12px; color: var(--deporte); font-weight: 700; }
 .moderador-categoria-error { color: var(--error, #FF8A80); }
-@media (max-width: 860px) { .moderador-categorias { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) { .moderador-categorias { grid-template-columns: minmax(0, 1fr); } .moderador-categoria-acciones { justify-content: flex-start; } }
 
 .ayuda-contenido { max-width: 1180px; }
 .ayuda-encabezado { margin-bottom: 2rem; }

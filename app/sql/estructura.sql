@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS `category` (
   `name` VARCHAR(100) NOT NULL,
     `color` CHAR(7) NOT NULL DEFAULT '#9A6BF2',
     `icono` VARCHAR(255) NOT NULL DEFAULT 'personajes/ciencia.svg',
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
   UNIQUE KEY `uk_category_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -250,6 +251,15 @@ SET @partida_schema_sql = IF(
     EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'category' AND column_name = 'icono'),
     'SELECT 1',
     'ALTER TABLE category ADD COLUMN icono VARCHAR(255) NOT NULL DEFAULT ''personajes/ciencia.svg'''
+);
+PREPARE partida_schema_stmt FROM @partida_schema_sql;
+EXECUTE partida_schema_stmt;
+DEALLOCATE PREPARE partida_schema_stmt;
+
+SET @partida_schema_sql = IF(
+    EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'category' AND column_name = 'is_active'),
+    'SELECT 1',
+    'ALTER TABLE category ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1'
 );
 PREPARE partida_schema_stmt FROM @partida_schema_sql;
 EXECUTE partida_schema_stmt;

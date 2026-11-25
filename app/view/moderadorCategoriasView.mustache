@@ -15,13 +15,29 @@
         <section class="moderador-categorias" aria-label="Administrar categorías">
             <ul class="moderador-categorias-lista">
                 {{#categorias}}
-                    <li class="moderador-categoria-item{{#editando}} is-editando{{/editando}}" style="--categoria-color: {{color}}">
+                    <li class="moderador-categoria-item{{#editando}} is-editando{{/editando}}{{^activa}} is-inactiva{{/activa}}" style="--categoria-color: {{color}}">
                         <img src="{{basePath}}/public/img/{{icono}}" alt="">
                         <div>
-                            <strong>{{name}}</strong>
+                            <strong>{{name}}{{^activa}} <span class="moderador-categoria-baja-etiqueta">Dada de baja</span>{{/activa}}</strong>
                             <span>{{preguntas}} preguntas activas · {{color}}</span>
                         </div>
-                        <a href="{{basePath}}/moderador/categorias?editar={{id}}">Editar</a>
+                        <div class="moderador-categoria-acciones">
+                            <a class="moderador-categoria-editar" href="{{basePath}}/moderador/categorias?editar={{id}}">Editar</a>
+                            {{#activa}}
+                            <form method="post" action="{{basePath}}/moderador/desactivarCategoria" class="moderador-categoria-accion-form">
+                                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                                <input type="hidden" name="category_id" value="{{id}}">
+                                <button type="submit" class="moderador-categoria-baja">Dar de baja</button>
+                            </form>
+                            {{/activa}}
+                            {{^activa}}
+                            <form method="post" action="{{basePath}}/moderador/reactivarCategoria" class="moderador-categoria-accion-form">
+                                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                                <input type="hidden" name="category_id" value="{{id}}">
+                                <button type="submit" class="moderador-categoria-reactivar">Reactivar</button>
+                            </form>
+                            {{/activa}}
+                        </div>
                     </li>
                 {{/categorias}}
             </ul>
