@@ -31,23 +31,8 @@ class PerfilController
 
         $userId = (int) $fila['Id'];
         
-        $partidas = $this->model->obtenerUltimasPartidas((int) $fila['Id']);
-        $partidasView = [];
-        foreach ($partidas as $partida) {
-            
-            $esFinalizada = $partida['status'] === 'FINALIZADA';
-            $esAbandonada = $partida['status'] === 'ABANDONADA';
-
-            $partidasView[] = [
-                'estado' => $esFinalizada ? 'FINALIZADA' : 'ABANDONADA',
-                'fecha' => $partida['finished_at']
-                ? date('d/m/Y H:i', strtotime($partida['finished_at']))
-                : '',
-                'esFinalizada' => $esFinalizada,
-                'esAbandonada' => $esAbandonada,
-                'puntos' => (int) $partida['total_points'],
-        ];
-    }
+        $partidasView = $this->armarRecorridos($this->model->obtenerPartidasConPreguntas($userId));
+        $categoriasView = $this->armarCategorias($this->model->obtenerAciertosPorCategoria($userId));
 
         $puntajeTotal = $this->model->obtenerPuntajeTotal($userId);
         $cantidadPartidas = $this->model->obtenerCantidadPartidasFinalizadas($userId);
@@ -85,10 +70,86 @@ class PerfilController
             'cantidadPartidas' => (int) $cantidadPartidas['cantidad'],
             'hayPartidas' => count($partidasView) > 0,
             'partidas' => $partidasView,
+            'categorias' => $categoriasView,
             'enlacePerfil' => $this->armarEnlacePerfil($fila['Usuario']),
         ];
 
         $this->render->renderiza('perfil', $data);
+    }
+
+    // Cada partida se muestra como un camino: un casillero por pregunta, de la primera a la última.
+    private function armarRecorridos(array $partidas)
+    {
+        $recorridos = [];
+        $masLarga = null;
+
+        foreach ($partidas as $indice => $partida) {
+            $casilleros = [];
+            foreach ($partida['preguntas'] as $orden => $pregunta) {
+                $acertada = (int) $pregunta['acertada'] === 1;
+                $casilleros[] = [
+                    'icono' => $pregunta['icono'],
+                    'color' => $pregunta['color'],
+                    'acertada' => $acertada,
+                    'errada' => !$acertada,
+                    'titulo' => $pregunta['categoria'] . ($acertada ? ', acertada' : ', errada'),
+                    'demora' => ($orden * 60) . 'ms',
+                ];
+            }
+
+            $ultima = end($partida['preguntas']) ?: null;
+            if ($partida['status'] === 'ABANDONADA') {
+                $fin = 'Abandonó';
+                $tipoFin = 'abandono';
+            } elseif ($ultima !== null && (int) $ultima['acertada'] === 0) {
+                $fin = 'Perdió en ' . $ultima['categoria'];
+                $tipoFin = 'perdio';
+            } else {
+                $fin = 'Terminó';
+                $tipoFin = 'termino';
+            }
+
+            $cantidad = count($casilleros);
+            $recorridos[] = [
+                'fechaUtc' => $partida['finished_at']
+                    ? (new \DateTimeImmutable($partida['finished_at'], new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z')
+                    : '',
+                'puntos' => (int) $partida['total_points'] === 1 ? '1 punto' : (int) $partida['total_points'] . ' puntos',
+                'detalle' => $cantidad === 0 ? 'sin respuestas' : ($cantidad === 1 ? '1 pregunta' : $cantidad . ' preguntas'),
+                'casilleros' => $casilleros,
+                'hayCasilleros' => $cantidad > 0,
+                'fin' => $fin,
+                'finClase' => 'perfil-fin-' . $tipoFin,
+                'esMasLarga' => false,
+            ];
+
+            if ($cantidad > 1 && ($masLarga === null || $cantidad > count($recorridos[$masLarga]['casilleros']))) {
+                $masLarga = $indice;
+            }
+        }
+
+        if ($masLarga !== null && count($recorridos) > 1) {
+            $recorridos[$masLarga]['esMasLarga'] = true;
+        }
+
+        return $recorridos;
+    }
+
+    private function armarCategorias(array $filas)
+    {
+        $categorias = [];
+        foreach ($filas as $fila) {
+            $respondidas = (int) $fila['respondidas'];
+            $acertadas = (int) $fila['acertadas'];
+            $categorias[] = [
+                'nombre' => $fila['categoria'],
+                'icono' => $fila['icono'],
+                'jugada' => $respondidas > 0,
+                'cuenta' => $respondidas > 0 ? $acertadas . ' de ' . $respondidas : 'Sin jugar',
+            ];
+        }
+
+        return $categorias;
     }
 
     public function qr()

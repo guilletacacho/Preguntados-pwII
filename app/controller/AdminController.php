@@ -210,15 +210,7 @@ class AdminController
             Redirect::to('/Preguntados/admin/usuarios');
         }
 
-        $usuario['contrasena'] = '';
-        $usuario['esEdicion'] = true;
-        $usuario['roles'] = $this->rolesConSeleccion($usuario['rol']);
-        $usuario['sexos'] = $this->sexosConSeleccion($usuario['sexo']);
-        $usuario['rolFijoAdmin'] = $usuario['rol'] === 'ADMIN';
-        $usuario['csrfToken'] = $_SESSION['csrf_admin'];
-        $usuario['mensaje'] = $this->consumirMensaje();
-
-        $this->render->renderiza('adminEditarUsuario', $this->datosNacimiento($usuario));
+        $this->mostrarFichaUsuario($usuario, $usuario['rol'], $this->consumirMensaje());
     }
 
     public function actualizarUsuario()
@@ -226,57 +218,43 @@ class AdminController
         AdminAccess::exigir($this->model);
         $this->asegurarCsrfToken();
 
-        $formulario = $this->leerFormulario();
-        $formulario['id'] = $this->leerId(Request::post('id'));
-
-        $actual = $formulario['id'] > 0 ? $this->model->obtenerUsuario($formulario['id']) : null;
+        $id = $this->leerId(Request::post('id'));
+        $actual = $id > 0 ? $this->model->obtenerUsuario($id) : null;
 
         if ($actual === null) {
             $this->guardarMensaje('No se encontró ese usuario.', 'error');
             Redirect::to('/Preguntados/admin/usuarios');
         }
 
-        $formulario['rolFijoAdmin'] = $actual['rol'] === 'ADMIN';
-        $this->prepararEdicion($formulario, $actual);
+        // Del formulario solo se usa el rol: cualquier otro dato que llegue se ignora.
+        $rol = Request::post('rol');
+        $rol = is_string($rol) ? $rol : '';
 
+        $error = null;
         if (!$this->tokenValido()) {
-            $this->mostrarEdicionConError($formulario, 'El formulario venció. Volvé a intentarlo.');
-            return;
+            $error = 'El formulario venció. Volvé a intentarlo.';
+        } elseif ($actual['rol'] === 'ADMIN') {
+            $error = 'El rol de un administrador no se puede cambiar.';
+        } elseif (!array_key_exists($rol, self::ROLES_SELECCIONABLES)) {
+            $error = 'Elegí un rol válido.';
         }
 
-        $errores = $this->validar($formulario, false);
-
-        if ($actual['rol'] !== 'ADMIN' && $formulario['rol'] === 'ADMIN') {
-            $errores[] = 'No se puede crear otro administrador.';
-        }
-        if (($formulario['id'] === (int) $_SESSION['usuario_id']) && $formulario['rol'] !== 'ADMIN') {
-            $errores[] = 'No podés quitarte el rol de administrador a vos mismo.';
-        }
-        if ($actual['rol'] === 'ADMIN'
-            && $formulario['rol'] !== 'ADMIN'
-            && $this->model->contarAdmins() <= 1) {
-            $errores[] = 'Tiene que quedar al menos un administrador.';
-        }
-        if (!$errores && $this->model->existeUsuario($formulario['usuario'], $formulario['id'])) {
-            $errores[] = 'Ese nombre de usuario ya está en uso.';
-        }
-        if (!$errores && $this->model->existeEmail($formulario['email'], $formulario['id'])) {
-            $errores[] = 'Ese correo ya está en uso.';
-        }
-
-        if ($errores) {
-            $this->mostrarEdicionConError($formulario, implode(' ', $errores));
+        if ($error !== null) {
+            $this->mostrarFichaUsuario($actual, $rol, ['texto' => $error, 'tipo' => 'error']);
             return;
         }
 
         try {
-            $this->model->actualizar($formulario, (int) $_SESSION['usuario_id']);
+            $filas = $this->model->cambiarRol($id, $rol, (int) $_SESSION['usuario_id']);
         } catch (\RuntimeException $e) {
-            $this->mostrarEdicionConError($formulario, 'No se pudo guardar el usuario. Revisá los datos e intentá de nuevo.');
+            $this->mostrarFichaUsuario($actual, $rol, ['texto' => 'No se pudo cambiar el rol. Intentá de nuevo.', 'tipo' => 'error']);
             return;
         }
 
-        $this->guardarMensaje('Los datos del usuario se actualizaron.', 'success');
+        $this->guardarMensaje(
+            $filas > 0 ? 'El rol de ' . $actual['usuario'] . ' se actualizó.' : $actual['usuario'] . ' ya tenía ese rol.',
+            'success'
+        );
         Redirect::to('/Preguntados/admin/usuarios');
     }
 
@@ -393,26 +371,27 @@ class AdminController
         $this->render->renderiza('adminAltaUsuario', $this->datosNacimiento($formulario));
     }
 
-    private function mostrarEdicionConError(array $formulario, $texto)
+    // Ficha de solo lectura del usuario; lo único editable es el rol.
+    private function mostrarFichaUsuario(array $usuario, $rolSeleccionado, $mensaje)
     {
-        $formulario['esEdicion'] = true;
-        $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
-        $formulario['csrfToken'] = $_SESSION['csrf_admin'];
-        $formulario['mensaje'] = ['texto' => $texto, 'tipo' => 'error'];
+        $meses = [1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo', 6 => 'junio',
+            7 => 'julio', 8 => 'agosto', 9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'];
+        $mes = (int) ($usuario['mesNacimiento'] ?? 0);
+        $dia = (int) ($usuario['diaNacimiento'] ?? 0);
+        $usuario['fechaNacimiento'] = isset($meses[$mes]) && $dia > 0
+            ? $dia . ' de ' . $meses[$mes] . ' de ' . $usuario['anioNacimiento']
+            : (string) $usuario['anioNacimiento'];
 
-        $this->render->renderiza('adminEditarUsuario', $this->datosNacimiento($formulario));
-    }
+        $creado = !empty($usuario['creadoEn']) ? strtotime($usuario['creadoEn']) : false;
+        $usuario['fechaAlta'] = $creado ? date('d/m/Y', $creado) : null;
+        $usuario['sexoTexto'] = self::SEXOS[$this->normalizarSexo($usuario['sexo'])] ?? 'Sin especificar';
+        $usuario['rolTexto'] = self::ROLES[$usuario['rol']] ?? $usuario['rol'];
+        $usuario['rolFijoAdmin'] = $usuario['rol'] === 'ADMIN';
+        $usuario['roles'] = $this->rolesConSeleccion($rolSeleccionado);
+        $usuario['csrfToken'] = $_SESSION['csrf_admin'];
+        $usuario['mensaje'] = $mensaje;
 
-    private function prepararEdicion(array &$formulario, array $actual)
-    {
-        if ($formulario['anioNacimiento'] === '') {
-            $formulario['anioNacimiento'] = $actual['anioNacimiento'];
-        }
-        $formulario['fotoUrl'] = $actual['fotoUrl'] ?? null;
-    
-        $formulario['roles'] = $this->rolesConSeleccion($formulario['rol']);
-        $formulario['sexos'] = $this->sexosConSeleccion($formulario['sexo']);
-        $formulario['rolFijoAdmin'] = $actual['rol'] === 'ADMIN';
+        $this->render->renderiza('adminEditarUsuario', $usuario);
     }
 
     private function datosNacimiento(array $data): array

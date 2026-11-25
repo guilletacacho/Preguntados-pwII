@@ -60,18 +60,66 @@ class PerfilModel {
         return $this->database->execute($sql,[md5($contrasena), $id]);
     }
 
-    public function obtenerUltimasPartidas($userId){
+    // Últimas partidas, cada una con sus preguntas en orden (el "camino" del perfil).
+    public function obtenerPartidasConPreguntas($userId, $limite = 5){
 
         $sql = "SELECT id, status, total_points, finished_at
                 FROM game
-                WHERE user_id = ? 
+                WHERE user_id = ?
                 AND (
                     status = 'FINALIZADA'
                     OR (status = 'ABANDONADA' AND total_points >= 1)
                 )
                 ORDER BY finished_at DESC, id DESC
-                LIMIT 3";
-        
+                LIMIT " . max(1, (int) $limite);
+
+        $partidas = $this->database->queryAll($sql, [$userId]);
+        if (!$partidas) {
+            return [];
+        }
+
+        $ids = array_map(fn($partida) => (int) $partida['id'], $partidas);
+        $marcas = implode(',', array_fill(0, count($ids), '?'));
+
+        $preguntas = $this->database->queryAll(
+            "SELECT ga.game_id, c.name AS categoria, c.color, c.icono,
+                    CAST(r.is_correct AS UNSIGNED) AS acertada
+             FROM game_answers ga
+             INNER JOIN questions q ON q.id = ga.question_id
+             INNER JOIN category c ON c.id = q.category_id
+             INNER JOIN response r ON r.id = ga.response_id
+             WHERE ga.game_id IN ($marcas)
+             ORDER BY ga.game_id, ga.turn_number, ga.id",
+            $ids
+        );
+
+        $porPartida = [];
+        foreach ($preguntas as $pregunta) {
+            $porPartida[(int) $pregunta['game_id']][] = $pregunta;
+        }
+        foreach ($partidas as &$partida) {
+            $partida['preguntas'] = $porPartida[(int) $partida['id']] ?? [];
+        }
+        unset($partida);
+
+        return $partidas;
+    }
+
+    // Preguntas respondidas y acertadas por categoría, incluidas las que todavía no le tocaron.
+    public function obtenerAciertosPorCategoria($userId){
+
+        $sql = "SELECT c.name AS categoria, c.color, c.icono,
+                       COUNT(ga.id) AS respondidas,
+                       COALESCE(SUM(r.is_correct), 0) AS acertadas
+                FROM category c
+                LEFT JOIN questions q ON q.category_id = c.id
+                LEFT JOIN game_answers ga ON ga.question_id = q.id
+                    AND ga.game_id IN (SELECT id FROM game WHERE user_id = ?)
+                LEFT JOIN response r ON r.id = ga.response_id
+                WHERE c.is_active = 1
+                GROUP BY c.id, c.name, c.color, c.icono
+                ORDER BY respondidas DESC, c.name";
+
         return $this->database->queryAll($sql, [$userId]);
     }
 

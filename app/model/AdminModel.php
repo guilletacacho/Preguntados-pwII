@@ -518,6 +518,8 @@ class AdminModel
             "SELECT Id AS id,
                     Nombre AS nombre,
                     Anio_nacimiento AS anioNacimiento,
+                    Mes_nacimiento AS mesNacimiento,
+                    Dia_nacimiento AS diaNacimiento,
                     Sexo AS sexo,
                     Provincia AS provincia,
                     Pais AS pais,
@@ -525,6 +527,8 @@ class AdminModel
                     Email AS email,
                     Foto_url AS fotoUrl,
                     CAST(Verificado AS UNSIGNED) AS verificado,
+                    CAST(bloqueado AS UNSIGNED) AS bloqueado,
+                    creado_en AS creadoEn,
                     rol
              FROM usuarios
              WHERE Id = ?
@@ -538,6 +542,7 @@ class AdminModel
 
         $usuario['id'] = (int) $usuario['id'];
         $usuario['verificado'] = (int) $usuario['verificado'];
+        $usuario['bloqueado'] = (int) $usuario['bloqueado'];
         $usuario['anioNacimiento'] = (int) $usuario['anioNacimiento'];
 
         return $usuario;
@@ -642,50 +647,27 @@ class AdminModel
         });
     }
 
-    public function actualizar($formulario, int $actorId)
+    // El administrador solo puede cambiar el rol; el resto de los datos son del usuario.
+    public function cambiarRol($id, string $rolNuevo, int $actorId)
     {
-        $cambiaContrasena = isset($formulario['contrasena']) && $formulario['contrasena'] !== '';
-
-        $sql = "UPDATE usuarios
-                SET Nombre = ?, Anio_nacimiento = ?, Mes_nacimiento = ?, Dia_nacimiento = ?,
-                    Sexo = ?, Provincia = ?, Pais = ?, Usuario = ?, Email = ?, Verificado = ?, rol = ?";
-
-        $params = [
-            $formulario['nombre'],
-            (int) $formulario['anioNacimiento'],
-            (int) $formulario['mesNacimiento'],
-            (int) $formulario['diaNacimiento'],
-            $formulario['sexo'],
-            $formulario['provincia'],
-            $formulario['pais'],
-            $formulario['usuario'],
-            $formulario['email'],
-            (int) $formulario['verificado'],
-            $formulario['rol'],
-        ];
-
-        if ($cambiaContrasena) {
-            $sql .= ", Contrasena = ?";
-            $params[] = md5($formulario['contrasena']);
-        }
-
-        $sql .= " WHERE Id = ?";
-        $id = (int) $formulario['id'];
-        $params[] = $id;
-
-        return $this->operacionAdministrativa($actorId, function ($actor) use ($id, $sql, $params, $formulario) {
-            $actual = $this->database->queryOne('SELECT rol FROM usuarios WHERE Id = ? FOR UPDATE', [$id]);
-            if ($actual === null || (($actual['rol'] === 'ADMIN') !== ($formulario['rol'] === 'ADMIN'))) {
-                throw new \RuntimeException('La cuenta cambió antes de guardar la edición.');
+        return $this->operacionAdministrativa($actorId, function ($actor) use ($id, $rolNuevo) {
+            $cuenta = $this->database->queryOne(
+                "SELECT Usuario, rol FROM usuarios WHERE Id = ? AND rol <> 'ADMIN' FOR UPDATE",
+                [(int) $id]
+            );
+            if ($cuenta === null) {
+                throw new \RuntimeException('La cuenta no existe o es administradora.');
+            }
+            if ($cuenta['rol'] === $rolNuevo) {
+                return 0;
             }
 
-            $filas = $this->database->execute($sql, $params);
+            $filas = $this->database->execute(
+                "UPDATE usuarios SET rol = ? WHERE Id = ? AND rol <> 'ADMIN'",
+                [$rolNuevo, (int) $id]
+            );
             if ($filas > 0) {
-                if ($actual['rol'] !== $formulario['rol']) {
-                    $this->registrarAccion($actor, $id, $formulario['usuario'], 'CAMBIO_ROL', null, $actual['rol'], $formulario['rol']);
-                } else {
-                    $this->registrarAccion($actor, $id, $formulario['usuario'], 'EDICION');
-                }
+                $this->registrarAccion($actor, (int) $id, $cuenta['Usuario'], 'CAMBIO_ROL', null, $cuenta['rol'], $rolNuevo);
             }
 
             return $filas;

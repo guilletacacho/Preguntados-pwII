@@ -61,40 +61,62 @@
                 <div><dt>Partidas jugadas</dt><dd>{{cantidadPartidas}}</dd></div>
             </dl>
 
-            <div class="perfil-columnas">
-                <section>
-                    <h2>Últimas 3 partidas</h2>
-                    {{#hayPartidas}}
-                    <ul class="perfil-partidas">
+            <div class="perfil-tablero">
+            <section class="perfil-caminos" aria-labelledby="perfil-caminos-titulo">
+                <div class="perfil-caminos-encabezado">
+                    <h2 id="perfil-caminos-titulo">Cómo le fue en cada partida</h2>
+                    {{#hayPartidas}}<p>Cada casillero es una pregunta. Las tachadas son las que erró.</p>{{/hayPartidas}}
+                </div>
+                {{#hayPartidas}}
+                <ol class="perfil-camino-lista">
                     {{#partidas}}
-                    <li>
-                        <div class="perfil-partida-texto">
-                            <strong>Estado: {{estado}}</strong>
-                            <span>Fecha: {{fecha}}{{#esFinalizada}} · Puntos: {{puntos}}{{/esFinalizada}}{{#esAbandonada}} · Puntos perdidos: {{puntos}}{{/esAbandonada}}</span>
+                    <li class="perfil-camino{{#esMasLarga}} perfil-camino-destacado{{/esMasLarga}}">
+                        <div class="perfil-camino-dato">
+                            <strong><time class="fecha-partida" datetime="{{fechaUtc}}"></time></strong>
+                            <span>{{puntos}}, {{detalle}}{{#esMasLarga}}, <em>la más larga</em>{{/esMasLarga}}</span>
+                        </div>
+                        <div class="perfil-camino-recorrido">
+                            <span class="perfil-camino-largada" aria-hidden="true"></span>
+                            {{#casilleros}}
+                            <span class="perfil-camino-tramo" aria-hidden="true"></span>
+                            <span class="perfil-casillero{{#errada}} perfil-casillero-errado{{/errada}}" style="--categoria: {{color}}; animation-delay: {{demora}}" title="{{titulo}}">
+                                <img src="{{basePath}}/public/img/{{icono}}" alt="{{titulo}}">
+                            </span>
+                            {{/casilleros}}
+                            <span class="perfil-camino-tramo" aria-hidden="true"></span>
+                            <span class="perfil-fin {{finClase}}">{{fin}}</span>
                         </div>
                     </li>
                     {{/partidas}}
+                </ol>
+                {{/hayPartidas}}
+                {{^hayPartidas}}
+                <p class="perfil-vacio">Todavía no jugó ninguna partida.</p>
+                {{/hayPartidas}}
+            </section>
+
+            <aside class="perfil-lateral">
+                <section class="perfil-categorias" aria-labelledby="perfil-categorias-titulo">
+                    <h2 id="perfil-categorias-titulo">Por categoría</h2>
+                    <ul>
+                        {{#categorias}}
+                        <li{{^jugada}} class="perfil-categoria-pendiente"{{/jugada}}>
+                            <img src="{{basePath}}/public/img/{{icono}}" alt="">
+                            <strong>{{nombre}}</strong>
+                            <span>{{cuenta}}</span>
+                        </li>
+                        {{/categorias}}
                     </ul>
-                    {{/hayPartidas}}
-                    {{^hayPartidas}}
-                    <p class="perfil-vacio">Todavía no jugó ninguna partida.</p>
-                    {{/hayPartidas}}
                 </section>
 
                 {{#esMiPerfil}}
-                <section>
+                <section class="perfil-donde">
                     <h2>Dónde juega</h2>
                     <div id="perfil-map" class="perfil-mapa ubicacion-mapa" data-pais="{{pais}}" data-provincia="{{provincia}}" role="application" aria-label="Mapa de OpenStreetMap"></div>
                     <p class="helper mt-2 mb-0 ubicacion-mapa-estado" aria-live="polite"></p>
                 </section>
                 {{/esMiPerfil}}
-                {{^esMiPerfil}}
-                <section aria-hidden="true"></section>
-                {{/esMiPerfil}}
-            </div>
-
-            <div class="perfil-acciones">
-                <a class="site-nav-link nav-cta-secundario" href="{{basePath}}/home">Volver al lobby</a>
+            </aside>
             </div>
         </section>
     </div>
@@ -104,3 +126,16 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{basePath}}/public/js/ubicacion-mapa.js" defer></script>
 <script src="{{basePath}}/public/js/perfil.js" defer></script>
+
+<script>
+// Las partidas se guardan en UTC: se muestran en la hora del navegador, como "25 nov, 13:24".
+document.querySelectorAll('.fecha-partida').forEach(function (elemento) {
+    var fecha = new Date(elemento.dateTime);
+
+    if (!Number.isNaN(fecha.getTime())) {
+        var dia = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short' }).format(fecha).replace('.', '');
+        var hora = new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }).format(fecha);
+        elemento.textContent = dia + ', ' + hora;
+    }
+});
+</script>
