@@ -34,8 +34,8 @@ class RankingModel
   FROM usuarios u 
   JOIN game g ON g.user_id = u.Id 
   WHERE g.status = 'FINALIZADA' 
-    AND g.finished_at >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) 
-    AND g.finished_at <= NOW() 
+    AND g.finished_at >= DATE_SUB(UTC_DATE(), INTERVAL WEEKDAY(UTC_DATE()) DAY)
+    AND g.finished_at <= UTC_TIMESTAMP()
   GROUP BY u.Id, u.Usuario, u.Foto_url
   ORDER BY puntos DESC, u.Id ASC 
   LIMIT 10;";
@@ -52,11 +52,11 @@ class RankingModel
               FROM usuarios u 
               JOIN game g ON g.user_id = u.Id 
               WHERE g.status = 'FINALIZADA' 
-                AND g.finished_at >= DATE_SUB( 
-                    CURDATE(), 
-                    INTERVAL (DAYOFMONTH(CURDATE()) - 1) DAY 
-                ) 
-                AND g.finished_at <= NOW() 
+                AND g.finished_at >= DATE_SUB(
+                    UTC_DATE(),
+                    INTERVAL (DAYOFMONTH(UTC_DATE()) - 1) DAY
+                )
+                AND g.finished_at <= UTC_TIMESTAMP()
               GROUP BY u.Id, u.Usuario, u.Foto_url
               ORDER BY puntos DESC, u.Id ASC 
               LIMIT 10";
