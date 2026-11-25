@@ -586,10 +586,31 @@
     gap: 5px;
 }
 
+/* Acciones de la tabla con el estilo del botón "Sugerir una pregunta" del inicio. */
 .admin-panel .admin-usuario-acciones .moderador-boton {
+    --accion-color: var(--link);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 36px;
-    padding-inline: 9px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--hundido);
+    color: var(--accion-color);
+    font: 700 .8rem var(--fuente);
+    text-decoration: none;
+    transition: background .2s, color .2s;
 }
+
+.admin-panel .admin-usuario-acciones .moderador-boton:hover {
+    background: var(--accion-color);
+    color: var(--fondo);
+}
+
+.admin-panel .admin-usuario-acciones .moderador-boton-corregir { --accion-color: var(--link); }
+.admin-panel .admin-usuario-acciones .admin-boton-bloqueo { --accion-color: var(--arte); }
+.admin-panel .admin-usuario-acciones .moderador-boton-descartar { --accion-color: var(--error); }
 
 .admin-panel .admin-estado-bloqueado,
 .admin-panel .admin-boton-bloqueo {
