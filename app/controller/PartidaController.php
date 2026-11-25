@@ -109,13 +109,13 @@ class PartidaController{
 
         $turno = $_SESSION['turno'];
 
-        foreach ($categorias as &$categoria) {
+        foreach ($disponibles as &$categoria) {
             $categoria['seleccionada'] = $categoria['name'] === $turno['categoria'];
         }
         unset($categoria);
 
         $this->renderizarPartida('ruleta', [
-            'categorias' => $categorias,
+            'categorias' => $disponibles,
             'puntos' => (int) ($_SESSION['puntos'] ?? 0),
             'rondaNumero' => (int) $turno['numero'],
             'ruletaGirada' => !empty($turno['girada']),
