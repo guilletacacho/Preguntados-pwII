@@ -1,4 +1,4 @@
-<main class="partida-shell" data-audio-escena="{{#resultadoMostrado}}resultado{{/resultadoMostrado}}{{^resultadoMostrado}}pregunta{{/resultadoMostrado}}" data-audio-categoria="{{categoria}}">
+<main class="partida-shell{{^resultadoMostrado}} partida-sin-copia{{/resultadoMostrado}}" data-audio-escena="{{#resultadoMostrado}}resultado{{/resultadoMostrado}}{{^resultadoMostrado}}pregunta{{/resultadoMostrado}}" data-audio-categoria="{{categoria}}">
 <section class="partida-contenido" aria-label="Pregunta de {{categoria}}">
     <header class="partida-hud">
         <div class="partida-hud-fila">
@@ -142,4 +142,5 @@
 {{#resultadoMostrado}}<script src="{{basePath}}/public/js/partida-reportes.js" defer></script>{{/resultadoMostrado}}
 {{^resultadoMostrado}}
 <script src="{{basePath}}/public/js/partida-temporizador.js?v={{partidaTemporizadorVersion}}" defer></script>
+<script src="{{basePath}}/public/js/partida-sin-copia.js" defer></script>
 {{/resultadoMostrado}}

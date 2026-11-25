@@ -2106,6 +2106,18 @@ body:has(.reporte-dialogo[open]) { overflow: hidden; }
 .partida-enunciado-texto { display: grid; justify-items: start; gap: .6rem; min-width: 0; }
 .partida-enunciado h1 { margin: 0; font-size: clamp(1.3rem, 2.6vw, 1.75rem); line-height: 1.3; text-wrap: balance; overflow-wrap: anywhere; }
 .partida-enunciado .partida-imagen-pregunta { margin: 0; }
+
+/* Mientras se responde, la pregunta no se puede seleccionar ni copiar para buscarla (ver partida-sin-copia.js). */
+.partida-sin-copia .partida-enunciado,
+.partida-sin-copia .partida-respuestas {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+.partida-sin-copia .partida-enunciado img {
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
 @media (min-width: 768px) {
     .partida-enunciado:has(.partida-imagen-pregunta) { grid-template-columns: minmax(0, 1fr) minmax(180px, 34%); align-items: center; }
 }
