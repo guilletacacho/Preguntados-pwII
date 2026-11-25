@@ -143,7 +143,7 @@ class PartidaModel{
     public function abandonoPartida($gameId){
         $sql = "UPDATE game
                 SET status = 'ABANDONADA',
-                    finished_at = NOW()
+                    finished_at = UTC_TIMESTAMP()
                 WHERE id = ?
                     AND status = 'EN_CURSO'";
 
