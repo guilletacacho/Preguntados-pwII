@@ -82,7 +82,7 @@
                             <td>{{#fechaAlta}}{{fechaAlta}}{{/fechaAlta}}{{^fechaAlta}}<span class="moderador-item-meta">Sin registro</span>{{/fechaAlta}}</td>
                             <td>
                                 <div class="admin-usuario-acciones">
-                                    <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/admin/editarUsuario?id={{id}}" aria-label="Editar a {{usuario}}">Editar</a>
+                                    <a class="moderador-boton moderador-boton-corregir" href="{{basePath}}/admin/editarUsuario?id={{id}}" aria-label="Ver a {{usuario}}">Ver</a>
                                     {{^esAdmin}}
                                         {{^bloqueado}}
                                             <button class="moderador-boton admin-boton-bloqueo" type="button" aria-haspopup="dialog" aria-label="Bloquear a {{usuario}}" data-admin-bloqueo data-id="{{id}}" data-usuario="{{usuario}}">Bloquear</button>

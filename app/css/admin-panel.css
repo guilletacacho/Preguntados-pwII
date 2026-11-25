@@ -586,10 +586,31 @@
     gap: 5px;
 }
 
+/* Acciones de la tabla con el estilo del botón "Sugerir una pregunta" del inicio. */
 .admin-panel .admin-usuario-acciones .moderador-boton {
+    --accion-color: var(--link);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 36px;
-    padding-inline: 9px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--hundido);
+    color: var(--accion-color);
+    font: 700 .8rem var(--fuente);
+    text-decoration: none;
+    transition: background .2s, color .2s;
 }
+
+.admin-panel .admin-usuario-acciones .moderador-boton:hover {
+    background: var(--accion-color);
+    color: var(--fondo);
+}
+
+.admin-panel .admin-usuario-acciones .moderador-boton-corregir { --accion-color: var(--link); }
+.admin-panel .admin-usuario-acciones .admin-boton-bloqueo { --accion-color: var(--arte); }
+.admin-panel .admin-usuario-acciones .moderador-boton-descartar { --accion-color: var(--error); }
 
 .admin-panel .admin-estado-bloqueado,
 .admin-panel .admin-boton-bloqueo {
@@ -674,6 +695,48 @@
     border-radius: 10px;
     background: var(--hundido);
     color: var(--texto);
+}
+
+/* Ficha de solo lectura del usuario (el admin solo cambia el rol). */
+.admin-panel .admin-ficha-titulo {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.admin-panel .admin-ficha {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+    margin: 0 0 22px;
+}
+
+.admin-panel .admin-ficha div {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borde);
+    min-width: 0;
+}
+
+.admin-panel .admin-ficha dt {
+    color: var(--texto-tenue);
+    font-size: var(--moderador-texto-pequeno);
+    font-weight: 600;
+}
+
+.admin-panel .admin-ficha dd {
+    margin: 2px 0 0;
+    color: var(--texto);
+    overflow-wrap: anywhere;
+}
+
+.admin-panel .admin-form-rol {
+    display: grid;
+    gap: 12px;
+    max-width: 320px;
+}
+
+@media (max-width: 560px) {
+    .admin-panel .admin-ficha { grid-template-columns: minmax(0, 1fr); }
 }
 
 .admin-panel .home-side-toggle[aria-expanded="true"],
@@ -862,54 +925,31 @@
     overflow-wrap: anywhere;
 }
 
-.admin-panel .admin-filtros-historial {
-    grid-template-columns: minmax(0, 1fr) minmax(160px, 230px) auto auto;
-    align-items: end;
-    margin: 0;
-}
-
-.admin-panel .admin-filtros-historial label {
-    display: grid;
-    gap: 5px;
-    color: var(--texto-sec);
-    font-size: var(--moderador-texto-interfaz);
-}
-
-.admin-panel .admin-filtros-historial input,
-.admin-panel .admin-filtros-historial select {
-    height: 44px;
+/* Historial usa la misma tarjeta de filtros y la misma tabla que Usuarios.
+   Con solo dos filtros, los botones entran en la misma fila. */
+.admin-panel .admin-filtros-historial .admin-filtros-acciones {
+    grid-column: auto;
 }
 
 .admin-panel .admin-tabla-historial {
-    width: 100%;
-    min-width: 635px;
-    table-layout: fixed;
-    border-collapse: collapse;
-    background: var(--superficie);
-    font-size: var(--moderador-texto-interfaz);
+    min-width: 760px;
 }
+
+.admin-panel .admin-tabla-historial th:nth-child(1) { width: 16%; }
+.admin-panel .admin-tabla-historial th:nth-child(2) { width: 15%; }
+.admin-panel .admin-tabla-historial th:nth-child(3) { width: 17%; }
+.admin-panel .admin-tabla-historial th:nth-child(4) { width: 16%; }
+.admin-panel .admin-tabla-historial th:nth-child(5) { width: 36%; }
 
 .admin-panel .admin-tabla-historial th,
 .admin-panel .admin-tabla-historial td {
-    padding: 12px 14px;
-    text-align: left;
-    overflow-wrap: anywhere;
-}
-
-.admin-panel .admin-tabla-historial th {
-    position: sticky;
-    top: 0;
-    background: var(--hundido);
-    color: var(--texto-sec);
+    padding-inline: 16px;
 }
 
 .admin-panel .admin-tabla-historial td {
-    border-top: 1px solid var(--borde);
-    vertical-align: top;
-}
-
-.admin-panel .admin-tabla-historial th:last-child {
-    width: 28%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
 }
 
 .admin-panel .admin-historial-motivo {
@@ -942,8 +982,7 @@
     .admin-panel .admin-section-head { align-items: flex-start; flex-direction: column; }
     .admin-panel .admin-filtros-usuarios { grid-template-columns: minmax(0, 1fr); }
     .admin-panel .admin-filtro-busqueda { grid-column: auto; }
-    .admin-panel .admin-filtros-historial { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .admin-panel .admin-filtros-historial label { grid-column: 1 / -1; }
+    .admin-panel .admin-filtros-historial .admin-filtros-acciones { grid-column: 1 / -1; }
     .admin-panel .admin-form-campos,
     .admin-panel .admin-form-nacimiento,
     .admin-panel .admin-nacimiento-edicion { grid-template-columns: minmax(0, 1fr); }

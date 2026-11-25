@@ -3,8 +3,8 @@
     <div class="admin-wrap">
         {{> adminEncabezado}}
 
-        <form class="moderador-filtros admin-filtros-historial" method="get" action="{{basePath}}/admin/historial" role="search" aria-label="Filtrar historial">
-            <label>
+        <form class="moderador-filtros admin-filtros-usuarios admin-filtros-historial" method="get" action="{{basePath}}/admin/historial" role="search" aria-label="Filtrar historial">
+            <label class="admin-filtro-busqueda">
                 Buscar por usuario
                 <input type="search" name="busqueda" value="{{busqueda}}" placeholder="Administrador o cuenta" maxlength="100">
             </label>
@@ -16,14 +16,14 @@
                     {{/acciones}}
                 </select>
             </label>
-            <button class="admin-btn" type="submit">Filtrar</button>
-            {{#hayFiltros}}
-                <a class="admin-btn" href="{{basePath}}/admin/historial">Limpiar</a>
-            {{/hayFiltros}}
+            <div class="admin-filtros-acciones">
+                <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/historial">Limpiar</a>
+                <button class="moderador-boton" type="submit">Filtrar</button>
+            </div>
         </form>
 
-        <div class="moderador-tabla-contenedor" role="region" aria-label="Registros del historial" tabindex="0">
-            <table class="admin-tabla-historial" aria-label="Historial administrativo">
+        <div class="moderador-tabla-contenedor admin-tabla-usuarios-contenedor" role="region" aria-label="Registros del historial" tabindex="0">
+            <table class="moderador-tabla-preguntas admin-tabla-historial" aria-label="Historial administrativo">
                 <thead>
                     <tr>
                         <th scope="col">Fecha y hora</th>
