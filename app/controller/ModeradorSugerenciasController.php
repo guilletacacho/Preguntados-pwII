@@ -174,7 +174,7 @@ class ModeradorSugerenciasController
         'question' => $_POST['question'] ?? '',
         'responses' => $_POST['responses'] ?? [],
         'correct_response' => $_POST['correct_response'] ?? null,
-        'difficulty_level' => $_POST['difficulty_level'] ?? 2,
+        'difficulty_level' => 2,
         ];
 
         $imagenSubida = null;

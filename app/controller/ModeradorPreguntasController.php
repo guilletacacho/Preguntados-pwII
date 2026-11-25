@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace app\controller;
 
@@ -29,7 +29,7 @@ class ModeradorPreguntasController
         $textoInput = Request::get('texto', '');
         if (!is_string($textoInput)) {
             http_response_code(400);
-            echo 'El texto de búsqueda no es válido.';
+            echo 'El texto de b├║squeda no es v├ílido.';
             return;
         }
         $texto = trim($textoInput);
@@ -41,7 +41,7 @@ class ModeradorPreguntasController
 
             if ($categoriaId === false) {
                 http_response_code(400);
-                echo 'La categoría no es válida.';
+                echo 'La categor├¡a no es v├ílida.';
                 return;
             }
         }
@@ -52,7 +52,7 @@ class ModeradorPreguntasController
         if ($dificultadInput !== '') {
             if (!is_string($dificultadInput) || !in_array($dificultadInput, ['1', '2', '3'], true)) {
                 http_response_code(400);
-                echo 'La dificultad no es válida.';
+                echo 'La dificultad no es v├ílida.';
                 return;
             }
 
@@ -63,7 +63,7 @@ class ModeradorPreguntasController
 
         if (!is_string($estadoInput) || !in_array($estadoInput, ['activa', 'inactiva', 'todas'], true)) {
             http_response_code(400);
-            echo 'El estado no es válido.';
+            echo 'El estado no es v├ílido.';
             return;
         }
 
@@ -159,7 +159,7 @@ class ModeradorPreguntasController
             $categoria = $this->model->obtenerCategoria((int) $editarId);
         }
 
-        $mensaje = Request::get('guardada') === '1' ? 'Categoría guardada.' : null;
+        $mensaje = Request::get('guardada') === '1' ? 'Categor├¡a guardada.' : null;
         $this->mostrarCategorias($categoria, null, $mensaje);
     }
 
@@ -169,7 +169,7 @@ class ModeradorPreguntasController
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
-            echo 'Método no permitido.';
+            echo 'M├®todo no permitido.';
             return;
         }
 
@@ -192,7 +192,7 @@ class ModeradorPreguntasController
         if ($nombre === '' || $largo === false || $largo > 40) {
             $errores[] = 'El nombre es obligatorio y no puede superar los 40 caracteres.';
         } elseif ($this->model->existeNombreCategoria($nombre, $id ?: 0)) {
-            $errores[] = 'Ya existe una categoría con ese nombre.';
+            $errores[] = 'Ya existe una categor├¡a con ese nombre.';
         }
 
         if (!preg_match('/\A#[0-9A-F]{6}\z/', $color)) {
@@ -202,7 +202,7 @@ class ModeradorPreguntasController
         $archivo = $_FILES['icono'] ?? null;
         $hayArchivo = is_array($archivo) && ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
         if (!$hayArchivo && $actual === null) {
-            $errores[] = 'Subí el SVG del personaje.';
+            $errores[] = 'Sub├¡ el SVG del personaje.';
         }
 
         $icono = $actual['icono'] ?? null;
@@ -253,7 +253,7 @@ class ModeradorPreguntasController
         $categorias = $this->model->obtenerCategorias();
         $errores = [];
 
-        // Acepta únicamente un ID numérico que exista en las categorías disponibles.
+        // Acepta ├║nicamente un ID num├®rico que exista en las categor├¡as disponibles.
         $categoryIdInput = $_POST['category_id'] ?? null;
         $categoryId = (is_string($categoryIdInput) || is_int($categoryIdInput))
             ? filter_var($categoryIdInput, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
@@ -266,7 +266,7 @@ class ModeradorPreguntasController
             }
         }
         if (!$categoriaValida) {
-            $errores[] = 'Seleccioná una categoría válida.';
+            $errores[] = 'Seleccion├í una categor├¡a v├ílida.';
         }
 
         // La dificultad y los puntos son reglas del servidor, no valores del formulario.
@@ -277,17 +277,17 @@ class ModeradorPreguntasController
             $errores[] = 'La pregunta es obligatoria y no puede superar los 500 caracteres.';
         }
 
-        // El formulario envía cuatro respuestas indexadas; una sola debe estar marcada como correcta.
+        // El formulario env├¡a cuatro respuestas indexadas; una sola debe estar marcada como correcta.
         $responsesInput = $_POST['responses'] ?? null;
         $responses = [];
         $correctas = 0;
         if (!is_array($responsesInput) || count($responsesInput) !== 4) {
-            $errores[] = 'Completá las cuatro respuestas.';
+            $errores[] = 'Complet├í las cuatro respuestas.';
         } else {
             for ($indice = 0; $indice < 4; $indice++) {
                 $responseInput = $responsesInput[$indice] ?? null;
                 if (!is_array($responseInput) || !is_string($responseInput['text'] ?? null)) {
-                    $errores[] = 'Completá las cuatro respuestas.';
+                    $errores[] = 'Complet├í las cuatro respuestas.';
                     continue;
                 }
 
@@ -304,7 +304,7 @@ class ModeradorPreguntasController
 
                 $correctaInput = $responseInput['is_correct'] ?? null;
                 if ($correctaInput !== null && $correctaInput !== '1') {
-                    $errores[] = 'La selección de respuesta correcta no es válida.';
+                    $errores[] = 'La selecci├│n de respuesta correcta no es v├ílida.';
                     continue;
                 }
                 $esCorrecta = $correctaInput === '1';
@@ -320,7 +320,7 @@ class ModeradorPreguntasController
         }
 
         if ($correctas !== 1) {
-            $errores[] = 'Marcá exactamente una respuesta como correcta.';
+            $errores[] = 'Marc├í exactamente una respuesta como correcta.';
         }
 
         $imagen = null;
@@ -337,7 +337,7 @@ class ModeradorPreguntasController
         }
 
         try {
-            $this->model->crearPreguntaConRespuestas($categoryId, $question, 1, 1, $responses, $imagen);
+            $this->model->crearPreguntaConRespuestas($categoryId, $question, 2, 1, $responses, $imagen);
         } catch (\Throwable $error) {
             $this->eliminarImagenSubida($imagen !== null ? 'app/img-preguntas/' . $imagen : null);
             throw $error;
@@ -359,7 +359,7 @@ class ModeradorPreguntasController
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
-            echo 'Método no permitido.';
+            echo 'M├®todo no permitido.';
             return;
         }
 
@@ -370,14 +370,14 @@ class ModeradorPreguntasController
 
         if ($id === false) {
             http_response_code(400);
-            echo 'El identificador de la pregunta no es válido.';
+            echo 'El identificador de la pregunta no es v├ílido.';
             return;
         }
 
         // EL MODEL SOLO ACTUALIZA PREGUNTAS QUE TODAVIA ESTAN ACTIVAS.
         if ($this->model->desactivarPregunta($id) !== 1) {
             http_response_code(404);
-            echo 'La pregunta no existe o ya está desactivada.';
+            echo 'La pregunta no existe o ya est├í desactivada.';
             return;
         }
 
@@ -396,7 +396,7 @@ class ModeradorPreguntasController
 
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             http_response_code(405);
-            echo 'Método no permitido.';
+            echo 'M├®todo no permitido.';
             return;
         }
 
@@ -407,14 +407,14 @@ class ModeradorPreguntasController
 
         if ($id === false) {
             http_response_code(400);
-            echo 'El identificador de la pregunta no es válido.';
+            echo 'El identificador de la pregunta no es v├ílido.';
             return;
         }
 
         // ACTUALIZA PREGUNTAS INACTIVAS a ACTIVAS.
         if ($this->model->reactivarPregunta($id) !== 1) {
             http_response_code(404);
-            echo 'La pregunta no existe o ya está activada.';
+            echo 'La pregunta no existe o ya est├í activada.';
             return;
         }
 
@@ -500,7 +500,7 @@ class ModeradorPreguntasController
         $respuestas = [];
         foreach ($_POST['responses'] as $respuesta) {
             if (!is_array($respuesta) || !isset($respuesta['id']) || !is_string($respuesta['texto'] ?? null)) {
-                $this->guardarMensajePregunta('Los datos de las respuestas no son válidos.', 'error');
+                $this->guardarMensajePregunta('Los datos de las respuestas no son v├ílidos.', 'error');
                 Redirect::to('/Preguntados/moderador/editarPregunta?id=' . (int) $id);
                 return;
             }
@@ -514,19 +514,19 @@ class ModeradorPreguntasController
 
         try {
             if ($quitarImagen && is_array($archivo) && ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-                throw new \DomainException('Elegí una imagen nueva o quitá la actual, pero no ambas cosas.');
+                throw new \DomainException('Eleg├¡ una imagen nueva o quit├í la actual, pero no ambas cosas.');
             }
 
             if ($archivo !== null) {
                 if (!is_array($archivo)) {
-                    throw new \DomainException('El archivo de imagen no es válido.');
+                    throw new \DomainException('El archivo de imagen no es v├ílido.');
                 }
                 $errorCarga = $archivo['error'] ?? null;
                 if ($errorCarga === UPLOAD_ERR_INI_SIZE || $errorCarga === UPLOAD_ERR_FORM_SIZE) {
                     throw new \DomainException('La imagen no puede superar los 5 MB.');
                 }
                 if ($errorCarga !== UPLOAD_ERR_NO_FILE && $errorCarga !== UPLOAD_ERR_OK) {
-                    throw new \DomainException('No se pudo recibir la imagen. Intentá nuevamente.');
+                    throw new \DomainException('No se pudo recibir la imagen. Intent├í nuevamente.');
                 }
                 if ($errorCarga === UPLOAD_ERR_OK) {
                     $imagenNueva = \ImageUploader::upload($archivo, 'app/img-preguntas');
@@ -561,7 +561,7 @@ class ModeradorPreguntasController
             $imagenVigente = $imagenNueva;
             if ($imagenAnterior !== null && $imagenAnterior !== $imagenVigente) {
                 if (!$this->eliminarImagenSiNoReferenciada($imagenAnterior)) {
-                    $mensaje = 'La pregunta se guardó, pero no se pudo eliminar la imagen anterior.';
+                    $mensaje = 'La pregunta se guard├│, pero no se pudo eliminar la imagen anterior.';
                 }
             }
         }
@@ -601,10 +601,10 @@ class ModeradorPreguntasController
         private function guardarSvg($archivo)
     {
         if (($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file($archivo['tmp_name'] ?? '')) {
-            return ['error' => 'No se pudo subir el SVG. Probá de nuevo.'];
+            return ['error' => 'No se pudo subir el SVG. Prob├í de nuevo.'];
         }
         if ((int) ($archivo['size'] ?? 0) > 300 * 1024) {
-            return ['error' => 'El SVG no puede pesar más de 300 KB.'];
+            return ['error' => 'El SVG no puede pesar m├ís de 300 KB.'];
         }
         if (strtolower(pathinfo($archivo['name'] ?? '', PATHINFO_EXTENSION)) !== 'svg') {
             return ['error' => 'El archivo tiene que ser .svg.'];
@@ -612,7 +612,7 @@ class ModeradorPreguntasController
 
         $contenido = file_get_contents($archivo['tmp_name']);
         if ($contenido === false || !preg_match('/<svg[\s>]/i', $contenido)) {
-            return ['error' => 'El archivo no es un SVG válido.'];
+            return ['error' => 'El archivo no es un SVG v├ílido.'];
         }
 
 
@@ -681,7 +681,7 @@ class ModeradorPreguntasController
     private function eliminarImagenSubida($ruta)
     {
         if ($ruta !== null && is_file($ruta) && !unlink($ruta)) {
-            throw new \RuntimeException('No se pudo eliminar una imagen de pregunta que no se guardó.');
+            throw new \RuntimeException('No se pudo eliminar una imagen de pregunta que no se guard├│.');
         }
     }
 

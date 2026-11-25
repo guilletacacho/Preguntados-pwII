@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace app\model;
 
@@ -23,19 +23,19 @@ class SugerenciaModel{
         $categoryId = filter_var($categoryId, FILTER_VALIDATE_INT);
 
         if ($userId === false || $userId < 1) {
-            throw new \DomainException('La sesión de usuario no es válida.');
+            throw new \DomainException('La sesi├│n de usuario no es v├ílida.');
         }
 
         if ($categoryId === false || $categoryId < 1) {
-            throw new \DomainException('Seleccioná una categoría válida.');
+            throw new \DomainException('Seleccion├í una categor├¡a v├ílida.');
         }
 
         if (!$this->categoriaExiste($categoryId)) {
-            throw new \DomainException('La categoría seleccionada no existe.');
+            throw new \DomainException('La categor├¡a seleccionada no existe.');
         }
 
         if (!is_string($questionText)) {
-            throw new \DomainException('La pregunta no es válida.');
+            throw new \DomainException('La pregunta no es v├ílida.');
         }
 
         $questionText = trim($questionText);
@@ -47,7 +47,7 @@ class SugerenciaModel{
         }
 
         if ($imageUrl !== null && (!is_string($imageUrl) || $imageUrl === '' || mb_strlen($imageUrl) > 255)) {
-            throw new \DomainException('La referencia de imagen no es válida.');
+            throw new \DomainException('La referencia de imagen no es v├ílida.');
         }
 
         $sql = "INSERT INTO question_suggestions (user_id, category_id, question_text, image_url, status)
@@ -160,7 +160,7 @@ class SugerenciaModel{
 
         if ($nota === '' || mb_strlen($nota) > 500) {
             throw new \DomainException(
-                'Escribí un motivo de rechazo de hasta 500 caracteres.'
+                'Escrib├¡ un motivo de rechazo de hasta 500 caracteres.'
             );
         } 
 
@@ -276,7 +276,7 @@ class SugerenciaModel{
         );
 
         if ($actualizadas !== 1){
-            throw new \DomainException('La sugerencia ya no está pendiente.');
+            throw new \DomainException('La sugerencia ya no est├í pendiente.');
         }
     }
 
@@ -318,18 +318,18 @@ class SugerenciaModel{
         $responses = $datos['responses'] ?? null;
 
         if ($categoryId === false || $categoryId < 1) {
-            throw new \DomainException('Seleccioná una categoría válida.');
+            throw new \DomainException('Seleccion├í una categor├¡a v├ílida.');
         }
         if (!$this->categoriaExiste($categoryId)) {
-            throw new \DomainException('La categoría seleccionada no existe.');
+            throw new \DomainException('La categor├¡a seleccionada no existe.');
         }
 
         if (!in_array($difficulty, [1, 2, 3], true)) {
-            throw new \DomainException('Seleccioná una dificultad válida.');
+            throw new \DomainException('Seleccion├í una dificultad v├ílida.');
         }
 
         if (!is_string($question)) {
-            throw new \DomainException('La pregunta no es válida.');
+            throw new \DomainException('La pregunta no es v├ílida.');
         }
 
         $question = trim($question);
@@ -339,14 +339,14 @@ class SugerenciaModel{
         }
 
         if (!is_array($responses) || count($responses) !== 4) {
-            throw new \DomainException('Completá las cuatro respuestas.');
+            throw new \DomainException('Complet├í las cuatro respuestas.');
         }
 
         $responses = array_values($responses);
 
         foreach ($responses as &$response) {
             if (!is_string($response)) {
-                throw new \DomainException('Las respuestas no son válidas.');
+                throw new \DomainException('Las respuestas no son v├ílidas.');
             }
 
             $response = trim($response);
@@ -370,7 +370,7 @@ class SugerenciaModel{
         }
 
         if ($correctIndex === false || $correctIndex < 0 || $correctIndex > 3) {
-            throw new \DomainException('Marcá una respuesta correcta.');
+            throw new \DomainException('Marc├í una respuesta correcta.');
         }
 
         $datos['category_id'] = $categoryId;
@@ -381,7 +381,7 @@ class SugerenciaModel{
 
         $imageUrl = $datos['image_url'] ?? null;
         if ($imageUrl !== null && (!is_string($imageUrl) || $imageUrl === '' || mb_strlen($imageUrl) > 255)) {
-            throw new \DomainException('La imagen seleccionada no es válida.');
+            throw new \DomainException('La imagen seleccionada no es v├ílida.');
         }
         $datos['image_url'] = $imageUrl;
 

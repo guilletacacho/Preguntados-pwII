@@ -44,8 +44,7 @@
                         <span class="sug-edit-help">Marcá cuál es la correcta. Tienen que ser 4 y no se pueden repetir.</span>
                         {{#respuestas}}<div class="sug-edit-answer"><input id="sug-answer-{{indice}}" type="text" name="responses[{{indice}}]" value="{{texto}}" placeholder="{{letra}}" maxlength="255" required><label class="sug-edit-correct" for="sug-correct-{{indice}}"><input id="sug-correct-{{indice}}" type="radio" name="correct_response" value="{{indice}}" required> Correcta</label></div>{{/respuestas}}
                     </fieldset>
-                    <fieldset class="sug-edit-diffs"><legend>Dificultad</legend><label><input type="radio" name="difficulty_level" value="1"> Fácil</label><label><input type="radio" name="difficulty_level" value="2" checked> Media</label><label><input type="radio" name="difficulty_level" value="3"> Difícil</label></fieldset>
-                    <span class="sug-edit-diff-help">Es la dificultad inicial; después se ajusta sola según cuántos la aciertan.</span>
+                    <p class="sug-edit-diff-help">La pregunta se publica con dificultad media y se recalcula sola después de 10 entregas.</p>
                 </div>
                 <div class="moderador-alta-acciones sug-edit-actions"><button class="moderador-alta-guardar" type="submit">Finalizar</button><a href="{{basePath}}/moderador/sugerencias">Cancelar</a></div>
             </div>
