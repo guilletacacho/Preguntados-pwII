@@ -133,7 +133,7 @@ class PartidaModel{
     public function finalizarPartida($gameId){
         $sql = "UPDATE game
                 SET status = 'FINALIZADA',
-                    finished_at = NOW()
+                    finished_at = UTC_TIMESTAMP()
                 WHERE id = ?
                     AND status = 'EN_CURSO'";
 

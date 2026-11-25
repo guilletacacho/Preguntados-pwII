@@ -41,7 +41,10 @@ class PerfilController
             $partidasView[] = [
                 'estado' => $esFinalizada ? 'FINALIZADA' : 'ABANDONADA',
                 'fecha' => $partida['finished_at']
-                ? date('d/m/Y H:i', strtotime($partida['finished_at']))
+                ? date('d/m/Y', strtotime($partida['finished_at']))
+                : '',
+                'horario' => $partida['finished_at']
+                ? date('H:i', strtotime($partida['finished_at']))
                 : '',
                 'esFinalizada' => $esFinalizada,
                 'esAbandonada' => $esAbandonada,
