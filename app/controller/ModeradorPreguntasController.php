@@ -639,7 +639,21 @@ class ModeradorPreguntasController
         $this->asegurarCsrfToken();
         $editandoId = (int) ($formulario['id'] ?? 0);
 
-        $categorias = $this->model->listarCategoriasConDetalle();
+        $porPagina = 7;
+        $paginaInput = Request::get('pagina', '1');
+        $pagina = (is_string($paginaInput) || is_int($paginaInput))
+            ? filter_var($paginaInput, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+            : false;
+        $pagina = $pagina === false ? 1 : $pagina;
+
+        $totalCategorias = $this->model->contarCategorias();
+        $ultimaPagina = max(1, (int) ceil($totalCategorias / $porPagina));
+        $pagina = min($pagina, $ultimaPagina);
+        $offset = ($pagina - 1) * $porPagina;
+        $desde = $totalCategorias === 0 ? 0 : $offset + 1;
+        $hasta = min($offset + $porPagina, $totalCategorias);
+
+        $categorias = $this->model->listarCategoriasConDetalle($porPagina, $offset);
         foreach ($categorias as &$categoria) {
             $categoria['editando'] = (int) $categoria['id'] === $editandoId;
             $categoria['activa'] = (int) ($categoria['is_active'] ?? 1) === 1;
@@ -658,6 +672,15 @@ class ModeradorPreguntasController
             'formIcono' => $formulario['icono'] ?? null,
             'error' => $error,
             'mensaje' => $mensaje,
+            'totalCategorias' => $totalCategorias,
+            'desde' => $desde,
+            'hasta' => $hasta,
+            'paginaActual' => $pagina,
+            'totalPaginas' => $ultimaPagina,
+            'paginaAnterior' => $pagina - 1,
+            'paginaSiguiente' => $pagina + 1,
+            'hayPaginaAnterior' => $pagina > 1,
+            'hayPaginaSiguiente' => $pagina < $ultimaPagina,
         ]);
     }
 

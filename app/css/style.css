@@ -1669,7 +1669,8 @@ body:has(.home-shell) .footer-content { min-height: 132px; }
 .moderador-tabla-preguntas .pregunta-inactiva td { color: var(--texto-tenue); }
 .moderador-tabla-preguntas .pregunta-inactiva .moderador-imagen-estado { color: var(--texto-sec); }
 .moderador-paginacion { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; color: var(--texto-tenue); font-size: var(--moderador-texto-secundario); }
-.moderador-paginacion nav { display: flex; gap: 7px; }
+.moderador-paginacion nav,
+.moderador-paginacion-acciones { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
 /* PAGINACION DE PREGUNTAS: ESTILOS PARA ENLACES Y CONTROLES DESHABILITADOS. */
 .moderador-paginacion button, .moderador-paginacion a, .moderador-paginacion .paginacion-deshabilitada { min-height: 30px; display: inline-flex; align-items: center; padding: 0 10px; border: 1px solid var(--borde-fuerte); border-radius: 8px; background: transparent; color: var(--texto-sec); font: 600 var(--moderador-texto-interfaz) var(--fuente); text-decoration: none; }
 .moderador-paginacion .paginacion-deshabilitada { opacity: .5; cursor: not-allowed; }

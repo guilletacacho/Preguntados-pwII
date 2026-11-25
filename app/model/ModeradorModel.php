@@ -602,14 +602,27 @@ class ModeradorModel
     return (int) ($fila['total'] ?? 0);
     }
 
-    public function listarCategoriasConDetalle(){
+    public function contarCategorias(){
+
+        $sql = "SELECT COUNT(*) AS total FROM category";
+
+        $fila = $this->database->queryOne($sql);
+
+        return (int) ($fila['total'] ?? 0);
+    }
+
+    public function listarCategoriasConDetalle($limite = 7, $offset = 0){
+
+        $limite = max(1, (int) $limite);
+        $offset = max(0, (int) $offset);
 
         $sql = "SELECT c.id, c.name, c.color, c.icono, c.is_active,
                        SUM(CASE WHEN q.id IS NOT NULL AND q.is_active = 1 AND c.is_active = 1 THEN 1 ELSE 0 END) AS preguntas
                 FROM category c
                 LEFT JOIN questions q ON q.category_id = c.id
                 GROUP BY c.id, c.name, c.color, c.icono, c.is_active
-                ORDER BY c.name";
+                ORDER BY c.name
+                LIMIT {$limite} OFFSET {$offset}";
 
         return $this->database->queryAll($sql);
     }
