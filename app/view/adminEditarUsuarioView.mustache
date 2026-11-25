@@ -4,8 +4,8 @@
         <header class="moderador-editor-encabezado">
             <a class="moderador-editor-volver" href="{{basePath}}/admin/usuarios">← Volver a usuarios</a>
             <span class="moderador-eyebrow">ADMINISTRACIÓN</span>
-            <h1>Editar usuario</h1>
-            <p>Modificá los datos de <strong>{{usuario}}</strong>. Dejá la contraseña vacía para mantener la actual.</p>
+            <h1>{{usuario}}</h1>
+            <p>Los datos los carga el usuario desde su perfil. Desde acá solo se puede cambiar el rol.</p>
         </header>
         {{> adminNavegacion}}
 
@@ -15,81 +15,40 @@
 
         <div class="moderador-correccion-columnas admin-editar-usuario-columnas">
             <article class="moderador-correccion-formulario">
-                <form method="post" action="{{basePath}}/admin/actualizarUsuario">
-                <input type="hidden" name="id" value="{{id}}">
-                <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                <h2 class="admin-ficha-titulo">Datos de la cuenta</h2>
+                <dl class="admin-ficha">
+                    <div><dt>Nombre</dt><dd>{{nombre}}</dd></div>
+                    <div><dt>Nombre de usuario</dt><dd>{{usuario}}</dd></div>
+                    <div><dt>Correo</dt><dd>{{email}}</dd></div>
+                    <div><dt>Nacimiento</dt><dd>{{fechaNacimiento}}</dd></div>
+                    <div><dt>Sexo</dt><dd>{{sexoTexto}}</dd></div>
+                    <div><dt>Ubicación</dt><dd>{{#provincia}}{{provincia}}, {{/provincia}}{{pais}}</dd></div>
+                    <div><dt>Correo verificado</dt><dd>{{#verificado}}Sí{{/verificado}}{{^verificado}}No{{/verificado}}</dd></div>
+                    <div><dt>Estado</dt><dd>{{#bloqueado}}<span class="admin-estado-bloqueado">Bloqueado</span>{{/bloqueado}}{{^bloqueado}}Activo{{/bloqueado}}</dd></div>
+                    <div><dt>Alta</dt><dd>{{#fechaAlta}}{{fechaAlta}}{{/fechaAlta}}{{^fechaAlta}}Sin registro{{/fechaAlta}}</dd></div>
+                </dl>
 
-                <label for="nombre">Nombre</label>
-                <input id="nombre" name="nombre" type="text" value="{{nombre}}" maxlength="50" required>
-
-                <label for="usuario">Nombre de usuario</label>
-                <input id="usuario" name="usuario" type="text" value="{{usuario}}" minlength="3" maxlength="255" required>
-
-                <label for="email">Correo</label>
-                <input id="email" name="email" type="email" value="{{email}}" maxlength="255" required>
-
-                <label for="contrasena">Nueva contraseña (opcional)</label>
-                <input id="contrasena" name="contrasena" type="password" minlength="8" autocomplete="new-password">
-                <span class="moderador-item-meta">Si la completás, debe tener al menos 8 caracteres.</span>
-
-                <div class="admin-nacimiento-edicion">
-                    <div>
-                        <label for="anioNacimiento">Año de nacimiento</label>
-                        <input id="anioNacimiento" name="anioNacimiento" type="number" value="{{anioNacimiento}}" min="{{anioMinimoNacimiento}}" max="{{anioActual}}" required>
-                    </div>
-                    <div>
-                        <label for="mesNacimiento">Mes</label>
-                        <select id="mesNacimiento" name="mesNacimiento" required>
-                            <option value="" {{^mesNacimiento}}selected{{/mesNacimiento}} disabled>Elegí</option>
-                            {{#meses}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/meses}}
-                        </select>
-                    </div>
-                    <div>
-                        <label for="diaNacimiento">Día</label>
-                        <select id="diaNacimiento" name="diaNacimiento" required>
-                            <option value="" {{^diaNacimiento}}selected{{/diaNacimiento}} disabled>Elegí</option>
-                            {{#dias}}<option value="{{valor}}" {{#selected}}selected{{/selected}}>{{etiqueta}}</option>{{/dias}}
-                        </select>
-                    </div>
-                </div>
-
-                <label for="sexo">Sexo</label>
-                <select id="sexo" name="sexo">
-                    {{#sexos}}<option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>{{/sexos}}
-                </select>
-
-                <label for="provincia">Provincia</label>
-                <input id="provincia" name="provincia" type="text" value="{{provincia}}" maxlength="150" required>
-
-                <label for="pais">País</label>
-                <input id="pais" name="pais" type="text" value="{{pais}}" maxlength="150" required>
-
-                <label for="rol">Rol</label>
+                <h2 class="admin-ficha-titulo">Rol</h2>
                 {{#rolFijoAdmin}}
-                    <input type="hidden" name="rol" value="ADMIN">
-                    <p class="admin-rol-fijo">Administrador (único)</p>
+                    <p class="admin-rol-fijo">{{rolTexto}}</p>
+                    <span class="moderador-item-meta">El rol de un administrador no se puede cambiar.</span>
                 {{/rolFijoAdmin}}
                 {{^rolFijoAdmin}}
-                    <select id="rol" name="rol">
-                        {{#roles}}
-                            <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
-                        {{/roles}}
-                    </select>
+                    <form class="admin-form-rol" method="post" action="{{basePath}}/admin/actualizarUsuario">
+                        <input type="hidden" name="id" value="{{id}}">
+                        <input type="hidden" name="csrf_token" value="{{csrfToken}}">
+                        <label class="visually-hidden" for="rol">Rol de {{usuario}}</label>
+                        <select id="rol" name="rol">
+                            {{#roles}}
+                                <option value="{{value}}" {{#seleccionado}}selected{{/seleccionado}}>{{label}}</option>
+                            {{/roles}}
+                        </select>
+                        <div class="moderador-acciones">
+                            <button class="moderador-boton moderador-boton-resolver" type="submit">Guardar rol</button>
+                            <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Cancelar</a>
+                        </div>
+                    </form>
                 {{/rolFijoAdmin}}
-
-                <label class="moderador-correccion-radio admin-check-card" for="verificado">
-                    <input id="verificado" name="verificado" type="checkbox" value="1" {{#verificado}}checked{{/verificado}}>
-                    <span class="admin-check-copy">
-                        <strong>Correo verificado</strong>
-                        <small>Puede iniciar sesión en el sitio.</small>
-                    </span>
-                </label>
-
-                <div class="moderador-acciones">
-                    <button class="moderador-boton moderador-boton-resolver" type="submit">Guardar cambios</button>
-                    <a class="moderador-boton moderador-boton-cancelar" href="{{basePath}}/admin/usuarios">Cancelar</a>
-                </div>
-                </form>
             </article>
 
             <aside class="moderador-correccion-contexto admin-foto-perfil" aria-labelledby="admin-foto-perfil-titulo">

@@ -697,6 +697,48 @@
     color: var(--texto);
 }
 
+/* Ficha de solo lectura del usuario (el admin solo cambia el rol). */
+.admin-panel .admin-ficha-titulo {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.admin-panel .admin-ficha {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+    margin: 0 0 22px;
+}
+
+.admin-panel .admin-ficha div {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borde);
+    min-width: 0;
+}
+
+.admin-panel .admin-ficha dt {
+    color: var(--texto-tenue);
+    font-size: var(--moderador-texto-pequeno);
+    font-weight: 600;
+}
+
+.admin-panel .admin-ficha dd {
+    margin: 2px 0 0;
+    color: var(--texto);
+    overflow-wrap: anywhere;
+}
+
+.admin-panel .admin-form-rol {
+    display: grid;
+    gap: 12px;
+    max-width: 320px;
+}
+
+@media (max-width: 560px) {
+    .admin-panel .admin-ficha { grid-template-columns: minmax(0, 1fr); }
+}
+
 .admin-panel .home-side-toggle[aria-expanded="true"],
 .admin-panel .home-side-menu.is-expanded .home-side-toggle {
     background: var(--superficie);
