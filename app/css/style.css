@@ -1912,6 +1912,96 @@ body:has(.home-shell) .footer-content { min-height: 132px; }
     .perfil-acciones { flex-direction: column; }
 }
 
+/* Cada partida como un camino: un casillero por pregunta con el personaje de su categoría. */
+/* Partidas a la izquierda y, al costado, categorías y mapa: en escritorio entra todo sin scroll. */
+.perfil-contenido { gap: 1.75rem; }
+.perfil-tablero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 1.5rem; align-items: start; }
+.perfil-lateral { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+.perfil-lateral h2, .perfil-caminos h2 { margin: 0; }
+
+.perfil-caminos { display: flex; flex-direction: column; gap: .75rem; min-width: 0; }
+.perfil-caminos-encabezado { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .3rem 1.25rem; }
+.perfil-caminos-encabezado p { margin: 0; color: var(--texto-sec); font-size: .82rem; }
+
+.perfil-camino-lista { display: flex; flex-direction: column; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.perfil-camino {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .6rem 1.25rem;
+    padding: .65rem 1rem;
+    border-radius: 14px;
+    background: var(--superficie);
+}
+.perfil-camino-destacado { background: #303B49; }
+.perfil-camino-dato { flex: 0 0 185px; display: flex; flex-direction: column; line-height: 1.35; }
+.perfil-camino-dato strong { font-size: .92rem; font-weight: 700; }
+.perfil-camino-dato span { color: var(--texto-sec); font-size: .8rem; }
+.perfil-camino-dato em { color: #A5DB7C; font-style: normal; font-weight: 700; }
+.perfil-camino-recorrido { flex: 1 1 320px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; row-gap: .5rem; }
+.perfil-camino-largada { width: 12px; height: 12px; border-radius: 50%; background: #F5E6C8; }
+.perfil-camino-tramo { width: 14px; height: 2px; background: var(--borde-fuerte); }
+
+.perfil-casillero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    box-sizing: border-box;
+    border-radius: 11px;
+    background: var(--categoria);
+    animation: perfil-paso 300ms cubic-bezier(.23, 1, .32, 1) both;
+}
+.perfil-casillero img { width: 33px; height: 33px; }
+.perfil-casillero-errado { border: 2px dashed var(--categoria); background: transparent; }
+.perfil-casillero-errado img { opacity: .4; filter: grayscale(1); }
+.perfil-casillero-errado::before,
+.perfil-casillero-errado::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 26px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--error);
+}
+.perfil-casillero-errado::before { transform: translate(-50%, -50%) rotate(45deg); }
+.perfil-casillero-errado::after { transform: translate(-50%, -50%) rotate(-45deg); }
+@keyframes perfil-paso { from { transform: translateX(-10px) scale(.96); } to { transform: none; } }
+
+.perfil-fin { padding: .3rem .65rem; border-radius: 9px; font-size: .78rem; font-weight: 700; }
+.perfil-fin-perdio { background: #3A2629; color: #FFB1AA; }
+.perfil-fin-abandono { background: #3A3326; color: #F2C46B; }
+.perfil-fin-termino { background: #2A3A2B; color: #A5DB7C; }
+
+/* Aciertos por categoría: lista angosta para la columna lateral. */
+.perfil-categorias { display: flex; flex-direction: column; gap: .65rem; padding: 1rem 1.15rem; border-radius: 14px; background: var(--superficie); }
+.perfil-categorias ul { display: flex; flex-direction: column; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.perfil-categorias li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: .6rem; align-items: center; font-size: .88rem; }
+.perfil-categorias img { width: 26px; height: 26px; }
+.perfil-categorias strong { font-weight: 600; overflow-wrap: anywhere; }
+.perfil-categorias span { color: var(--texto-sec); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.perfil-categoria-pendiente img { opacity: .35; filter: grayscale(1); }
+.perfil-categoria-pendiente strong { color: var(--texto-sec); font-weight: 500; }
+
+.perfil-donde { display: flex; flex-direction: column; gap: .65rem; }
+.perfil-donde .perfil-mapa { height: 190px; min-height: 0; }
+.perfil-donde .ubicacion-mapa-estado { font-size: .8rem; }
+
+@media (max-width: 1499.98px) {
+    .perfil-tablero { grid-template-columns: minmax(0, 1fr); }
+    .perfil-lateral { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: start; }
+}
+@media (max-width: 575.98px) {
+    .perfil-camino-dato { flex-basis: 100%; }
+    .perfil-camino-tramo { width: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .perfil-casillero { animation: none; }
+}
+
 /* ── Editar perfil ───────────────────────────────── */
 /* Reusa la grilla del registro; solo agrega lo que no existe allá. */
 .editar-volver { display: inline-flex; align-items: center; gap: .35rem; margin-bottom: .9rem; color: var(--texto-sec); font-size: .88rem; font-weight: 600; text-decoration: none; }
