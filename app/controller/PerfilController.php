@@ -40,11 +40,11 @@ class PerfilController
 
             $partidasView[] = [
                 'estado' => $esFinalizada ? 'FINALIZADA' : 'ABANDONADA',
-                'fecha' => $partida['finished_at']
-                ? date('d/m/Y', strtotime($partida['finished_at']))
-                : '',
-                'horario' => $partida['finished_at']
-                ? date('H:i', strtotime($partida['finished_at']))
+                'fechaUtc' => $partida['finished_at']
+                ? (new \DateTimeImmutable(
+                    $partida['finished_at'],
+                    new \DateTimeZone('UTC')
+                ))->format('Y-m-d\TH:i:s\Z')
                 : '',
                 'esFinalizada' => $esFinalizada,
                 'esAbandonada' => $esAbandonada,

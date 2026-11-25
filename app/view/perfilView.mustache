@@ -70,8 +70,7 @@
                     <li>
                         <div class="perfil-partida-texto">
                             <strong>Estado: {{estado}}</strong>
-                            <span>Fecha: {{fecha}} · Horario: {{horario}}{{#esFinalizada}} · Puntos: {{puntos}}{{/esFinalizada}}{{#esAbandonada}} · Puntos perdidos: {{puntos}}{{/esAbandonada}}</span>
-                        </div>
+                            <span>Fecha: <time class="fecha-partida" datetime="{{fechaUtc}}"></time>{{#esFinalizada}} · Puntos: {{puntos}}{{/esFinalizada}}{{#esAbandonada}} · Puntos perdidos: {{puntos}}{{/esAbandonada}}</span></div>
                     </li>
                     {{/partidas}}
                     </ul>
@@ -104,3 +103,16 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{basePath}}/public/js/ubicacion-mapa.js" defer></script>
 <script src="{{basePath}}/public/js/perfil.js" defer></script>
+
+<script>
+document.querySelectorAll('.fecha-partida').forEach(function (elemento) {
+    var fecha = new Date(elemento.dateTime);
+
+    if (!Number.isNaN(fecha.getTime())) {
+        elemento.textContent = new Intl.DateTimeFormat(navigator.language, {
+            dateStyle: 'short',
+            timeStyle: 'short'
+        }).format(fecha);
+    }
+});
+</script>
