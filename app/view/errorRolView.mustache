@@ -9,10 +9,9 @@
     </div>
     <section class="error-rol-content ranking-container" aria-labelledby="error-rol-titulo">
         <div class="error-rol-mensaje">
-            <span class="eyebrow">ACCESO RESTRINGIDO</span>
-            <h1 id="error-rol-titulo">No tenés permisos para acceder a esta sección.</h1>
-            <p>Sección solicitada: <strong>{{seccion}}</strong>.</p>
-            <a class="submit-btn error-rol-boton" href="{{basePath}}/home/show">Volver al inicio</a>
+            <span class="eyebrow">ERROR</span>
+            <h1 id="error-rol-titulo">Hubo un error en el sitio.</h1>
+            <p>Redirigiendo al inicio...</p>
         </div>
     </section>
     <div class="ranking-characters ranking-characters-right" aria-hidden="true">
@@ -59,15 +58,13 @@
         font-size: clamp(1.6rem, 4vw, 2.5rem);
     }
 
-    .error-rol-boton {
-        display: inline-flex;
-        min-width: 220px;
-        min-height: 54px;
-        align-items: center;
-        justify-content: center;
-        padding: .9rem 2rem;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 700;
-    }
 </style>
+
+<script>
+    (() => {
+        const destino = '{{basePath}}/home/show';
+        window.setTimeout(() => {
+            window.location.href = destino;
+        }, 500);
+    })();
+</script>
