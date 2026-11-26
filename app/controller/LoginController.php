@@ -70,14 +70,25 @@ class LoginController
         $_SESSION['rol'] = $usuario['rol'];
         $_SESSION['version_sesion'] = (int) $usuario['version_sesion'];
         $this->presence->touch($usuario['id'], session_id());
-        Redirect::to($usuario['rol'] === 'ADMIN' ? '/Preguntados/admin' : '/Preguntados/home');
+        if ($usuario['rol'] === 'ADMIN') {
+            Redirect::to('/Preguntados/admin');
+        } elseif ($usuario['rol'] === 'MODERADOR') {
+            Redirect::to('/Preguntados/moderador');
+        } else {
+            Redirect::to('/Preguntados/home');
+        }
     }
 
     private function destinoInicio()
     {
-        return ($_SESSION['rol'] ?? '') === 'ADMIN'
-            ? '/Preguntados/admin'
-            : '/Preguntados/home';
+        $rol = $_SESSION['rol'] ?? '';
+        if ($rol === 'ADMIN') {
+            return '/Preguntados/admin';
+        }
+        if ($rol === 'MODERADOR') {
+            return '/Preguntados/moderador';
+        }
+        return '/Preguntados/home';
     }
 
     public function logout()
