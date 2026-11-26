@@ -542,6 +542,11 @@
 .admin-panel .admin-tabla-usuarios-contenedor {
     max-height: none;
     overscroll-behavior-y: auto;
+    transition: opacity .15s ease;
+}
+
+.admin-panel .admin-tabla-usuarios-contenedor.is-loading {
+    opacity: .6;
 }
 
 .admin-panel .admin-tabla-usuarios {
@@ -549,13 +554,13 @@
 }
 
 .admin-panel .admin-tabla-usuarios th:nth-child(1),
-.admin-panel .admin-tabla-usuarios td:nth-child(1) { width: 12%; }
-.admin-panel .admin-tabla-usuarios th:nth-child(2) { width: 21%; }
+.admin-panel .admin-tabla-usuarios td:nth-child(1) { width: 15%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(2) { width: 25%; }
 .admin-panel .admin-tabla-usuarios th:nth-child(3) { width: 14%; }
-.admin-panel .admin-tabla-usuarios th:nth-child(4) { width: 11%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(4) { width: 12%; }
 .admin-panel .admin-tabla-usuarios th:nth-child(5) { width: 8%; }
 .admin-panel .admin-tabla-usuarios th:nth-child(6) { width: 12%; }
-.admin-panel .admin-tabla-usuarios th:nth-child(7) { width: 24%; }
+.admin-panel .admin-tabla-usuarios th:nth-child(7) { width: 14%; }
 
 .admin-panel .admin-tabla-usuarios th,
 .admin-panel .admin-tabla-usuarios td {
@@ -582,8 +587,14 @@
 
 .admin-panel .admin-usuario-acciones {
     display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-panel .admin-usuario-acciones form {
+    display: inline-flex;
+    margin: 0;
 }
 
 /* Acciones de la tabla con el estilo del botón "Sugerir una pregunta" del inicio. */
@@ -603,6 +614,20 @@
     transition: background .2s, color .2s;
 }
 
+.admin-panel .admin-usuario-acciones .admin-accion-icono {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    flex: 0 0 36px;
+}
+
+.admin-panel .admin-usuario-acciones .admin-accion-icono svg {
+    width: 17px;
+    height: 17px;
+    display: block;
+    pointer-events: none;
+}
+
 .admin-panel .admin-usuario-acciones .moderador-boton:hover {
     background: var(--accion-color);
     color: var(--fondo);
@@ -610,6 +635,7 @@
 
 .admin-panel .admin-usuario-acciones .moderador-boton-corregir { --accion-color: var(--link); }
 .admin-panel .admin-usuario-acciones .admin-boton-bloqueo { --accion-color: var(--arte); }
+.admin-panel .admin-usuario-acciones .admin-boton-desbloqueo { --accion-color: var(--deporte); }
 .admin-panel .admin-usuario-acciones .moderador-boton-descartar { --accion-color: var(--error); }
 
 .admin-panel .admin-estado-bloqueado,

@@ -80,14 +80,55 @@ class AdminController
     {
         AdminAccess::exigir($this->model);
         header('Cache-Control: no-store');
+        $this->asegurarCsrfToken();
 
+        $listado = $this->datosListadoUsuarios();
+        $filtros = $listado['filtros'];
+
+        $datos = $listado + [
+            'esUsuarios' => true,
+            'roles' => $this->opcionesConSeleccion(['' => 'Todos los roles'] + self::ROLES, $filtros['rol']),
+            'estados' => $this->opcionesConSeleccion(self::ESTADOS, $filtros['estado']),
+            'ordenes' => $this->opcionesConSeleccion(self::ORDENES, $filtros['orden']),
+            'mensaje' => $this->consumirMensaje(),
+        ];
+
+        $this->render->renderiza('adminUsuarios', $datos);
+    }
+
+    public function usuariosAjax()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+
+        if (!isset($_SESSION['usuario_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Tu sesión venció. Volvé a iniciar sesión.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if (!$this->model->esAdmin((int) $_SESSION['usuario_id'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'No tenés permisos para consultar usuarios.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $_SESSION['rol'] = 'ADMIN';
+        $this->asegurarCsrfToken();
+
+        echo json_encode(
+            $this->datosListadoUsuarios(),
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+    }
+
+    private function datosListadoUsuarios()
+    {
         $filtros = $this->filtrosUsuarios();
         $pagina = max(1, $this->leerId(Request::get('pagina')));
         $resultado = $this->model->listarUsuarios($filtros['rol'], $filtros['busqueda'], $pagina, 10, $filtros);
-        $this->asegurarCsrfToken();
 
-        $datos = [
-            'esUsuarios' => true,
+        return [
             'usuarios' => $resultado['usuarios'],
             'totalUsuarios' => $resultado['total'],
             'pagina' => $resultado['pagina'],
@@ -97,16 +138,10 @@ class AdminController
             'hayPaginaAnterior' => $resultado['pagina'] > 1,
             'hayPaginaSiguiente' => $resultado['pagina'] < $resultado['paginas'],
             'queryFiltros' => http_build_query($filtros),
-            'roles' => $this->opcionesConSeleccion(['' => 'Todos los roles'] + self::ROLES, $filtros['rol']),
-            'estados' => $this->opcionesConSeleccion(self::ESTADOS, $filtros['estado']),
-            'ordenes' => $this->opcionesConSeleccion(self::ORDENES, $filtros['orden']),
             'filtros' => $filtros,
             'errorFechas' => $filtros['desde'] !== '' && $filtros['hasta'] !== '' && $filtros['desde'] > $filtros['hasta'],
             'csrfToken' => $_SESSION['csrf_admin'],
-            'mensaje' => $this->consumirMensaje(),
         ];
-
-        $this->render->renderiza('adminUsuarios', $datos);
     }
 
     public function historial()
